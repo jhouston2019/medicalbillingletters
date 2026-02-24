@@ -66,8 +66,16 @@ CREATE TABLE IF NOT EXISTS public.claim_letters (
 -- ============================================================================
 
 -- CRITICAL: One letter per payment (database-enforced)
-ALTER TABLE public.claim_letters 
-ADD CONSTRAINT one_letter_per_payment UNIQUE (stripe_session_id);
+-- Add constraint only if it doesn't exist
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'one_letter_per_payment'
+  ) THEN
+    ALTER TABLE public.claim_letters 
+    ADD CONSTRAINT one_letter_per_payment UNIQUE (stripe_session_id);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- PART 3: CREATE INDEXES (Performance)
@@ -101,7 +109,15 @@ ON public.claim_letters(user_id, payment_status, letter_generated);
 -- PART 4: ENABLE ROW LEVEL SECURITY (RLS)
 -- ============================================================================
 
-ALTER TABLE public.claim_letters ENABLE ROW LEVEL SECURITY;
+-- Enable RLS only if not already enabled
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_tables WHERE tablename = 'claim_letters' AND rowsecurity = true
+  ) THEN
+    ALTER TABLE public.claim_letters ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Users can view own claim letters" ON public.claim_letters;
@@ -145,6 +161,7 @@ CREATE POLICY "Service role full access" ON public.claim_letters
 -- PART 5: CREATE UPDATED_AT TRIGGER
 -- ============================================================================
 
+-- Create function (CREATE OR REPLACE handles existing)
 CREATE OR REPLACE FUNCTION public.update_claim_letters_updated_at()
 RETURNS trigger AS $$
 BEGIN
@@ -153,6 +170,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop and recreate trigger
 DROP TRIGGER IF EXISTS update_claim_letters_updated_at ON public.claim_letters;
 
 CREATE TRIGGER update_claim_letters_updated_at
