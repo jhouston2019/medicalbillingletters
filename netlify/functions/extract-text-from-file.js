@@ -11,6 +11,8 @@
 const pdfParse = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const { getSupabaseAdmin } = require('./_supabase');
+const { verifyOwnership } = require('./_helpers/ownership-verifier');
+const { validateFileSize, validateMimeType, validateTextLength, MAX_PDF_PAGES } = require('./_helpers/file-validator');
 
 // LIMITS TO PREVENT ABUSE
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -47,7 +49,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { filePath, fileType, documentId } = JSON.parse(event.body || '{}');
+    const { filePath, fileType, documentId, userId } = JSON.parse(event.body || '{}');
     
     if (!filePath) {
       return {
@@ -58,6 +60,24 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify({ error: 'File path is required' })
       };
+    }
+
+    // OWNERSHIP VERIFICATION: Verify user owns this document
+    if (documentId && userId) {
+      const ownership = await verifyOwnership(documentId, userId);
+      if (!ownership.verified) {
+        return {
+          statusCode: ownership.statusCode || 403,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          body: JSON.stringify({
+            error: 'Access denied',
+            message: ownership.error
+          })
+        };
+      }
     }
 
     console.log('Extracting text from:', filePath, 'Type:', fileType);
@@ -76,8 +96,15 @@ exports.handler = async (event) => {
     const fileSize = fileData.size;
     console.log('File size:', fileSize, 'bytes');
     
-    if (fileSize > MAX_FILE_SIZE) {
-      throw new Error(`File size (${Math.round(fileSize / 1024 / 1024)}MB) exceeds maximum allowed (10MB)`);
+    const sizeValidation = validateFileSize(fileSize);
+    if (!sizeValidation.valid) {
+      throw new Error(sizeValidation.error);
+    }
+
+    // SERVER-SIDE MIME TYPE VALIDATION
+    const mimeValidation = validateMimeType(fileType, filePath);
+    if (!mimeValidation.valid) {
+      throw new Error(mimeValidation.error);
     }
 
     let extractedText = '';
@@ -136,12 +163,9 @@ exports.handler = async (event) => {
     // Validate extracted text
     const trimmedText = extractedText.trim();
     
-    if (!trimmedText || trimmedText.length < MIN_TEXT_LENGTH) {
-      throw new Error(
-        `Could not extract sufficient text from file. ` +
-        `Extracted ${trimmedText.length} characters, minimum ${MIN_TEXT_LENGTH} required. ` +
-        `The file may be empty, corrupted, or contain only images.`
-      );
+    const textValidation = validateTextLength(trimmedText);
+    if (!textValidation.valid) {
+      throw new Error(textValidation.error);
     }
     
     // Truncate if extremely long (cost protection)

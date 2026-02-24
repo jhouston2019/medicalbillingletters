@@ -200,12 +200,8 @@
                 return;
             }
             
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            if (!hasPaid) {
-                alert('Payment required. Redirecting to payment page...');
-                window.location.href = '/payment.html';
-                return;
-            }
+            // Payment verification happens server-side on API calls
+            // No client-side checks - all enforcement in backend
         });
         
         document.getElementById('analyzeBtn').addEventListener('click', async () => {

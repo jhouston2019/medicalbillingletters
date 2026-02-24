@@ -14,7 +14,15 @@ const RATE_LIMITS = {
 };
 
 function getRateLimitKey(ip, userId, action) {
-  return `${action}:${userId || ip}`;
+  // Combine both IP and userId for stronger rate limiting
+  // This prevents bypass via VPN rotation OR new account creation
+  if (userId && ip) {
+    return `${action}:user:${userId}:ip:${ip}`;
+  } else if (userId) {
+    return `${action}:user:${userId}`;
+  } else {
+    return `${action}:ip:${ip}`;
+  }
 }
 
 function checkRateLimit(key, limit) {
@@ -27,9 +35,11 @@ function checkRateLimit(key, limit) {
   }
 
   if (record.count >= limit.maxRequests) {
+    console.warn(`Rate limit exceeded for key: ${key}`);
     return {
       allowed: false,
-      retryAfter: Math.ceil((record.resetTime - now) / 1000)
+      retryAfter: Math.ceil((record.resetTime - now) / 1000),
+      remaining: 0
     };
   }
 
@@ -38,7 +48,8 @@ function checkRateLimit(key, limit) {
 
   return {
     allowed: true,
-    remaining: limit.maxRequests - record.count
+    remaining: limit.maxRequests - record.count,
+    resetTime: record.resetTime
   };
 }
 

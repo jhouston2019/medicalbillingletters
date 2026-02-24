@@ -12,6 +12,7 @@ const OpenAI = require("openai");
 const { getSupabaseAdmin } = require("./_supabase");
 const { canGenerateLetter, markPaymentUsed } = require("./payment-enforcer");
 const { prepareForOpenAI, getSafeOpenAIParams } = require("./cost-protector");
+const { sanitizeLetter } = require("./_helpers/sanitizer");
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -240,11 +241,14 @@ Make it professional, factual, and ready to mail.`;
       ]
     });
 
-    const generatedLetter = completion.choices?.[0]?.message?.content;
+    const rawLetter = completion.choices?.[0]?.message?.content;
 
-    if (!generatedLetter) {
+    if (!rawLetter) {
       throw new Error('No letter generated from AI');
     }
+
+    // SANITIZE OUTPUT: Remove any potential XSS
+    const generatedLetter = sanitizeLetter(rawLetter);
 
     console.log(`Generated letter: ${generatedLetter.length} characters`);
 

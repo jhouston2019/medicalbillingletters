@@ -67,12 +67,8 @@
                 return;
             }
             
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            if (!hasPaid) {
-                alert('Payment required to access dashboard features. Redirecting to payment page...');
-                window.location.href = '/payment.html';
-                return;
-            }
+            // Payment verification happens server-side on API calls
+            // No client-side checks - all enforcement in backend
             
             await loadUserData();
         });

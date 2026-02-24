@@ -67,8 +67,8 @@
     </footer>
 
     <script>
-        // Set the payment flag in localStorage
-        localStorage.setItem("paid", "true");
+        // Payment is tracked server-side in database
+        // No localStorage needed - backend verifies payment status
         
         // Optional: Redirect to upload page after 5 seconds if user doesn't click
         setTimeout(() => {
