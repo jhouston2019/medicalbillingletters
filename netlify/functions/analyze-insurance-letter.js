@@ -32,6 +32,7 @@ const { formatAnalysisOutput, formatHardStopMessage: formatHardStop } = require(
 const { getSupabaseAdmin } = require("./_supabase");
 const { checkRateLimit, getRateLimitKey, getRateLimitForAction } = require("./rate-limiter");
 const { validateClassification, sanitizeText } = require("./input-validator");
+const { verifyPayment } = require("./payment-enforcer");
 
 exports.handler = async (event) => {
   console.log('=== INSURANCE LETTER ANALYSIS START ===');
@@ -50,7 +51,30 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { filePath, fileName, classification, userId } = JSON.parse(event.body || "{}");
+    const { filePath, fileName, classification, userId, email } = JSON.parse(event.body || "{}");
+    
+    // PAYMENT VERIFICATION (SERVER-SIDE)
+    console.log('Verifying payment for user:', userId || email);
+    const paymentVerification = await verifyPayment(userId, email);
+    
+    if (!paymentVerification.verified) {
+      console.log('Payment verification failed:', paymentVerification.error);
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+          error: 'Payment required',
+          message: paymentVerification.error,
+          needsPayment: true,
+          redirectTo: '/payment.html'
+        })
+      };
+    }
+    
+    console.log('Payment verified. Document ID:', paymentVerification.documentId);
     
     // RATE LIMITING
     const clientIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';

@@ -10,6 +10,8 @@
 
 const OpenAI = require("openai");
 const { getSupabaseAdmin } = require("./_supabase");
+const { canGenerateLetter, markPaymentUsed } = require("./payment-enforcer");
+const { prepareForOpenAI, getSafeOpenAIParams } = require("./cost-protector");
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -25,7 +27,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { documentId, userInfo } = JSON.parse(event.body || '{}');
+    const { documentId, userId, userInfo } = JSON.parse(event.body || '{}');
     
     if (!documentId) {
       return {
@@ -38,22 +40,66 @@ exports.handler = async (event) => {
       };
     }
 
-    console.log('Generating letter for document:', documentId);
+    if (!userId) {
+      return {
+        statusCode: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ 
+          error: 'Authentication required',
+          message: 'User ID must be provided'
+        })
+      };
+    }
 
-    // STEP 1: Get document from database
+    console.log('Generating letter for document:', documentId, 'User:', userId);
+
+    // STEP 1: Get document from database WITH USER VERIFICATION
     const supabase = getSupabaseAdmin();
     const { data: document, error: fetchError } = await supabase
       .from('claim_letters')
       .select('*')
       .eq('id', documentId)
+      .eq('user_id', userId) // CRITICAL: Verify ownership
       .single();
 
     if (fetchError || !document) {
-      throw new Error('Document not found');
+      console.error('Document fetch error:', fetchError);
+      return {
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ 
+          error: 'Document not found',
+          message: 'Document does not exist or you do not have permission to access it'
+        })
+      };
     }
 
-    // STEP 2: Verify payment status
-    if (document.payment_status !== 'paid' && document.stripe_payment_status !== 'paid') {
+    // ADDITIONAL SECURITY: Verify user_id matches
+    if (document.user_id !== userId) {
+      console.error('🚨 SECURITY ALERT: User', userId, 'attempted to access document owned by', document.user_id);
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ 
+          error: 'Access denied',
+          message: 'You do not have permission to generate a letter for this document'
+        })
+      };
+    }
+
+    // STEP 2: Verify payment status and generation permission
+    const generationCheck = await canGenerateLetter(document.user_id, documentId);
+    
+    if (!generationCheck.allowed) {
       return {
         statusCode: 403,
         headers: {
@@ -61,8 +107,9 @@ exports.handler = async (event) => {
           'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({
-          error: 'Payment required',
-          message: 'Payment must be completed before generating response letter.'
+          error: 'Cannot generate letter',
+          message: generationCheck.reason,
+          needsPayment: generationCheck.needsPayment
         })
       };
     }
@@ -83,10 +130,20 @@ exports.handler = async (event) => {
       };
     }
 
-    // STEP 4: Get extracted text
+    // STEP 4: Get extracted text and apply cost protection
     const letterText = document.extracted_text || document.letter_text;
     if (!letterText || letterText.length < 50) {
       throw new Error('No extracted text available. Please re-upload the document.');
+    }
+
+    // COST PROTECTION: Truncate input to prevent cost bomb
+    console.log('Original text length:', letterText.length);
+    const preparedInput = prepareForOpenAI(letterText);
+    console.log('Prepared text length:', preparedInput.processedLength);
+    console.log('Estimated cost:', preparedInput.estimatedCost.toFixed(4), 'USD');
+    
+    if (preparedInput.truncated) {
+      console.log('⚠️ Text was truncated from', preparedInput.originalLength, 'to', preparedInput.processedLength, 'characters');
     }
 
     // STEP 5: Prepare user information
@@ -143,7 +200,7 @@ The letter should be ready to print, sign, and mail.`;
     const userPrompt = `Generate a professional insurance claim response letter based on this insurance company letter:
 
 INSURANCE COMPANY LETTER:
-${letterText}
+${preparedInput.text}
 
 CLAIM INFORMATION:
 - Claim Type: ${document.claim_type || 'Not specified'}
@@ -172,10 +229,11 @@ Make it professional, factual, and ready to mail.`;
 
     console.log('Calling OpenAI for letter generation...');
 
+    const safeParams = getSafeOpenAIParams();
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      temperature: 0.3,
-      max_tokens: 2000,
+      ...safeParams,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -190,7 +248,7 @@ Make it professional, factual, and ready to mail.`;
 
     console.log(`Generated letter: ${generatedLetter.length} characters`);
 
-    // STEP 7: Save generated letter to database
+    // STEP 7: Save generated letter to database and mark payment as used
     const { error: updateError } = await supabase
       .from('claim_letters')
       .update({
@@ -203,6 +261,10 @@ Make it professional, factual, and ready to mail.`;
     if (updateError) {
       console.error('Failed to save generated letter:', updateError);
     }
+
+    // STEP 8: Mark payment as used (one payment = one letter)
+    await markPaymentUsed(documentId);
+    console.log('✅ Payment marked as used. No further letters can be generated with this payment.');
 
     // STEP 8: Return generated letter
     return {

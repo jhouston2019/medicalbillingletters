@@ -12,6 +12,27 @@ const pdfParse = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const { getSupabaseAdmin } = require('./_supabase');
 
+// LIMITS TO PREVENT ABUSE
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_PDF_PAGES = 15; // Maximum pages to process
+const OCR_TIMEOUT = 8000; // 8 seconds (Netlify has 10s limit)
+const MIN_TEXT_LENGTH = 50; // Minimum extracted text
+
+/**
+ * Timeout wrapper for async operations
+ * @param {Promise} promise - Promise to wrap
+ * @param {number} timeoutMs - Timeout in milliseconds
+ * @returns {Promise} - Wrapped promise with timeout
+ */
+function withTimeout(promise, timeoutMs) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -51,36 +72,84 @@ exports.handler = async (event) => {
       throw new Error(`Failed to download file: ${downloadError.message}`);
     }
 
+    // SERVER-SIDE FILE SIZE VALIDATION
+    const fileSize = fileData.size;
+    console.log('File size:', fileSize, 'bytes');
+    
+    if (fileSize > MAX_FILE_SIZE) {
+      throw new Error(`File size (${Math.round(fileSize / 1024 / 1024)}MB) exceeds maximum allowed (10MB)`);
+    }
+
     let extractedText = '';
 
     // Extract based on file type
     if (fileType === 'application/pdf' || filePath.toLowerCase().endsWith('.pdf')) {
-      // PDF extraction
+      // PDF extraction with page limit
       console.log('Extracting from PDF...');
       const buffer = await fileData.arrayBuffer();
-      const pdfData = await pdfParse(Buffer.from(buffer));
+      
+      const pdfData = await withTimeout(
+        pdfParse(Buffer.from(buffer), {
+          max: MAX_PDF_PAGES // Limit pages processed
+        }),
+        OCR_TIMEOUT
+      );
+      
       extractedText = pdfData.text;
       
+      console.log(`PDF: ${pdfData.numpages} pages, processed first ${Math.min(pdfData.numpages, MAX_PDF_PAGES)} pages`);
+      
     } else if (fileType?.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(filePath)) {
-      // Image OCR extraction
+      // Image OCR extraction with timeout
       console.log('Extracting from image using OCR...');
       const buffer = await fileData.arrayBuffer();
-      const result = await Tesseract.recognize(
-        Buffer.from(buffer),
-        'eng',
-        {
-          logger: m => console.log(m)
+      
+      try {
+        const result = await withTimeout(
+          Tesseract.recognize(
+            Buffer.from(buffer),
+            'eng',
+            {
+              logger: m => {
+                if (m.status === 'recognizing text') {
+                  console.log(`OCR progress: ${Math.round(m.progress * 100)}%`);
+                }
+              }
+            }
+          ),
+          OCR_TIMEOUT
+        );
+        extractedText = result.data.text;
+        console.log('OCR completed successfully');
+        
+      } catch (ocrError) {
+        if (ocrError.message.includes('timed out')) {
+          throw new Error('OCR processing timed out. The image may be too large or complex. Please try a smaller image or PDF instead.');
         }
-      );
-      extractedText = result.data.text;
+        throw ocrError;
+      }
       
     } else {
       throw new Error('Unsupported file type. Only PDF and images (JPG, PNG) are supported.');
     }
 
     // Validate extracted text
-    if (!extractedText || extractedText.trim().length < 50) {
-      throw new Error('Could not extract sufficient text from file. The file may be empty, corrupted, or contain only images. Minimum 50 characters required.');
+    const trimmedText = extractedText.trim();
+    
+    if (!trimmedText || trimmedText.length < MIN_TEXT_LENGTH) {
+      throw new Error(
+        `Could not extract sufficient text from file. ` +
+        `Extracted ${trimmedText.length} characters, minimum ${MIN_TEXT_LENGTH} required. ` +
+        `The file may be empty, corrupted, or contain only images.`
+      );
+    }
+    
+    // Truncate if extremely long (cost protection)
+    if (trimmedText.length > 50000) {
+      console.log(`⚠️ Text truncated from ${trimmedText.length} to 50000 characters`);
+      extractedText = trimmedText.substring(0, 50000) + '\n\n[TEXT TRUNCATED - Original length: ' + trimmedText.length + ' characters]';
+    } else {
+      extractedText = trimmedText;
     }
 
     console.log(`Extracted ${extractedText.length} characters`);

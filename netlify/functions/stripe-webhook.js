@@ -40,14 +40,20 @@ export async function handler(event) {
             stripe_session_id: session.id,
             stripe_payment_status: session.payment_status,
             payment_status: 'paid',
+            letter_generated: false, // Explicitly mark as not yet generated
             updated_at: new Date().toISOString()
           })
           .eq("id", recordId);
 
         if (error) {
           console.error('Failed to update record:', error);
+          
+          // Check if it's a unique constraint violation (session ID reuse attempt)
+          if (error.code === '23505') {
+            console.error('🚨 SECURITY ALERT: Attempted reuse of Stripe session ID:', session.id);
+          }
         } else {
-          console.log('Payment verified for record:', recordId);
+          console.log('✅ Payment verified for record:', recordId);
         }
       } else if (customerEmail) {
         // Create payment record for user
@@ -58,6 +64,7 @@ export async function handler(event) {
             stripe_session_id: session.id,
             stripe_payment_status: session.payment_status,
             payment_status: 'paid',
+            letter_generated: false, // One payment = one letter (not yet used)
             status: 'payment_completed',
             file_name: 'pending_upload',
             file_path: 'pending_upload'
@@ -65,6 +72,13 @@ export async function handler(event) {
 
         if (error) {
           console.error('Failed to create payment record:', error);
+          
+          // Check if it's a unique constraint violation (session ID reuse attempt)
+          if (error.code === '23505') {
+            console.error('🚨 SECURITY ALERT: Attempted reuse of Stripe session ID:', session.id);
+          }
+        } else {
+          console.log('✅ Payment record created for:', customerEmail);
         }
       }
     }
