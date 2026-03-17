@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Dashboard - ClaimLetterHelp</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      background: #0f172a;
+      color: #fff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .dashboard-header {
+      background: #1e293b;
+      padding: 20px 32px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .dashboard-header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .user-badge {
+      background: #3b82f6;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .logout-btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+      background: #b91c1c;
+    }
+    
+    .dashboard-nav {
+      background: #1e293b;
+      padding: 16px 32px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    
+    .nav-tab {
+      padding: 10px 20px;
+      background: transparent;
+      color: #94a3b8;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    .nav-tab:hover {
+      background: #334155;
+      color: #fff;
+    }
+    
+    .nav-tab.active {
+      background: #3b82f6;
+      color: #fff;
+    }
+    
+    .dashboard-content {
+      padding: 32px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: #1e293b;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+    
+    .stat-label {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    
+    .stat-change {
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .stat-change.positive {
+      color: #22c55e;
+    }
+    
+    .stat-change.negative {
+      color: #ef4444;
+    }
+    
+    .data-table {
+      background: #1e293b;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      overflow: hidden;
+    }
+    
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .table-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .refresh-btn {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .refresh-btn:hover {
+      background: #2563eb;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    thead {
+      background: #0f172a;
+    }
+    
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    td {
+      padding: 16px;
+      border-top: 1px solid #334155;
+      font-size: 0.875rem;
+      color: #cbd5e1;
+    }
+    
+    tbody tr:hover {
+      background: #0f172a;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-completed { background: #166534; color: #86efac; }
+    .status-pending { background: #713f12; color: #fcd34d; }
+    .status-failed { background: #7f1d1d; color: #fca5a5; }
+    .status-uploaded { background: #1e3a8a; color: #93c5fd; }
+    
+    .quality-score {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    
+    .quality-a { color: #22c55e; }
+    .quality-b { color: #84cc16; }
+    .quality-c { color: #f59e0b; }
+    .quality-d { color: #f97316; }
+    .quality-f { color: #ef4444; }
+    
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #94a3b8;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #334155;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .site-nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .site-nav-link {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #fff;
+      text-align: center;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .site-nav-link:hover {
+      background: #334155;
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+    
+    .chart-container {
+      background: #1e293b;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>🛡️ Admin Dashboard</h1>
+    <div class="user-info">
+      <span id="userName">Loading...</span>
+      <span class="user-badge" id="userRole">ADMIN</span>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+  
+  <!-- Navigation Tabs -->
+  <div class="dashboard-nav">
+    <button class="nav-tab active" data-tab="overview">📊 Overview</button>
+    <button class="nav-tab" data-tab="documents">📄 Documents</button>
+    <button class="nav-tab" data-tab="quality">✅ Quality Metrics</button>
+    <button class="nav-tab" data-tab="outcomes">🎯 Outcomes</button>
+    <button class="nav-tab" data-tab="logs">📋 System Logs</button>
+    <button class="nav-tab" data-tab="experiments">🧪 A/B Tests</button>
+    <button class="nav-tab" data-tab="prompts">💬 Prompts</button>
+    <button class="nav-tab" data-tab="site-nav">🌐 Site Pages</button>
+  </div>
+  
+  <!-- Dashboard Content -->
+  <div class="dashboard-content">
+    
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value" id="totalUsers">-</div>
+          <div class="stat-change positive" id="usersChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">Total Documents</div>
+          <div class="stat-value" id="totalDocuments">-</div>
+          <div class="stat-change positive" id="documentsChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">Letters Generated</div>
+          <div class="stat-value" id="lettersGenerated">-</div>
+          <div class="stat-change" id="lettersChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" id="totalRevenue">-</div>
+          <div class="stat-change positive" id="revenueChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">Avg Quality Score</div>
+          <div class="stat-value quality-a" id="avgQuality">-</div>
+          <div class="stat-change" id="qualityChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">Citation Accuracy</div>
+          <div class="stat-value quality-a" id="citationAccuracy">-</div>
+          <div class="stat-change" id="citationChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">Success Rate</div>
+          <div class="stat-value quality-a" id="successRate">-</div>
+          <div class="stat-change" id="successChange">-</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-label">System Errors (24h)</div>
+          <div class="stat-value" id="errors24h">-</div>
+          <div class="stat-change" id="errorsChange">-</div>
+        </div>
+      </div>
+      
+      <div class="data-table">
+        <div class="table-header">
+          <h2>Recent Activity</h2>
+          <button class="refresh-btn" onclick="loadOverviewData()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table id="recentActivityTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Claim Type</th>
+                <th>Status</th>
+                <th>Quality</th>
+                <th>Citation</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody id="recentActivityBody">
+              <tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DOCUMENTS TAB -->
+    <div id="documents" class="tab-content">
+      <div class="data-table">
+        <div class="table-header">
+          <h2>All Documents</h2>
+          <button class="refresh-btn" onclick="loadDocuments()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Created</th>
+                <th>User Email</th>
+                <th>Claim Type</th>
+                <th>Phase</th>
+                <th>Payment</th>
+                <th>Letter Generated</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="documentsBody">
+              <tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- QUALITY METRICS TAB -->
+    <div id="quality" class="tab-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Avg Overall Score</div>
+          <div class="stat-value quality-a" id="qualityOverall">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Generic Score</div>
+          <div class="stat-value" id="qualityGeneric">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Specificity</div>
+          <div class="stat-value" id="qualitySpecificity">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Professional</div>
+          <div class="stat-value" id="qualityProfessional">-</div>
+        </div>
+      </div>
+      
+      <div class="data-table">
+        <div class="table-header">
+          <h2>Quality Assessments</h2>
+          <button class="refresh-btn" onclick="loadQualityMetrics()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Document ID</th>
+                <th>Overall Score</th>
+                <th>Grade</th>
+                <th>Generic</th>
+                <th>Specificity</th>
+                <th>Professional</th>
+                <th>Structure</th>
+                <th>Ready to Send</th>
+              </tr>
+            </thead>
+            <tbody id="qualityMetricsBody">
+              <tr><td colspan="9" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- OUTCOMES TAB -->
+    <div id="outcomes" class="tab-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Outcomes</div>
+          <div class="stat-value" id="totalOutcomes">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Success Rate</div>
+          <div class="stat-value quality-a" id="outcomeSuccessRate">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Recovery %</div>
+          <div class="stat-value" id="avgRecovery">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Days to Resolution</div>
+          <div class="stat-value" id="avgDaysResolution">-</div>
+        </div>
+      </div>
+      
+      <div class="data-table">
+        <div class="table-header">
+          <h2>Outcome Tracking</h2>
+          <button class="refresh-btn" onclick="loadOutcomes()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Document ID</th>
+                <th>Status</th>
+                <th>Result</th>
+                <th>Recovery %</th>
+                <th>Days to Response</th>
+                <th>Days to Resolution</th>
+                <th>Satisfaction</th>
+              </tr>
+            </thead>
+            <tbody id="outcomesBody">
+              <tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- SYSTEM LOGS TAB -->
+    <div id="logs" class="tab-content">
+      <div class="data-table">
+        <div class="table-header">
+          <h2>System Logs (Last 100)</h2>
+          <button class="refresh-btn" onclick="loadLogs()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Event Type</th>
+                <th>Message</th>
+                <th>Duration (ms)</th>
+                <th>Cost ($)</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody id="logsBody">
+              <tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- A/B EXPERIMENTS TAB -->
+    <div id="experiments" class="tab-content">
+      <div class="data-table">
+        <div class="table-header">
+          <h2>A/B Test Experiments</h2>
+          <button class="refresh-btn" onclick="loadExperiments()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Control</th>
+                <th>Test</th>
+                <th>Traffic %</th>
+                <th>Started</th>
+                <th>Completed</th>
+                <th>Winner</th>
+              </tr>
+            </thead>
+            <tbody id="experimentsBody">
+              <tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- PROMPTS TAB -->
+    <div id="prompts" class="tab-content">
+      <div class="data-table">
+        <div class="table-header">
+          <h2>Prompt Versions</h2>
+          <button class="refresh-btn" onclick="loadPrompts()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Status</th>
+                <th>Usage Count</th>
+                <th>Avg Quality</th>
+                <th>Avg Citation</th>
+                <th>Success Rate</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="promptsBody">
+              <tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- SITE NAVIGATION TAB -->
+    <div id="site-nav" class="tab-content">
+      <h2 style="margin-bottom: 24px;">Site Pages & Testing</h2>
+      
+      <div class="site-nav-grid">
+        <a href="/" class="site-nav-link" target="_blank">🏠 Home</a>
+        <a href="/payment.html" class="site-nav-link" target="_blank">💳 Payment</a>
+        <a href="/upload.html" class="site-nav-link" target="_blank">📤 Upload</a>
+        <a href="/resource.html" class="site-nav-link" target="_blank">🤖 AI Analysis</a>
+        <a href="/pricing.html" class="site-nav-link" target="_blank">💰 Pricing</a>
+        <a href="/dashboard.html" class="site-nav-link" target="_blank">📊 User Dashboard</a>
+        <a href="/login.html" class="site-nav-link" target="_blank">🔐 Login</a>
+        <a href="/signup.html" class="site-nav-link" target="_blank">📝 Signup</a>
+        <a href="/thank-you.html" class="site-nav-link" target="_blank">✅ Thank You</a>
+        <a href="/success.html" class="site-nav-link" target="_blank">🎉 Success</a>
+        <a href="/examples.html" class="site-nav-link" target="_blank">📋 Examples</a>
+        <a href="/resources.html" class="site-nav-link" target="_blank">📚 Resources</a>
+        <a href="/privacy.html" class="site-nav-link" target="_blank">🔒 Privacy</a>
+        <a href="/terms.html" class="site-nav-link" target="_blank">📜 Terms</a>
+        <a href="/disclaimer.html" class="site-nav-link" target="_blank">⚠️ Disclaimer</a>
+      </div>
+      
+      <h3 style="margin: 40px 0 24px;">Letter Type Pages</h3>
+      <div class="site-nav-grid">
+        <a href="/insurance-claim-denied-letter.html" class="site-nav-link" target="_blank">❌ Denied</a>
+        <a href="/insurance-claim-delay-letter.html" class="site-nav-link" target="_blank">⏱️ Delay</a>
+        <a href="/insurance-claim-underpaid-letter.html" class="site-nav-link" target="_blank">💸 Underpaid</a>
+        <a href="/bad-faith-insurance-letter.html" class="site-nav-link" target="_blank">⚖️ Bad Faith</a>
+        <a href="/insurance-supervisor-escalation-letter.html" class="site-nav-link" target="_blank">📢 Escalation</a>
+        <a href="/insurance-demand-letter.html" class="site-nav-link" target="_blank">⚡ Demand</a>
+      </div>
+    </div>
+    
+  </div>
+
+  <script type="module">
+    // Auth check
+    const sessionToken = localStorage.getItem('admin_session_token');
+    const adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+    
+    if (!sessionToken) {
+      window.location.href = '/admin-login.html';
+    }
+    
+    // Display user info
+    document.getElementById('userName').textContent = adminUser.fullName || adminUser.email || 'Admin';
+    document.getElementById('userRole').textContent = (adminUser.role || 'admin').toUpperCase();
+    
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/.netlify/functions/admin-logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${sessionToken}` }
+        });
+      } catch (e) {
+        console.error('Logout error:', e);
+      }
+      
+      localStorage.removeItem('admin_session_token');
+      localStorage.removeItem('admin_user');
+      window.location.href = '/admin-login.html';
+    });
+    
+    // Tab navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        // Update active states
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+        
+        // Load data for tab
+        loadTabData(tabName);
+      });
+    });
+    
+    // Load data functions
+    async function apiCall(endpoint) {
+      const response = await fetch(endpoint, {
+        headers: { 'Authorization': `Bearer ${sessionToken}` }
+      });
+      
+      if (response.status === 401) {
+        localStorage.removeItem('admin_session_token');
+        localStorage.removeItem('admin_user');
+        window.location.href = '/admin-login.html';
+        return null;
+      }
+      
+      return await response.json();
+    }
+    
+    async function loadTabData(tabName) {
+      switch(tabName) {
+        case 'overview':
+          await loadOverviewData();
+          break;
+        case 'documents':
+          await loadDocuments();
+          break;
+        case 'quality':
+          await loadQualityMetrics();
+          break;
+        case 'outcomes':
+          await loadOutcomes();
+          break;
+        case 'logs':
+          await loadLogs();
+          break;
+        case 'experiments':
+          await loadExperiments();
+          break;
+        case 'prompts':
+          await loadPrompts();
+          break;
+      }
+    }
+    
+    window.loadOverviewData = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-dashboard-stats');
+        
+        if (data) {
+          // Update stats
+          document.getElementById('totalUsers').textContent = data.stats.total_users || 0;
+          document.getElementById('totalDocuments').textContent = data.stats.total_documents || 0;
+          document.getElementById('lettersGenerated').textContent = data.stats.letters_generated || 0;
+          document.getElementById('totalRevenue').textContent = '$' + (data.stats.total_revenue || 0).toLocaleString();
+          document.getElementById('avgQuality').textContent = (data.stats.avg_quality_7d || 0).toFixed(1) + '%';
+          document.getElementById('citationAccuracy').textContent = (data.stats.avg_citation_accuracy_7d || 0).toFixed(1) + '%';
+          document.getElementById('successRate').textContent = data.stats.total_outcomes > 0 
+            ? ((data.stats.successful_outcomes / data.stats.total_outcomes) * 100).toFixed(1) + '%'
+            : 'N/A';
+          document.getElementById('errors24h').textContent = data.stats.errors_24h || 0;
+          
+          // Update changes
+          document.getElementById('usersChange').textContent = `+${data.stats.new_users_7d || 0} this week`;
+          document.getElementById('documentsChange').textContent = `+${data.stats.new_documents_7d || 0} this week`;
+          document.getElementById('revenueChange').textContent = `+$${data.stats.revenue_7d || 0} this week`;
+          
+          // Update recent activity table
+          const tbody = document.getElementById('recentActivityBody');
+          if (data.recentActivity && data.recentActivity.length > 0) {
+            tbody.innerHTML = data.recentActivity.map(item => `
+              <tr>
+                <td>${new Date(item.created_at).toLocaleString()}</td>
+                <td>${item.user_email || 'N/A'}</td>
+                <td>${item.claim_type || 'N/A'}</td>
+                <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+                <td class="quality-${getQualityGrade(item.quality_score)}">${item.quality_score ? item.quality_score.toFixed(1) + '%' : 'N/A'}</td>
+                <td>${item.citation_accuracy ? item.citation_accuracy.toFixed(1) + '%' : 'N/A'}</td>
+                <td>${item.outcome_result || 'Pending'}</td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:40px;">No recent activity</td></tr>';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading overview:', error);
+      }
+    };
+    
+    window.loadDocuments = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-documents');
+        const tbody = document.getElementById('documentsBody');
+        
+        if (data && data.documents && data.documents.length > 0) {
+          tbody.innerHTML = data.documents.map(doc => `
+            <tr>
+              <td style="font-family:monospace; font-size:0.75rem;">${doc.id.substring(0, 8)}...</td>
+              <td>${new Date(doc.created_at).toLocaleString()}</td>
+              <td>${doc.user_email || 'N/A'}</td>
+              <td>${doc.claim_type || 'N/A'}</td>
+              <td>${doc.phase || 'N/A'}</td>
+              <td><span class="status-badge status-${doc.payment_status}">${doc.payment_status}</span></td>
+              <td>${doc.letter_generated ? '✅ Yes' : '❌ No'}</td>
+              <td><span class="status-badge status-${doc.status}">${doc.status}</span></td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:40px;">No documents found</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading documents:', error);
+      }
+    };
+    
+    window.loadQualityMetrics = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-quality-metrics');
+        const tbody = document.getElementById('qualityMetricsBody');
+        
+        if (data && data.metrics && data.metrics.length > 0) {
+          // Update summary stats
+          const avgOverall = data.metrics.reduce((sum, m) => sum + (m.overall_score || 0), 0) / data.metrics.length;
+          const avgGeneric = data.metrics.reduce((sum, m) => sum + (m.generic_language_score || 0), 0) / data.metrics.length;
+          const avgSpec = data.metrics.reduce((sum, m) => sum + (m.specificity_score || 0), 0) / data.metrics.length;
+          const avgProf = data.metrics.reduce((sum, m) => sum + (m.professionalism_score || 0), 0) / data.metrics.length;
+          
+          document.getElementById('qualityOverall').textContent = avgOverall.toFixed(1) + '%';
+          document.getElementById('qualityGeneric').textContent = avgGeneric.toFixed(1) + '%';
+          document.getElementById('qualitySpecificity').textContent = avgSpec.toFixed(1) + '%';
+          document.getElementById('qualityProfessional').textContent = avgProf.toFixed(1) + '%';
+          
+          tbody.innerHTML = data.metrics.map(metric => `
+            <tr>
+              <td>${new Date(metric.created_at).toLocaleString()}</td>
+              <td style="font-family:monospace; font-size:0.75rem;">${metric.document_id.substring(0, 8)}...</td>
+              <td class="quality-score quality-${metric.quality_grade.toLowerCase()}">${metric.overall_score.toFixed(1)}%</td>
+              <td><span class="status-badge status-${metric.quality_grade === 'A' ? 'completed' : metric.quality_grade === 'F' ? 'failed' : 'pending'}">${metric.quality_grade}</span></td>
+              <td>${metric.generic_language_score.toFixed(1)}%</td>
+              <td>${metric.specificity_score.toFixed(1)}%</td>
+              <td>${metric.professionalism_score.toFixed(1)}%</td>
+              <td>${metric.structure_score.toFixed(1)}%</td>
+              <td>${metric.ready_to_send ? '✅' : '❌'}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#94a3b8; padding:40px;">No quality metrics found</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading quality metrics:', error);
+      }
+    };
+    
+    window.loadOutcomes = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-outcomes');
+        const tbody = document.getElementById('outcomesBody');
+        
+        if (data && data.outcomes && data.outcomes.length > 0) {
+          // Update summary stats
+          const successCount = data.outcomes.filter(o => o.outcome_result === 'success').length;
+          const totalWithResults = data.outcomes.filter(o => o.outcome_result).length;
+          const avgRecovery = data.outcomes.reduce((sum, o) => sum + (o.recovery_percentage || 0), 0) / data.outcomes.length;
+          const avgDays = data.outcomes.filter(o => o.days_to_resolution).reduce((sum, o) => sum + o.days_to_resolution, 0) / data.outcomes.filter(o => o.days_to_resolution).length;
+          
+          document.getElementById('totalOutcomes').textContent = data.outcomes.length;
+          document.getElementById('outcomeSuccessRate').textContent = totalWithResults > 0 ? ((successCount / totalWithResults) * 100).toFixed(1) + '%' : 'N/A';
+          document.getElementById('avgRecovery').textContent = avgRecovery.toFixed(1) + '%';
+          document.getElementById('avgDaysResolution').textContent = avgDays ? avgDays.toFixed(0) + ' days' : 'N/A';
+          
+          tbody.innerHTML = data.outcomes.map(outcome => `
+            <tr>
+              <td>${new Date(outcome.created_at).toLocaleString()}</td>
+              <td style="font-family:monospace; font-size:0.75rem;">${outcome.document_id.substring(0, 8)}...</td>
+              <td><span class="status-badge status-${outcome.outcome_status}">${outcome.outcome_status}</span></td>
+              <td><span class="status-badge status-${outcome.outcome_result === 'success' ? 'completed' : outcome.outcome_result === 'failure' ? 'failed' : 'pending'}">${outcome.outcome_result || 'N/A'}</span></td>
+              <td>${outcome.recovery_percentage ? outcome.recovery_percentage.toFixed(1) + '%' : 'N/A'}</td>
+              <td>${outcome.days_to_response || 'N/A'}</td>
+              <td>${outcome.days_to_resolution || 'N/A'}</td>
+              <td>${outcome.user_satisfaction ? '⭐'.repeat(outcome.user_satisfaction) : 'N/A'}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:40px;">No outcomes tracked yet</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading outcomes:', error);
+      }
+    };
+    
+    window.loadLogs = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-logs');
+        const tbody = document.getElementById('logsBody');
+        
+        if (data && data.logs && data.logs.length > 0) {
+          tbody.innerHTML = data.logs.map(log => `
+            <tr>
+              <td>${new Date(log.created_at).toLocaleString()}</td>
+              <td><span class="status-badge status-${log.log_level === 'error' || log.log_level === 'critical' ? 'failed' : log.log_level === 'warn' ? 'pending' : 'completed'}">${log.log_level}</span></td>
+              <td>${log.event_type}</td>
+              <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${log.message || 'N/A'}</td>
+              <td>${log.duration_ms || 'N/A'}</td>
+              <td>${log.cost_usd ? '$' + log.cost_usd.toFixed(4) : 'N/A'}</td>
+              <td>${log.user_id ? log.user_id.substring(0, 8) + '...' : 'System'}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:40px;">No logs found</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading logs:', error);
+      }
+    };
+    
+    window.loadExperiments = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-experiments');
+        const tbody = document.getElementById('experimentsBody');
+        
+        if (data && data.experiments && data.experiments.length > 0) {
+          tbody.innerHTML = data.experiments.map(exp => `
+            <tr>
+              <td>${exp.experiment_name}</td>
+              <td><span class="status-badge status-${exp.status === 'running' ? 'pending' : exp.status === 'completed' ? 'completed' : 'uploaded'}">${exp.status}</span></td>
+              <td>${exp.control_variant}</td>
+              <td>${exp.test_variant}</td>
+              <td>${exp.traffic_percentage}%</td>
+              <td>${exp.started_at ? new Date(exp.started_at).toLocaleDateString() : 'N/A'}</td>
+              <td>${exp.completed_at ? new Date(exp.completed_at).toLocaleDateString() : 'N/A'}</td>
+              <td>${exp.winner_variant || 'TBD'}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:40px;">No experiments found</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading experiments:', error);
+      }
+    };
+    
+    window.loadPrompts = async function() {
+      try {
+        const data = await apiCall('/.netlify/functions/admin-prompts');
+        const tbody = document.getElementById('promptsBody');
+        
+        if (data && data.prompts && data.prompts.length > 0) {
+          tbody.innerHTML = data.prompts.map(prompt => `
+            <tr>
+              <td>${prompt.prompt_name}</td>
+              <td>v${prompt.version}</td>
+              <td><span class="status-badge status-${prompt.is_active ? 'completed' : 'pending'}">${prompt.is_active ? 'Active' : 'Inactive'}</span></td>
+              <td>${prompt.usage_count || 0}</td>
+              <td class="quality-${getQualityGrade(prompt.avg_quality_score)}">${prompt.avg_quality_score ? prompt.avg_quality_score.toFixed(1) + '%' : 'N/A'}</td>
+              <td>${prompt.avg_citation_score ? prompt.avg_citation_score.toFixed(1) + '%' : 'N/A'}</td>
+              <td>${prompt.success_rate ? prompt.success_rate.toFixed(1) + '%' : 'N/A'}</td>
+              <td>${new Date(prompt.created_at).toLocaleDateString()}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:40px;">No prompts found</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading prompts:', error);
+      }
+    };
+    
+    function getQualityGrade(score) {
+      if (!score) return 'f';
+      if (score >= 95) return 'a';
+      if (score >= 85) return 'b';
+      if (score >= 75) return 'c';
+      if (score >= 65) return 'd';
+      return 'f';
+    }
+    
+    // Load initial data
+    loadOverviewData();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+      const activeTab = document.querySelector('.nav-tab.active');
+      if (activeTab) {
+        loadTabData(activeTab.dataset.tab);
+      }
+    }, 30000);
+  </script>
+</body>
+</html>
