@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bid Intake – Government Contract Bid Review Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">GB</div>
+          <div>
+            <span class="logo__text-sub">Gov Contracts</span>
+            Government Contract Bid Review Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Share your solicitation and draft
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Tell us about the opportunity and your bid package.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand the agency, scope, evaluation
+              criteria, and where you’d like extra attention in the review.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email * <span>(for feedback & coordination)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="organization">Company / organization *</label>
+                <input
+                  type="text"
+                  id="organization"
+                  name="organization"
+                  required
+                  placeholder="Your business or team name"
+                />
+              </div>
+              <div>
+                <label for="samStatus">
+                  SAM.gov / registration status
+                  <span>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="samStatus"
+                  name="samStatus"
+                  placeholder="Example: Active, pending, N/A"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="agency">
+                Buying agency or department *
+              </label>
+              <input
+                type="text"
+                id="agency"
+                name="agency"
+                required
+                placeholder="Example: GSA, VA, City of Austin, etc."
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="solicitation">
+                Solicitation title and number *
+              </label>
+              <input
+                type="text"
+                id="solicitation"
+                name="solicitation"
+                required
+                placeholder="Example: Janitorial Services RFP #12345"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="rfpLink">
+                Link to the RFP/IFB or upload location *
+              </label>
+              <textarea
+                id="rfpLink"
+                name="rfpLink"
+                required
+                placeholder="Paste a public URL or a share link (e.g., SAM.gov, state portal, Google Drive/SharePoint with access)."
+              ></textarea>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="naics">
+                  NAICS code (if applicable)
+                  <span>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="naics"
+                  name="naics"
+                  placeholder="Example: 541611"
+                />
+              </div>
+              <div>
+                <label for="dueDate">
+                  Proposal due date & time *
+                </label>
+                <input
+                  type="text"
+                  id="dueDate"
+                  name="dueDate"
+                  required
+                  placeholder="Example: MM/DD, 2:00 PM local"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="draftAccess">
+                How will you share your draft bid package? *
+              </label>
+              <textarea
+                id="draftAccess"
+                name="draftAccess"
+                required
+                placeholder="Paste a link to your draft documents (Google Drive, SharePoint, etc.). Include which volumes you want us to focus on."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="focusAreas">
+                What would you like extra attention on? *
+              </label>
+              <textarea
+                id="focusAreas"
+                name="focusAreas"
+                required
+                placeholder="Example: clarity of technical approach, responsiveness to evaluation criteria, management plan, cover letter, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="pageCount">
+                Approximate page count of your narrative
+                <span>(optional)</span>
+              </label>
+              <input
+                type="text"
+                id="pageCount"
+                name="pageCount"
+                placeholder="Example: ~15 pages technical + 5 pages management"
+              />
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this is a non-legal content review service only. I
+                remain fully responsible for compliance, pricing, and timely
+                submission of my bid, and I will consult qualified professionals
+                as needed.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my bid for review
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically respond within 1 business day to confirm scope
+                  and availability.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">🔗</span>
+                <span>The full RFP/IFB, including any amendments.</span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>Your latest draft volumes in a single shared folder.</span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📆</span>
+                <span>Your internal deadline, which should be earlier than the official due date.</span>
+              </li>
+            </ul>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Government Contract Bid Review Pro – non-legal review only. You remain
+      responsible for compliance and submission.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

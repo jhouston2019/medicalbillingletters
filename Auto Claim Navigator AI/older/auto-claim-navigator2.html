@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoClaimNavigatorAI - AI-Powered Auto Claim Documentation Tools</title>
+  <meta name="description" content="AI-powered documentation tools for auto insurance claims. Maximize your settlement with professional templates for collision, total loss, diminished value, and injury claims.">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #042f2e;
+      --primary-header: #042f2e;
+      --accent: #14b8a6;
+      --success: #10b981;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --bg-white: #ffffff;
+      --bg-light: #f9fafb;
+      --bg-gray: #f3f4f6;
+      --border: #e5e7eb;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--bg-white);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    header {
+      background: var(--primary-header);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .nav-links a:hover {
+      color: white;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      display: inline-block;
+      cursor: pointer;
+      text-align: center;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-light);
+      color: var(--primary);
+      padding: 0.5rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      border: 1px solid var(--primary);
+      transition: all 0.2s;
+      display: inline-block;
+    }
+    
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding: 4rem 0;
+      background: var(--primary-header);
+      color: white;
+    }
+    
+    .hero h1 {
+      color: white;
+      font-weight: 700;
+    }
+    
+    .hero .subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+    
+    .hero .credential strong {
+      color: white;
+    }
+    
+    .hero .credential p {
+      color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .hero-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+    
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+    
+    .credentials {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .credential {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    /* Value Proposition */
+    .value-props {
+      padding: 4rem 0;
+      background: var(--bg-white);
+    }
+    
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .value-card {
+      padding: 2rem;
+      background: var(--bg-light);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+    }
+    
+    .value-card h3 {
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+    
+    .value-card p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    
+    /* Process Section */
+    .process {
+      padding: 4rem 0;
+      background: var(--bg-gray);
+    }
+    
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .step-card {
+      background: var(--bg-white);
+      padding: 2rem;
+      border-radius: 0.75rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .step-number {
+      width: 3rem;
+      height: 3rem;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-weight: 600;
+    }
+    
+    /* Services Section */
+    .services {
+      padding: 4rem 0;
+      background: var(--bg-white);
+    }
+    
+    .service-list {
+      margin-top: 3rem;
+    }
+    
+    .service-item {
+      padding: 2rem;
+      background: var(--bg-light);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+    }
+    
+    .service-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .service-header h3 {
+      color: var(--text-primary);
+      font-size: 1.1rem;
+    }
+    
+    .service-content {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      display: none;
+    }
+    
+    .service-content.active {
+      display: block;
+    }
+    
+    /* Resources Section */
+    .resources {
+      padding: 4rem 0;
+      background: var(--bg-gray);
+    }
+    
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .resource-card {
+      background: var(--bg-white);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s;
+    }
+    
+    .resource-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    .resource-badge {
+      display: inline-block;
+      background: var(--success);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .resource-card h4 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .resource-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    .affiliate-disclosure {
+      background: var(--bg-light);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border-left: 4px solid var(--primary);
+      margin: 2rem 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Blog Section */
+    .blog {
+      padding: 4rem 0;
+      background: var(--bg-white);
+    }
+    
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .blog-card {
+      background: var(--bg-light);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    
+    .blog-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    .blog-image {
+      height: 200px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3rem;
+    }
+    
+    .blog-content {
+      padding: 1.5rem;
+    }
+    
+    .blog-content h3 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .blog-content p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Case Studies */
+    .case-studies {
+      padding: 4rem 0;
+      background: var(--bg-gray);
+    }
+    
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .case-card {
+      background: var(--bg-white);
+      padding: 2rem;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .case-type {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: var(--bg-light);
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    
+    .case-metrics {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+    }
+    
+    .metric-label {
+      color: var(--text-secondary);
+    }
+    
+    .metric-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .tools-used {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .tools-used h4 {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .tools-used a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    
+    .tools-used a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Pricing */
+    .pricing {
+      padding: 4rem 0;
+      background: var(--bg-white);
+    }
+    
+    .pricing-card {
+      max-width: 600px;
+      margin: 3rem auto;
+      padding: 3rem;
+      background: var(--bg-light);
+      border-radius: 1rem;
+      border: 2px solid var(--primary);
+    }
+    
+    .price-amount {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin: 1rem 0;
+    }
+    
+    .price-description {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+    
+    .price-features {
+      list-style: none;
+      margin: 2rem 0;
+    }
+    
+    .price-features li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    
+    /* FAQ */
+    .faq {
+      padding: 4rem 0;
+      background: var(--bg-gray);
+    }
+    
+    .faq-item {
+      background: var(--bg-white);
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .faq-question {
+      padding: 1.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    
+    .faq-question:hover {
+      background: var(--bg-light);
+    }
+    
+    .faq-answer {
+      padding: 0 1.5rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      color: var(--text-secondary);
+    }
+    
+    .faq-answer.active {
+      padding: 1.5rem;
+      max-height: 500px;
+    }
+    
+    .faq-answer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .faq-answer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--text-primary);
+      color: white;
+      padding: 3rem 0;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+    }
+    
+    .footer-section h4 {
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    .footer-section a {
+      color: #9ca3af;
+      text-decoration: none;
+      display: block;
+      padding: 0.25rem 0;
+      transition: color 0.2s;
+    }
+    
+    .footer-section a:hover {
+      color: white;
+    }
+    
+    .footer-disclosure {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #374151;
+      color: #9ca3af;
+      font-size: 0.875rem;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    h2 {
+      font-size: 2rem;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+    
+    .section-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .services-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: start;
+    }
+    
+    .service-col {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    
+    .service-col h3 {
+      color: #1E3A8A;
+      font-size: 18px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .service-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    
+    .service-col ul li {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    
+    .service-col ul li strong {
+      color: #111;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">AutoClaimNavigatorAI</div>
+        <div class="nav-links">
+          <a href="#services">Services</a>
+          <a href="#resources">Resources</a>
+          <a href="#blog">Guides</a>
+          <a href="#process">Process</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#contact" class="btn-primary">Get My Auto Claim Toolkit</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div style="grid-column: 1 / -1;">
+          <div style="text-align: center; margin-bottom: 1.5rem;">
+            <p style="color: white; font-size: 32px; font-weight: 700; font-style: italic; margin: 0; padding: 0.75rem 1.5rem; background: #0f766e; display: inline-block; border-radius: 0.5rem;">Don't accept lowball offers - we help you get fair compensation!</p>
+          </div>
+          <h1 style="text-align: center; color: white; margin-bottom: 0.5rem;">AI-Powered Auto Claim Tools to Maximize Your Settlement</h1>
+          <p style="text-align: center; color: rgba(255, 255, 255, 0.9); margin: 0; padding-bottom: 1rem;">Get professional documentation for collision repairs, total loss, diminished value, and injury claims —<br>to save time, stay organized, and secure the settlement you deserve.</p>
+          
+          <!-- Highlights in light gray box -->
+          <div style="background: #e5e7eb; padding: 1.5rem; border-radius: 1rem; margin: 0;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div style="text-align: center; padding: 0.25rem;">
+                <strong style="color: #0f766e; font-size: 26px; display: block; margin-bottom: 0.5rem; font-weight: 700;">✔ Smart Estimate Review</strong>
+                <p style="font-size: 14px; color: #111827; line-height: 1.4; font-weight: 400; margin: 0;">
+                  Upload repair estimates → AI identifies missing items, incorrect rates, and overlooked damage.
+                </p>
+              </div>
+              <div style="text-align: center; padding: 0.25rem;">
+                <strong style="color: #0f766e; font-size: 26px; display: block; margin-bottom: 0.5rem; font-weight: 700;">✔ AI Dispute Letters</strong>
+                <p style="font-size: 14px; color: #111827; line-height: 1.4; font-weight: 400; margin: 0;">
+                  One click → professional dispute letters addressing estimate gaps and valuation errors.
+                </p>
+              </div>
+              <div style="text-align: center; padding: 0.25rem;">
+                <strong style="color: #0f766e; font-size: 26px; display: block; margin-bottom: 0.5rem; font-weight: 700;">✔ Total Loss Analysis</strong>
+                <p style="font-size: 14px; color: #111827; line-height: 1.4; font-weight: 400; margin: 0;">
+                  AI compares your vehicle's value with market data to ensure fair compensation.
+                </p>
+              </div>
+              <div style="text-align: center; padding: 0.25rem;">
+                <strong style="color: #0f766e; font-size: 26px; display: block; margin-bottom: 0.5rem; font-weight: 700;">✔ Diminished Value Calculator</strong>
+                <p style="font-size: 14px; color: #111827; line-height: 1.4; font-weight: 400; margin: 0;">
+                  Professional DV calculations with market documentation and demand letters.
+                </p>
+              </div>
+              <div style="text-align: center; padding: 0.25rem;">
+                <strong style="color: #0f766e; font-size: 26px; display: block; margin-bottom: 0.5rem; font-weight: 700;">✔ Medical Bill Organizer</strong>
+                <p style="font-size: 14px; color: #111827; line-height: 1.4; font-weight: 400; margin: 0;">
+                  Track PIP/MedPay benefits, organize bills, and identify coverage gaps instantly.
+                </p>
+              </div>
+              <div style="text-align: center; padding: 0.25rem;">
+                <strong style="color: #0f766e; font-size: 26px; display: block; margin-bottom: 0.5rem; font-weight: 700;">✔ State-Specific Forms</strong>
+                <p style="font-size: 14px; color: #111827; line-height: 1.4; font-weight: 400; margin: 0;">
+                  All required state forms and deadlines for your specific jurisdiction.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div style="text-align: center; padding-top: 1.5rem;">
+            <a href="#pricing" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Get My Auto Claim Toolkit</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Critical Facts Section -->
+  <section class="value-props" style="background: #fafafa; padding: 3rem 0;">
+    <div class="container">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="color: #dc2626; text-align: center; margin-bottom: 2rem;">Insurance Companies Save Money By Underpaying You!</h2>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+          <p style="margin-bottom: 1rem;"><strong style="color: #dc2626;">FACT #1:</strong> <span style="background: #fef3c7; padding: 0.1rem 0.3rem;">Initial offers are 30-50% below actual value.</span> They expect you to negotiate or give up.</p>
+          
+          <p style="margin-bottom: 1rem;"><strong style="color: #dc2626;">FACT #2:</strong> Body shops miss items to keep insurers happy. <span style="background: #fef3c7; padding: 0.1rem 0.3rem;">Hidden damage appears after teardown.</span></p>
+          
+          <p style="margin-bottom: 0.75rem;"><strong style="color: #dc2626;">FACT #3:</strong> Without proper documentation: ❌ You'll accept quick lowball settlements ❌ Miss supplement opportunities ❌ Forfeit diminished value claims</p>
+        </div>
+        
+        <div style="background: #fef3c7; padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #f59e0b;">
+          <strong style="color: #92400e;">Smart Claimants:</strong> Review every line item • Get independent estimates • Document all damage • Know comparable values • Demand diminished value • Track medical expenses
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Insurance Reality Check -->
+  <section class="value-props" style="padding: 3rem 0;">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: 2rem;">Auto Claim Statistics That Matter</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; max-width: 700px; margin: 0 auto 2rem;">
+        <div style="background: white; padding: 1rem; text-align: center; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+          <div style="font-size: 2rem; color: #dc2626; font-weight: 700;">87%</div>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">repairs need supplements</p>
+        </div>
+        <div style="background: white; padding: 1rem; text-align: center; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+          <div style="font-size: 2rem; color: #dc2626; font-weight: 700;">35%</div>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">avg underpayment</p>
+        </div>
+        <div style="background: white; padding: 1rem; text-align: center; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+          <div style="font-size: 2rem; color: #dc2626; font-weight: 700;">$0</div>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">DV without asking</p>
+        </div>
+        <div style="background: white; padding: 1rem; text-align: center; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+          <div style="font-size: 2rem; color: #dc2626; font-weight: 700;">95%</div>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">never appeal denials</p>
+        </div>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="#pricing" class="btn-primary">Get Your Auto Claim Toolkit →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section style="background: #ffffff; padding: 4rem 0;">
+    <div class="container">
+      <h2 style="text-align: center; color: #0f766e; margin-bottom: 3rem; font-size: 2.5rem;">Compare Your Options</h2>
+      
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; max-width: 800px; margin: 0 auto; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid #e5e7eb;">
+              <th style="text-align: left; padding: 1rem; color: #6b7280; font-weight: 600;">Option</th>
+              <th style="text-align: left; padding: 1rem; color: #6b7280; font-weight: 600;">Cost Structure</th>
+              <th style="text-align: left; padding: 1rem; color: #6b7280; font-weight: 600;">Documentation Quality</th>
+              <th style="text-align: left; padding: 1rem; color: #6b7280; font-weight: 600;">Typical Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1.5rem 1rem; color: #111827; font-weight: 500;">Accept First Offer</td>
+              <td style="padding: 1.5rem 1rem; color: #6b7280;">Free</td>
+              <td style="padding: 1.5rem 1rem; color: #dc2626;">None</td>
+              <td style="padding: 1.5rem 1rem; color: #dc2626;">30-50% underpaid</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1.5rem 1rem; color: #111827; font-weight: 500;">Attorney</td>
+              <td style="padding: 1.5rem 1rem; color: #6b7280;">33% of recovery</td>
+              <td style="padding: 1.5rem 1rem; color: #059669;">Professional</td>
+              <td style="padding: 1.5rem 1rem; color: #6b7280;">Higher settlement minus fees</td>
+            </tr>
+            <tr style="background: #f0f9ff;">
+              <td style="padding: 1.5rem 1rem; color: #111827; font-weight: 600;">AutoClaimNavigatorAI</td>
+              <td style="padding: 1.5rem 1rem; color: #10b981; font-weight: 600;">$499 flat fee</td>
+              <td style="padding: 1.5rem 1rem; color: #10b981; font-weight: 600;">Professional AI-powered package</td>
+              <td style="padding: 1.5rem 1rem; color: #10b981; font-weight: 600;">Maximum settlement, you keep 100%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="process" id="process" style="background: var(--primary-header); padding: 4rem 0;">
+    <div class="container">
+      <div class="section-header">
+        <h2 style="color: white;">Our AI-Powered Process</h2>
+        <p class="section-subtitle" style="color: rgba(255, 255, 255, 0.9);">Professional documentation in 48 hours or less</p>
+      </div>
+      <div class="process-steps">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Upload Documents</h3>
+          <p>Upload estimates, photos, police reports, and medical records for AI analysis.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>AI Review</h3>
+          <p>AI identifies missing repairs, valuation errors, and coverage opportunities.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Generate Package</h3>
+          <p>Receive complete documentation including dispute letters and supporting evidence.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h3>Submit & Track</h3>
+          <p>Follow our timeline to submit documents and track your claim to settlement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="services" id="services">
+    <div class="container">
+      <div class="section-header">
+        <h2>Complete Auto Claim Documentation Services</h2>
+        <p class="section-subtitle">Every document and tool you need for collision, total loss, diminished value, and injury claims</p>
+      </div>
+
+      <div class="services-columns">
+
+        <div class="service-col" style="background: #f3f4f6;">
+          <h3>Collision & Repair</h3>
+          <ul>
+            <li><strong>✔ Supplement Request Letters</strong></li>
+            <li><strong>✔ Hidden Damage Documentation</strong></li>
+            <li><strong>✔ OEM Parts Justification</strong></li>
+            <li><strong>✔ Labor Rate Disputes</strong></li>
+            <li><strong>✔ Paint & Materials Calculations</strong></li>
+            <li><strong>✔ Rental Extension Requests</strong></li>
+            <li><strong>✔ Storage Fee Disputes</strong></li>
+          </ul>
+        </div>
+
+        <div class="service-col" style="background: #f3f4f6;">
+          <h3>Total Loss</h3>
+          <ul>
+            <li><strong>✔ Valuation Dispute Letters</strong></li>
+            <li><strong>✔ Comparable Vehicle Analysis</strong></li>
+            <li><strong>✔ Option/Feature Documentation</strong></li>
+            <li><strong>✔ Mileage Adjustment Calculations</strong></li>
+            <li><strong>✔ Tax & Title Worksheets</strong></li>
+            <li><strong>✔ Salvage Value Negotiation</strong></li>
+            <li><strong>✔ Loss of Use Claims</strong></li>
+          </ul>
+        </div>
+
+        <div class="service-col" style="background: #f3f4f6;">
+          <h3>Diminished Value</h3>
+          <ul>
+            <li><strong>✔ DV Demand Letters</strong></li>
+            <li><strong>✔ 17c Formula Calculations</strong></li>
+            <li><strong>✔ Market Evidence Reports</strong></li>
+            <li><strong>✔ Dealer Statement Templates</strong></li>
+            <li><strong>✔ State-Specific DV Laws</strong></li>
+            <li><strong>✔ Negotiation Scripts</strong></li>
+            <li><strong>✔ Small Claims Templates</strong></li>
+          </ul>
+        </div>
+
+        <div class="service-col" style="background: #f3f4f6;">
+          <h3>Medical & Injury</h3>
+          <ul>
+            <li><strong>✔ PIP/MedPay Trackers</strong></li>
+            <li><strong>✔ Medical Bill Organization</strong></li>
+            <li><strong>✔ Treatment Documentation</strong></li>
+            <li><strong>✔ Lost Wage Calculations</strong></li>
+            <li><strong>✔ Pain & Suffering Journal</strong></li>
+            <li><strong>✔ Settlement Demand Package</strong></li>
+            <li><strong>✔ Lien Resolution Letters</strong></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Case Studies -->
+  <section class="case-studies" id="case-studies" style="background: var(--primary-header); padding: 4rem 0;">
+    <div class="container">
+      <div class="section-header">
+        <h2 style="color: white;">Documentation Success Stories</h2>
+        <p class="section-subtitle" style="color: rgba(255, 255, 255, 0.9);">Real examples of how proper documentation increases settlements</p>
+      </div>
+      <div class="case-grid">
+        <div class="case-card">
+          <span class="case-type">Rear-End Collision</span>
+          <h3>2022 Honda Accord - Georgia</h3>
+          <p style="color: var(--text-secondary); margin-top: 1rem;">Initial estimate missed frame damage, ADAS calibrations, and blend time. Supplement documentation recovered additional compensation.</p>
+          <div class="case-metrics">
+            <div class="metric-row">
+              <span class="metric-label">Initial Estimate</span>
+              <span class="metric-value">$4,200</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">After Supplement</span>
+              <span class="metric-value">$8,900</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Documentation Cost</span>
+              <span class="metric-value">$499</span>
+            </div>
+          </div>
+          <div class="tools-used">
+            <h4>Documents Used:</h4>
+            <a href="#">Supplement request</a> • 
+            <a href="#">OEM requirements</a>
+          </div>
+        </div>
+        <div class="case-card">
+          <span class="case-type">Total Loss</span>
+          <h3>2021 Toyota Camry - Texas</h3>
+          <p style="color: var(--text-secondary); margin-top: 1rem;">Insurer's valuation ignored premium package and recent maintenance. Proper documentation proved higher actual cash value.</p>
+          <div class="case-metrics">
+            <div class="metric-row">
+              <span class="metric-label">Initial Offer</span>
+              <span class="metric-value">$18,500</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Final Settlement</span>
+              <span class="metric-value">$22,100</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Documentation Cost</span>
+              <span class="metric-value">$499</span>
+            </div>
+          </div>
+          <div class="tools-used">
+            <h4>Documents Used:</h4>
+            <a href="#">Valuation dispute</a> • 
+            <a href="#">Comparable analysis</a>
+          </div>
+        </div>
+      </div>
+      <p style="text-align: center; margin-top: 2rem; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">
+        Results vary by case. AutoClaimNavigatorAI provides documentation tools only — not legal advice.
+      </p>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="pricing-card" style="text-align: center;">
+        <h3>Complete Auto Claim Toolkit</h3>
+        <div class="price-amount">$499</div>
+        <p class="price-description">One-time fee • All claim types • Instant download</p>
+        <ul class="price-features" style="text-align: center;">
+          <li>✔ AI-powered estimate review and gap analysis</li>
+          <li>✔ Complete dispute letter package</li>
+          <li>✔ Total loss valuation tools</li>
+          <li>✔ Diminished value calculator and demands</li>
+          <li>✔ Medical expense tracking system</li>
+          <li>✔ State-specific forms and deadlines</li>
+          <li>✔ 30-day action plan with timeline</li>
+          <li>✔ Email templates and negotiation scripts</li>
+        </ul>
+        <a href="#contact" class="btn-primary" style="display: block; margin: 0 auto; max-width: 400px;">Get My Auto Claim Toolkit</a>
+        <p style="text-align: center; margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+          Digital products delivered immediately. All sales final.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resources Section -->
+  <section class="resources" id="resources">
+    <div class="container">
+      <div class="section-header">
+        <h2>Recommended Auto Claim Tools</h2>
+        <p class="section-subtitle">Essential apps and services to strengthen your auto claim</p>
+      </div>
+      
+      <div class="affiliate-disclosure">
+        <strong>Affiliate Disclosure:</strong> This page contains affiliate links. We may earn a commission at no extra cost to you if you purchase through these links. We only recommend tools we believe add value to your claim process.
+      </div>
+      
+      <div class="resource-grid">
+        <div class="resource-card">
+          <span class="resource-badge">ESTIMATES</span>
+          <h4>RepairPal</h4>
+          <p>Get independent repair estimates to compare against insurance estimates and identify gaps.</p>
+          <a href="#" class="btn-secondary">Learn More →</a>
+        </div>
+        
+        <div class="resource-card">
+          <span class="resource-badge">VALUES</span>
+          <h4>Kelley Blue Book</h4>
+          <p>Document your vehicle's actual value for total loss disputes with official KBB reports.</p>
+          <a href="#" class="btn-secondary">Learn More →</a>
+        </div>
+        
+        <div class="resource-card">
+          <span class="resource-badge">PHOTOS</span>
+          <h4>Timestamp Camera</h4>
+          <p>Photo app that adds date, time, and GPS to accident photos for undisputable evidence.</p>
+          <a href="#" class="btn-secondary">Learn More →</a>
+        </div>
+        
+        <div class="resource-card">
+          <span class="resource-badge">MEDICAL</span>
+          <h4>CareZone</h4>
+          <p>Track medications, appointments, and symptoms for injury claims and PIP benefits.</p>
+          <a href="#" class="btn-secondary">Learn More →</a>
+        </div>
+        
+        <div class="resource-card">
+          <span class="resource-badge">MILEAGE</span>
+          <h4>MileIQ</h4>
+          <p>Automatic mileage tracking for medical appointments and rental car usage.</p>
+          <a href="#" class="btn-secondary">Learn More →</a>
+        </div>
+        
+        <div class="resource-card">
+          <span class="resource-badge">DASHCAM</span>
+          <h4>Nexar Dash Cam</h4>
+          <p>Smart dash cam with automatic incident detection and cloud backup for evidence.</p>
+          <a href="#" class="btn-secondary">Shop on Amazon →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Section -->
+  <section class="blog" id="blog">
+    <div class="container">
+      <div class="section-header">
+        <h2>Auto Claim Guides & Resources</h2>
+        <p class="section-subtitle">Expert guidance for every type of auto insurance claim</p>
+      </div>
+      
+      <div class="blog-grid">
+        <div class="blog-card">
+          <div class="blog-image">🚗</div>
+          <div class="blog-content">
+            <h3>Hidden Damage Your Estimate Probably Missed</h3>
+            <p>Learn the 15 most commonly overlooked items in collision estimates and how to document them properly.</p>
+            <a href="#" class="btn-secondary">Read Guide →</a>
+          </div>
+        </div>
+        
+        <div class="blog-card">
+          <div class="blog-image">💰</div>
+          <div class="blog-content">
+            <h3>Diminished Value: State-by-State Guide</h3>
+            <p>Complete guide to diminished value claims including calculations, laws, and demand letter templates for all 50 states.</p>
+            <a href="#" class="btn-secondary">Read Guide →</a>
+          </div>
+        </div>
+        
+        <div class="blog-card">
+          <div class="blog-image">📋</div>
+          <div class="blog-content">
+            <h3>Total Loss Valuation Errors to Check</h3>
+            <p>Common valuation mistakes that cost you thousands and how to dispute them with proper documentation.</p>
+            <a href="#" class="btn-secondary">Read Guide →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          What types of auto claims do you support?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>We provide documentation for all auto claim types: collision repairs, total loss settlements, diminished value claims, rental reimbursement, and injury claims including PIP/MedPay. Our AI tools analyze estimates, calculate values, and generate professional dispute letters for any auto insurance claim.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          How do I know if my estimate is missing items?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>Our AI reviews your estimate line-by-line and compares it to manufacturer repair procedures. Common missed items include: ADAS calibrations, blend time for adjacent panels, OEM part requirements, and hidden structural damage. We also recommend getting an independent estimate from <a href="#">RepairPal</a> for comparison.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          Can I claim diminished value in my state?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>Most states allow diminished value claims for third-party claims (when someone else is at fault). First-party DV claims (your own insurance) depend on your state and policy. Our toolkit includes state-specific DV guidance and calculation tools. For official values, we recommend <a href="#">obtaining a professional appraisal</a>.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          What if the insurance company still denies my supplement?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>Our toolkit includes escalation templates, appraisal demand letters, and department of insurance complaint forms. You can also use apps like <a href="#">Mighty</a> to connect with attorneys if needed. Remember, proper documentation makes denials much less likely.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          Do you work with insurance companies or attorneys?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>No. AutoClaimNavigatorAI is an independent documentation service for consumers. We don't work with insurers and we're not a law firm. We provide tools and templates to help you advocate for yourself. For legal advice, consult an attorney through services like <a href="#">LegalZoom</a> or your state bar.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          How quickly can I get my documentation?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>Instant download after purchase. While our AI processes your specific documents, you can start using tools like <a href="#">Timestamp Camera</a> for photos and <a href="#">MileIQ</a> for mileage tracking immediately.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          What's included in the medical expense tracker?
+          <span>▼</span>
+        </div>
+        <div class="faq-answer">
+          <p>Complete system for tracking PIP/MedPay benefits, medical bills, prescriptions, and treatment. Includes templates for provider letters, lien negotiations, and settlement demands. We also recommend <a href="#">CareZone</a> app for daily symptom tracking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>AutoClaimNavigatorAI</h4>
+          <p style="color: #9ca3af; margin-top: 1rem;">AI-powered auto claim documentation for collision, total loss, diminished value, and injury claims. Get fair compensation with professional documentation.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Services</h4>
+          <a href="#services">Documentation Services</a>
+          <a href="#resources">Recommended Tools</a>
+          <a href="#blog">Claim Guides</a>
+          <a href="#process">Our Process</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#case-studies">Success Stories</a>
+        </div>
+        <div class="footer-section">
+          <h4>Information</h4>
+          <a href="#terms">Terms of Service</a>
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#disclaimer">Legal Disclaimer</a>
+          <a href="#affiliate">Affiliate Disclosure</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer-disclosure">
+        <p><strong>Affiliate Disclosure:</strong> AutoClaimNavigatorAI participates in affiliate programs. We may earn commissions from qualifying purchases through links on this site at no additional cost to you. We only recommend products and services we believe will add value to your auto claim process.</p>
+      </div>
+      <div style="text-align: center; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid #374151; color: #9ca3af;">
+        <p>© 2025 AutoClaimNavigatorAI. All rights reserved. | Documentation tools only — not legal advice.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleService(header) {
+      const content = header.nextElementSibling;
+      const icon = header.querySelector('span');
+      content.classList.toggle('active');
+      icon.textContent = content.classList.contains('active') ? '▲' : '▼';
+    }
+
+    function toggleFAQ(question) {
+      const answer = question.nextElementSibling;
+      const icon = question.querySelector('span');
+      answer.classList.toggle('active');
+      icon.textContent = answer.classList.contains('active') ? '▲' : '▼';
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

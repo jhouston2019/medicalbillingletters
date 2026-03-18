@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAM Intake – SAM.gov Registration Fix Service</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">SAM</div>
+          <div>
+            <span class="logo__text-sub">Gov Vendor Setup</span>
+            SAM.gov Registration Fix Service
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Tell us what’s stuck
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Share your SAM.gov registration status and issues.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand where your registration is
+              getting stuck so we can prepare better-organized responses and
+              checklists.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email * <span>(for follow-up & drafts)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="organization">Entity / organization name *</label>
+                <input
+                  type="text"
+                  id="organization"
+                  name="organization"
+                  required
+                  placeholder="Legal business or nonprofit name"
+                />
+              </div>
+              <div>
+                <label for="uei">
+                  UEI or CAGE code
+                  <span>(if known)</span>
+                </label>
+                <input
+                  type="text"
+                  id="uei"
+                  name="uei"
+                  placeholder="UEI, CAGE, or 'not sure'"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="currentStatus">
+                Current SAM.gov status (as shown in the system) *
+              </label>
+              <input
+                type="text"
+                id="currentStatus"
+                name="currentStatus"
+                required
+                placeholder="Example: In Progress, Pending, Work in Progress, Returned, etc."
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="issueDescription">
+                Briefly describe the problem you’re seeing *
+              </label>
+              <textarea
+                id="issueDescription"
+                name="issueDescription"
+                required
+                placeholder="Example: application returned with unclear comments, identity validation issues, address mismatch, NCAGE/UEI confusion, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="messages">
+                Paste or summarize any system messages or emails you’ve received
+                *
+              </label>
+              <textarea
+                id="messages"
+                name="messages"
+                required
+                placeholder="Paste relevant portions of SAM.gov screens or help-desk emails (remove personal identifiers like SSNs or full account numbers)."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="attempts">
+                What have you already tried to fix this?
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="attempts"
+                name="attempts"
+                placeholder="Example: opened a help-desk ticket, updated address, attached documents, called support, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="deadline">
+                  Is there any deadline tied to this registration?
+                  <span>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="deadline"
+                  name="deadline"
+                  placeholder="Example: upcoming bid date or subaward deadline"
+                />
+              </div>
+              <div>
+                <label for="experienceLevel">
+                  Your experience with SAM.gov
+                  <span>(optional)</span>
+                </label>
+                <select
+                  id="experienceLevel"
+                  name="experienceLevel"
+                >
+                  <option value="">Select one</option>
+                  <option value="first-time">First-time registration</option>
+                  <option value="renewal">Renewal / update</option>
+                  <option value="experienced">Experienced user</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="notes">
+                Anything else we should know?
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                placeholder="Share any extra context that might be important (e.g., multiple locations, mergers, name changes)."
+              ></textarea>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this is an independent support service, not the
+                government or SAM.gov. I remain responsible for the accuracy of
+                my information and all official submissions, and I will avoid
+                sending sensitive personal data through this form.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my SAM.gov issue
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically respond within 1 business day with next steps and
+                  payment details if it’s a fit.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📸</span>
+                <span>
+                  Screen text from SAM.gov showing status and any warning
+                  messages.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Key lines from help-desk emails, especially where they ask
+                  for specific clarifications or changes.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">🧾</span>
+                <span>
+                  Basic entity details (legal name, address, etc.)—but not
+                  sensitive personal identifiers.
+                </span>
+              </li>
+            </ul>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      SAM.gov Registration Fix Service – independent support only. Not
+      affiliated with SAM.gov or any government agency.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

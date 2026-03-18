@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Service Intake – Template</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">S</div>
+          <div>
+            <span class="logo__text-sub">Service Microsite</span>
+            TEMPLATE
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Secure intake – Formspree-powered
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Share the details we need to complete your service.
+            </h1>
+            <p class="hero__subtitle">
+              This is a generic intake form. When you adapt this template to a
+              specific niche, replace these fields with case-relevant questions.
+            </p>
+          </div>
+
+          <form
+            action="https://formspree.io/f/PLACEHOLDER"
+            method="POST"
+          >
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email address * <span>(for status updates)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="phone"
+                  >Mobile number <span>(optional, for urgent questions)</span></label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+              <div>
+                <label for="deadline"
+                  >Any deadlines or time constraints?</label
+                >
+                <input
+                  type="text"
+                  id="deadline"
+                  name="deadline"
+                  placeholder="Example: need first draft by MM/DD"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="context">
+                Briefly describe what you need help with *
+                <span>(this will be niche-specific in each site)</span>
+              </label>
+              <textarea
+                id="context"
+                name="context"
+                required
+                placeholder="High-level overview of your situation, goals, and any key facts we should know first."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="details">
+                Additional details or links
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="details"
+                name="details"
+                placeholder="Paste text, relevant history, or links to any documents we should review."
+              ></textarea>
+              <p class="help-text">
+                Do not upload highly sensitive information here. Share only what
+                is necessary to scope and start your case or request.
+              </p>
+            </div>
+
+            <div class="field-group">
+              <label for="budget">
+                Budget or service tier preference
+                <span>(optional)</span>
+              </label>
+              <select id="budget" name="budget">
+                <option value="">Select an option</option>
+                <option value="flat-fee">Flat-fee, standard turnaround</option>
+                <option value="rush">Rush / priority handling</option>
+                <option value="custom">Not sure – recommend an option</option>
+              </select>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this form is for an informational review and does
+                not create an attorney–client or advisor–client relationship.
+                I agree to be contacted at the details provided above.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit intake
+              </button>
+              <div class="required-note">
+                <span class="note-success">We typically respond within 1–2 business days.</span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">How this template is used</h2>
+            </div>
+            <div class="summary-box">
+              <p>
+                When you adapt this for a specific service, rewrite every
+                question so it:
+              </p>
+              <ul class="summary-list">
+                <li>
+                  <span class="summary-list__icon">🎯</span>
+                  <span>Captures the facts you need to do excellent work.</span>
+                </li>
+                <li>
+                  <span class="summary-list__icon">✂️</span>
+                  <span>Skips anything that is “nice to have” but not required.</span>
+                </li>
+                <li>
+                  <span class="summary-list__icon">🛡️</span>
+                  <span>Respects privacy and avoids asking for sensitive data you do not truly need.</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Formspree connection</h2>
+            </div>
+            <p class="summary-box">
+              Replace the placeholder endpoint:
+              <br />
+              <code>https://formspree.io/f/PLACEHOLDER</code>
+              <br /><br />
+              with the live Formspree form URL for each deployed microsite so
+              that submissions reach your inbox or CRM.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Generic intake template. Customize all questions for the specific service
+      you provide.
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
+

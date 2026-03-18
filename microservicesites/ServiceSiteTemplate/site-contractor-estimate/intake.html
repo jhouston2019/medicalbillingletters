@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estimate Intake – Contractor Estimate Review Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">CE</div>
+          <div>
+            <span class="logo__text-sub">Project Clarity</span>
+            Contractor Estimate Review Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Share your estimate
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Tell us about your project and contractor estimate.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand the scope, budget, and context
+              so we can flag unclear items and prepare useful follow-up
+              questions for your contractor.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email address * <span>(for your review & questions)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="phone"
+                  >Mobile number <span>(optional, for quick follow-up)</span></label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+              <div>
+                <label for="propertyType">Property type *</label>
+                <select id="propertyType" name="propertyType" required>
+                  <option value="">Select an option</option>
+                  <option value="single-family">Single-family home</option>
+                  <option value="condo-townhome">Condo / townhome</option>
+                  <option value="multi-unit">Multi-unit / investment</option>
+                  <option value="small-commercial">Small commercial space</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="projectDescription">
+                Briefly describe the project *
+              </label>
+              <textarea
+                id="projectDescription"
+                name="projectDescription"
+                required
+                placeholder="Example: kitchen remodel, bathroom gut, basement finish, roof replacement, office build-out, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="estimateTotal">
+                  Approximate estimate total *
+                </label>
+                <input
+                  type="number"
+                  id="estimateTotal"
+                  name="estimateTotal"
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Example: 35000"
+                />
+              </div>
+              <div>
+                <label for="budgetRange">
+                  Your ideal budget range
+                  <span>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="budgetRange"
+                  name="budgetRange"
+                  placeholder="Example: hoping to stay under $30,000"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="estimateDetails">
+                How will you share the estimate? *
+              </label>
+              <textarea
+                id="estimateDetails"
+                name="estimateDetails"
+                required
+                placeholder="Paste key sections or provide a link to a PDF in Google Drive / Dropbox. Make sure sharing is enabled. Do not include bank or card details."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="concerns">
+                What are you most concerned about? *
+              </label>
+              <textarea
+                id="concerns"
+                name="concerns"
+                required
+                placeholder="Example: vague line items, allowances that seem low, unclear exclusions, warranty terms, change order process, payment schedule, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="timeline">
+                When are you hoping to start the project?
+              </label>
+              <input
+                type="text"
+                id="timeline"
+                name="timeline"
+                placeholder="Example: aiming to start work in MM/YYYY"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="otherBids">
+                Do you have any other bids for comparison?
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="otherBids"
+                name="otherBids"
+                placeholder="If yes, briefly describe other estimates and total amounts. You can include links if you’d like us to see them."
+              ></textarea>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this is an informational review service only and
+                not legal, engineering, or architectural advice. I remain solely
+                responsible for selecting contractors and signing any
+                agreements.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my estimate for review
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically review new estimates within 1–2 business days.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>
+                  The full written estimate or proposal, not just a single-page
+                  summary.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📎</span>
+                <span>
+                  Any notes or drawings that came with the estimate (if
+                  available).
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Emails or messages where the contractor explained what is or
+                  is not included.
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">After you submit</h2>
+            </div>
+            <p class="summary-box">
+              We’ll confirm receipt, review your estimate and concerns, then
+              follow up by email with payment instructions and a target delivery
+              date for your written summary and question list.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Contractor Estimate Review Pro is an informational review service only and
+      does not provide legal, engineering, or architectural advice.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

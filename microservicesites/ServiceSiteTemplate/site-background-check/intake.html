@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dispute Intake – Background Check Error Dispute Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">BG</div>
+          <div>
+            <span class="logo__text-sub">Report Cleanup</span>
+            Background Check Error Dispute Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Tell us about the error
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Share the background report details and what’s wrong.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand who ordered the report, what it
+              was for, and which items you believe are inaccurate or outdated.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email address * <span>(for your draft & updates)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="phone"
+                  >Mobile number <span>(optional)</span></label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+              <div>
+                <label for="reportPurpose">
+                  What was the background check for? *
+                </label>
+                <select
+                  id="reportPurpose"
+                  name="reportPurpose"
+                  required
+                >
+                  <option value="">Select an option</option>
+                  <option value="employment">Employment</option>
+                  <option value="housing">Housing / rental</option>
+                  <option value="volunteer">Volunteer / licensing</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="screeningCompany">
+                Screening company or report provider *
+              </label>
+              <input
+                type="text"
+                id="screeningCompany"
+                name="screeningCompany"
+                required
+                placeholder="Example: Checkr, First Advantage, HireRight, etc."
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="dateOfReport">
+                When did you receive the report or decision? *
+              </label>
+              <input
+                type="text"
+                id="dateOfReport"
+                name="dateOfReport"
+                required
+                placeholder="Approximate date (MM/YYYY)"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="employerOrLandlord">
+                Employer, landlord, or organization name
+                <span>(optional but helpful)</span>
+              </label>
+              <input
+                type="text"
+                id="employerOrLandlord"
+                name="employerOrLandlord"
+                placeholder="Who requested the background check?"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="itemsWrong">
+                What items on the report are wrong or outdated? *
+              </label>
+              <textarea
+                id="itemsWrong"
+                name="itemsWrong"
+                required
+                placeholder="List each item you believe is wrong and why (e.g., not yours, already dismissed, too old, expunged, paid, etc.)."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="supportingDocs">
+                What documents do you have to support your dispute? *
+              </label>
+              <textarea
+                id="supportingDocs"
+                name="supportingDocs"
+                required
+                placeholder="Example: court records, letters from agencies, ID documents, employer letters, etc. You can paste cloud links but do not include SSNs or full account numbers."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="impact">
+                How has this error affected you? *
+              </label>
+              <textarea
+                id="impact"
+                name="impact"
+                required
+                placeholder="Example: lost job offer, denied housing, delayed onboarding, reputational harm, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="priorDispute">
+                Have you already disputed this with the company?
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="priorDispute"
+                name="priorDispute"
+                placeholder="If yes, describe what you did, when, and what response (if any) you received."
+              ></textarea>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this service prepares dispute documents and is not
+                legal, tax, or credit repair advice. I will consult a licensed
+                attorney or qualified professional if I need legal guidance.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my dispute details
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically review new background check disputes within 1–2
+                  business days.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>
+                  A copy of the report or screenshots of the specific problem
+                  items.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📎</span>
+                <span>
+                  Court records, letters, or official documents that show why
+                  the item is wrong or outdated.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Any emails or notices you’ve received from the screening
+                  company or the organization that used the report.
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">After you submit</h2>
+            </div>
+            <p class="summary-box">
+              We’ll confirm receipt, review your answers and documentation
+              details, then follow up by email with payment instructions and an
+              estimated delivery date for your dispute letter draft.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Background Check Error Dispute Pro – document-preparation only. Not a law
+      firm, credit repair organization, or legal advisor.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

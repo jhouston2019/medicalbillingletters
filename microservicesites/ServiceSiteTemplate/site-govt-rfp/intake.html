@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RFP Editing Intake – Government RFP Proposal Editing Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">RP</div>
+          <div>
+            <span class="logo__text-sub">Gov Proposals</span>
+            Government RFP Proposal Editing Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Share your RFP and draft
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Tell us about the RFP and which draft volume needs editing.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand the opportunity, your draft,
+              and where you want the editing effort focused.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email * <span>(for edits & questions)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="organization">Company / organization *</label>
+                <input
+                  type="text"
+                  id="organization"
+                  name="organization"
+                  required
+                  placeholder="Your business or team name"
+                />
+              </div>
+              <div>
+                <label for="role">
+                  Your role
+                  <span>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="role"
+                  name="role"
+                  placeholder="Example: owner, proposal manager, BD lead"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="agency">
+                Buying agency or department *
+              </label>
+              <input
+                type="text"
+                id="agency"
+                name="agency"
+                required
+                placeholder="Example: DHS, State of Texas, City of Seattle, etc."
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="rfpTitle">
+                RFP title and number *
+              </label>
+              <input
+                type="text"
+                id="rfpTitle"
+                name="rfpTitle"
+                required
+                placeholder="Example: IT Support Services RFP #ABC-1234"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="rfpLink">
+                Link to the RFP and any key sections *
+              </label>
+              <textarea
+                id="rfpLink"
+                name="rfpLink"
+                required
+                placeholder="Paste the primary link to the RFP and, if helpful, direct links or page references for Instructions and Evaluation Criteria."
+              ></textarea>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="dueDate">
+                  Proposal due date & time *
+                </label>
+                <input
+                  type="text"
+                  id="dueDate"
+                  name="dueDate"
+                  required
+                  placeholder="Example: MM/DD, 2:00 PM local"
+                />
+              </div>
+              <div>
+                <label for="internalDeadline">
+                  Internal deadline for edited draft
+                  <span>(recommended)</span>
+                </label>
+                <input
+                  type="text"
+                  id="internalDeadline"
+                  name="internalDeadline"
+                  placeholder="Example: 2–3 days before official due date"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="draftAccess">
+                How will you share your draft proposal? *
+              </label>
+              <textarea
+                id="draftAccess"
+                name="draftAccess"
+                required
+                placeholder="Paste a link to your draft (Google Docs, SharePoint, etc.). Make sure editing or commenting access is enabled."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="volume">
+                Which volume(s) need editing? *
+              </label>
+              <textarea
+                id="volume"
+                name="volume"
+                required
+                placeholder="Example: Technical Volume only, or Technical + Management, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="focusAreas">
+                What should we focus on most? *
+              </label>
+              <textarea
+                id="focusAreas"
+                name="focusAreas"
+                required
+                placeholder="Example: readability, transitions, aligning headings to Section L/M, trimming length, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="pageCount">
+                Approximate page count
+                <span>(optional)</span>
+              </label>
+              <input
+                type="text"
+                id="pageCount"
+                name="pageCount"
+                placeholder="Example: ~20 pages technical"
+              />
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this is an editing-only service. I remain
+                responsible for proposal content, pricing, compliance, and
+                timely submission, and will consult qualified professionals as
+                needed.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my RFP editing request
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically respond within 1 business day to confirm scope
+                  and scheduling around your deadline.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">🔗</span>
+                <span>The full RFP and any amendments.</span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>Your latest draft in an editable format (Word or Google Docs).</span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📆</span>
+                <span>A clear internal deadline for when you want edits returned.</span>
+              </li>
+            </ul>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Government RFP Proposal Editing Pro – editing-only support. You retain
+      full responsibility for compliance and submission.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offer Intake – Job Offer Letter Review Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">JO</div>
+          <div>
+            <span class="logo__text-sub">Offer Clarity</span>
+            Job Offer Letter Review Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Share your offer letter
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Tell us about the role, offer, and what matters to you.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us focus your review on what you care about
+              most—compensation, flexibility, growth, or risk.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email address * <span>(for your review & updates)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="employerName">Employer/company name *</label>
+                <input
+                  type="text"
+                  id="employerName"
+                  name="employerName"
+                  required
+                  placeholder="Company making the offer"
+                />
+              </div>
+              <div>
+                <label for="jobTitle">Role / job title *</label>
+                <input
+                  type="text"
+                  id="jobTitle"
+                  name="jobTitle"
+                  required
+                  placeholder="Title listed in the offer"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="baseSalary">
+                  Base salary or hourly rate (if known)
+                </label>
+                <input
+                  type="text"
+                  id="baseSalary"
+                  name="baseSalary"
+                  placeholder="Example: $120,000 base or $55/hr"
+                />
+              </div>
+              <div>
+                <label for="deadline">
+                  When do they want your answer by? *
+                </label>
+                <input
+                  type="text"
+                  id="deadline"
+                  name="deadline"
+                  required
+                  placeholder="Example: need a decision by MM/DD"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="offerAccess">
+                How will you share the offer letter? *
+              </label>
+              <textarea
+                id="offerAccess"
+                name="offerAccess"
+                required
+                placeholder="Paste key sections, or share a secure link (Google Drive, Dropbox, etc.). Do not include SSNs or full bank numbers."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="priorities">
+                What are your top 3 priorities for this role? *
+              </label>
+              <textarea
+                id="priorities"
+                name="priorities"
+                required
+                placeholder="Example: total compensation, remote work flexibility, growth / promotion path, work-life balance, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="concerns">
+                Anything that already concerns you in the offer? *
+              </label>
+              <textarea
+                id="concerns"
+                name="concerns"
+                required
+                placeholder="Example: non-compete language, bonus language, equity vesting schedule, relocation requirements, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="otherOffers">
+                Are you comparing this to other offers?
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="otherOffers"
+                name="otherOffers"
+                placeholder="If yes, briefly describe the alternatives (no need for exact company names if you prefer not to share)."
+              ></textarea>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this is an informational clarity service, not legal,
+                tax, immigration, or investment advice. I will consult licensed
+                professionals for advice in those areas.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my job offer
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically review new offers within 1–2 business days.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>
+                  The full offer letter and any benefits or equity summaries.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Important clarifications from recruiters or hiring managers
+                  (screenshots or quotes are fine).
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">🎯</span>
+                <span>
+                  Notes on what would make this a clear “yes” or “no” for you.
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">After you submit</h2>
+            </div>
+            <p class="summary-box">
+              We’ll confirm receipt, review your offer and priorities, then
+              follow up by email with payment instructions and an estimated
+              delivery date for your offer summary and question checklist.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Job Offer Letter Review Pro – informational clarity service only. Not a
+      substitute for legal, tax, or immigration advice.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dispute Intake – Medical Billing Dispute Letter Service</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">MD</div>
+          <div>
+            <span class="logo__text-sub">Bill Clarity</span>
+            Medical Billing Dispute Letter Service
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Tell us about the bill
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Share the bill, insurance info, and what you believe is wrong.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand the medical bill, the
+              insurance side, and what outcome you’re hoping for, so we can
+              prepare a more focused dispute letter.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email * <span>(for drafts & updates)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="phone"
+                  >Mobile number <span>(optional)</span></label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+              <div>
+                <label for="state">
+                  State of residence *
+                </label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  required
+                  placeholder="Example: Texas"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="providerName">
+                Provider / hospital / clinic name *
+              </label>
+              <input
+                type="text"
+                id="providerName"
+                name="providerName"
+                required
+                placeholder="Who sent you the bill?"
+              />
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="serviceDate">
+                  Date(s) of service *
+                </label>
+                <input
+                  type="text"
+                  id="serviceDate"
+                  name="serviceDate"
+                  required
+                  placeholder="Approximate date(s) of care"
+                />
+              </div>
+              <div>
+                <label for="billAmount">
+                  Total amount billed *
+                </label>
+                <input
+                  type="number"
+                  id="billAmount"
+                  name="billAmount"
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Example: 4500"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="insuranceStatus">
+                Do you have health insurance for this bill? *
+              </label>
+              <select
+                id="insuranceStatus"
+                name="insuranceStatus"
+                required
+              >
+                <option value="">Select one</option>
+                <option value="insured">Yes, I have insurance</option>
+                <option value="uninsured">No, I do not have insurance</option>
+                <option value="not-sure">Not sure / complicated</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="whatSeemsWrong">
+                In your own words, what seems wrong about this bill? *
+              </label>
+              <textarea
+                id="whatSeemsWrong"
+                name="whatSeemsWrong"
+                required
+                placeholder="Example: billed as out-of-network when it should have been in-network, duplicate charges, services not received, incorrect copay or deductible, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="documents">
+                How will you share bills, EOBs, and plan details? *
+              </label>
+              <textarea
+                id="documents"
+                name="documents"
+                required
+                placeholder="Paste secure links (Google Drive, portal exports, etc.) or describe how you can send copies. Remove or redact SSNs and full account numbers."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="contacts">
+                Have you already contacted the provider or insurer?
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="contacts"
+                name="contacts"
+                placeholder="If yes, describe who you spoke with, when, and what they said."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="desiredOutcome">
+                What outcome would feel like a win for you? *
+              </label>
+              <textarea
+                id="desiredOutcome"
+                name="desiredOutcome"
+                required
+                placeholder="Example: correct coding and reprocessing, reduction of out-of-network charges, reasonable payment plan, etc."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="timeline">
+                Any deadlines or urgency?
+                <span>(optional)</span>
+              </label>
+              <input
+                type="text"
+                id="timeline"
+                name="timeline"
+                placeholder="Example: bill due date, sent to collections notice, or appeal deadline"
+              />
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this is a document-preparation service and not
+                legal, medical, or insurance advice. I will avoid sending highly
+                sensitive personal data through this form and will consult
+                qualified professionals if I need advice.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my billing dispute details
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically review new cases within 1–2 business days.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>
+                  Copies of bills and EOBs with names, dates of service, and
+                  amounts clearly visible.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📘</span>
+                <span>
+                  Your plan’s summary of benefits or at least a link to the
+                  plan overview.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Any prior letters or portal messages you’ve already sent or
+                  received about this bill.
+                </span>
+              </li>
+            </ul>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Medical Billing Dispute Letter Service – not a law firm, medical
+      provider, or insurance company. No guarantees of outcome.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

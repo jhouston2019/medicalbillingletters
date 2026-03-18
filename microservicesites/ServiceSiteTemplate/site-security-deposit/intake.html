@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Security Deposit Intake – Security Deposit Recovery Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">SD</div>
+          <div>
+            <span class="logo__text-sub">Tenant Support</span>
+            Security Deposit Recovery Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Tell us about your deposit
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Share the details of your rental and security deposit dispute.
+            </h1>
+            <p class="hero__subtitle">
+              This secure form gives us the information we need to prepare a
+              strong, fact-based demand letter you can send to your landlord.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email address * <span>(for your letter & updates)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="phone"
+                  >Mobile number <span>(optional, for quick questions)</span></label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+              <div>
+                <label for="state">Rental state *</label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  required
+                  placeholder="Example: California"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="propertyAddress">
+                Rental property address *
+              </label>
+              <input
+                type="text"
+                id="propertyAddress"
+                name="propertyAddress"
+                required
+                placeholder="Street, city, state, ZIP"
+              />
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="moveIn">Move-in date *</label>
+                <input
+                  type="text"
+                  id="moveIn"
+                  name="moveIn"
+                  required
+                  placeholder="Approx. move-in date"
+                />
+              </div>
+              <div>
+                <label for="moveOut">Move-out date *</label>
+                <input
+                  type="text"
+                  id="moveOut"
+                  name="moveOut"
+                  required
+                  placeholder="Approx. move-out date"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="depositAmount">Total deposit amount *</label>
+                <input
+                  type="number"
+                  id="depositAmount"
+                  name="depositAmount"
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Example: 2000"
+                />
+              </div>
+              <div>
+                <label for="returnedAmount"
+                  >Amount returned so far *</label
+                >
+                <input
+                  type="number"
+                  id="returnedAmount"
+                  name="returnedAmount"
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Example: 0"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="landlordInfo">
+                Landlord / property manager information *
+                <span>(name, mailing address, email if known)</span>
+              </label>
+              <textarea
+                id="landlordInfo"
+                name="landlordInfo"
+                required
+                placeholder="Full legal name, mailing address, and any email or phone number you have for your landlord or property manager."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="landlordReason">
+                What reason did your landlord give for keeping your deposit?
+                *
+              </label>
+              <textarea
+                id="landlordReason"
+                name="landlordReason"
+                required
+                placeholder="Paste the landlord's explanation or describe what they claimed (e.g., 'carpet replacement', 'cleaning', 'late fees')."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="evidence">
+                What evidence do you have that the charges are unfair? *
+              </label>
+              <textarea
+                id="evidence"
+                name="evidence"
+                required
+                placeholder="Example: move-out photos, inspection notes, messages showing you left the place clean, proof of professional cleaning, etc."
+              ></textarea>
+              <p class="help-text">
+                You can mention file names or cloud links here (e.g., Google
+                Drive, Dropbox). Do not upload password or bank details.
+              </p>
+            </div>
+
+            <div class="field-group">
+              <label for="timeline">
+                Timeline so far
+                <span>(optional but helpful)</span>
+              </label>
+              <textarea
+                id="timeline"
+                name="timeline"
+                placeholder="Example: date you moved out, dates you contacted the landlord, and when (if ever) you received an itemized list."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="goal">
+                What outcome are you hoping for? *
+              </label>
+              <textarea
+                id="goal"
+                name="goal"
+                required
+                placeholder="Example: 'Full refund of $2,000' or 'Refund of everything except a reasonable cleaning fee'."
+              ></textarea>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this service prepares documents and does not act as
+                my attorney. I will not treat this as legal advice and will
+                consult a licensed lawyer in my state if I need legal guidance.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my deposit details
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically review new deposit cases within 1–2 business
+                  days.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">What to have ready</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>Your signed lease and any addendums.</span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📸</span>
+                <span>
+                  Move-out photos or videos, especially of any areas they
+                  claimed were damaged.
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Messages/emails where you discussed the deposit or were given
+                  a list of charges.
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Next steps after you submit</h2>
+            </div>
+            <p class="summary-box">
+              We’ll review your information and, if it appears to be a fit for
+              this service, we’ll send payment instructions and an estimated
+              delivery date for your draft demand letter.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Security Deposit Recovery Pro is not a law firm and does not replace
+      advice from a licensed attorney.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+

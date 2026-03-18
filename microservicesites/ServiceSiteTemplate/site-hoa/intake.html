@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HOA Intake – HOA Letter Response Pro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <header class="header">
+        <div class="logo">
+          <div class="logo__mark">HOA</div>
+          <div>
+            <span class="logo__text-sub">Homeowner Support</span>
+            HOA Letter Response Pro
+          </div>
+        </div>
+        <nav class="top-nav">
+          <a href="index.html">← Back to landing</a>
+        </nav>
+      </header>
+
+      <main class="form-layout">
+        <section class="card card--soft">
+          <div class="hero">
+            <div class="hero__eyebrow">
+              <span class="badge">
+                <span class="badge__dot"></span>
+                Step 1 · Share your HOA letter
+              </span>
+            </div>
+            <h1 class="hero__title">
+              Tell us what your HOA sent and what’s really going on.
+            </h1>
+            <p class="hero__subtitle">
+              These questions help us understand the notice, your property, and
+              your preferred outcome so we can draft a calm, clear response
+              letter.
+            </p>
+          </div>
+
+          <form action="https://formspree.io/f/PLACEHOLDER" method="POST">
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="fullName">Your full name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  placeholder="First and last name"
+                />
+              </div>
+              <div>
+                <label for="email"
+                  >Email address * <span>(for your draft & updates)</span></label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="field-group field-group--inline">
+              <div>
+                <label for="phone"
+                  >Mobile number <span>(optional, for quick questions)</span></label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+              <div>
+                <label for="propertyAddress">Property address *</label>
+                <input
+                  type="text"
+                  id="propertyAddress"
+                  name="propertyAddress"
+                  required
+                  placeholder="Street, city, state, ZIP"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="hoaName">
+                HOA or community name *
+              </label>
+              <input
+                type="text"
+                id="hoaName"
+                name="hoaName"
+                required
+                placeholder="Example: Lakeside Estates HOA"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="letterType">
+                What kind of letter did you receive? *
+              </label>
+              <select id="letterType" name="letterType" required>
+                <option value="">Select an option</option>
+                <option value="violation">Violation notice</option>
+                <option value="fine">Fine / penalty notice</option>
+                <option value="demand">Demand to fix or remove something</option>
+                <option value="hearing">Notice of hearing or meeting</option>
+                <option value="other">Other / not sure</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="deadline">
+                What deadline (if any) did the letter give you?
+              </label>
+              <input
+                type="text"
+                id="deadline"
+                name="deadline"
+                placeholder="Example: respond by MM/DD or fix by MM/DD"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="letterContent">
+                Paste or summarize what the HOA letter says *
+              </label>
+              <textarea
+                id="letterContent"
+                name="letterContent"
+                required
+                placeholder="You can paste the text of the letter or summarize the key points here. Do not include SSNs or bank details."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="yourSide">
+                What’s your side of the story? *
+              </label>
+              <textarea
+                id="yourSide"
+                name="yourSide"
+                required
+                placeholder="Explain what is really happening, any steps you’ve taken, and anything in the letter that feels inaccurate or unfair."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="photos">
+                Links to photos or documents
+                <span>(optional)</span>
+              </label>
+              <textarea
+                id="photos"
+                name="photos"
+                placeholder="If you have photos, inspection reports, or other documents, paste cloud links here (Google Drive, Dropbox, etc.)."
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="desiredOutcome">
+                What outcome would feel like a win for you? *
+              </label>
+              <textarea
+                id="desiredOutcome"
+                name="desiredOutcome"
+                required
+                placeholder="Example: waive the fine, more time to fix, clarify rules, agree on a compromise, etc."
+              ></textarea>
+            </div>
+
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                I understand this service prepares communication and does not
+                act as my attorney. I will seek legal advice from a licensed
+                lawyer if I need help understanding my rights.
+              </label>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn--primary">
+                Submit my HOA letter details
+              </button>
+              <div class="required-note">
+                <span class="note-success">
+                  We typically review new HOA letters within 1–2 business days.
+                </span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="sidebar">
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">Helpful to include</h2>
+            </div>
+            <ul class="summary-list">
+              <li>
+                <span class="summary-list__icon">📄</span>
+                <span>A clear copy of the HOA letter itself.</span>
+              </li>
+              <li>
+                <span class="summary-list__icon">📘</span>
+                <span>
+                  Any relevant rules or sections from your CC&Rs (if you know
+                  them).
+                </span>
+              </li>
+              <li>
+                <span class="summary-list__icon">✉️</span>
+                <span>
+                  Messages or emails you’ve already exchanged with the HOA or
+                  management company.
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <div class="sidebar__card-header">
+              <h2 class="sidebar__title">After you submit</h2>
+            </div>
+            <p class="summary-box">
+              We’ll confirm receipt, review your letter and responses, and then
+              follow up with payment instructions and an estimated delivery date
+              for your draft HOA response letter.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="footer">
+      HOA Letter Response Pro is a document-preparation service, not a law firm
+      or legal representative.
+    </footer>
+
+    <script src="../script.js"></script>
+  </body>
+</html>
+
+
