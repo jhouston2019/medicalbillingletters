@@ -42,105 +42,106 @@ const RISK_LEVELS = {
 };
 
 /**
- * Hard stop conditions
+ * Hard stop conditions for medical billing disputes
  */
 const HARD_STOP_CONDITIONS = {
-  FRAUD: {
+  COLLECTIONS_LAWSUIT: {
+    code: 'COLLECTIONS_LAWSUIT',
+    message: 'Collections lawsuit filed - Attorney required',
+    explanation: 'Once a lawsuit has been filed, you need legal representation. Responding without an attorney can result in default judgment and wage garnishment.',
+    severity: 'critical',
+    allowSelfResponse: false,
+    escalationRequired: true,
+    requiresAttorney: true
+  },
+  
+  FRAUD_INVESTIGATION: {
     code: 'FRAUD_INVESTIGATION',
-    message: 'This letter indicates a fraud investigation or misrepresentation inquiry. You MUST consult an attorney before responding. Any statements you make can be used against you and may result in claim denial, policy cancellation, or criminal charges.',
+    message: 'Fraud investigation - Attorney required immediately',
+    explanation: 'Medical billing fraud allegations can result in criminal charges. You need an attorney who specializes in healthcare fraud defense.',
     severity: 'critical',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  EUO: {
-    code: 'EUO_REQUEST',
-    message: 'This letter requests an Examination Under Oath (EUO). You MUST have attorney representation. EUO testimony is given under oath and can be used against you. Do not attend an EUO without legal counsel.',
+  MEDICARE_FRAUD: {
+    code: 'MEDICARE_FRAUD',
+    message: 'Medicare/Medicaid fraud investigation - Federal attorney required',
+    explanation: 'Federal healthcare fraud investigations are serious. You need an attorney experienced in federal healthcare law.',
     severity: 'critical',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  RECORDED_STATEMENT: {
-    code: 'RECORDED_STATEMENT_REQUEST',
-    message: 'This letter requests a recorded statement. You MUST consult an attorney before providing any recorded statement. Recorded statements can be used against you and may harm your claim.',
+  WAGE_GARNISHMENT: {
+    code: 'WAGE_GARNISHMENT',
+    message: 'Wage garnishment initiated - Attorney required',
+    explanation: 'Once wage garnishment has started, you need legal help to stop it and negotiate a settlement.',
     severity: 'critical',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  RESERVATION_OF_RIGHTS: {
-    code: 'RESERVATION_OF_RIGHTS',
-    message: 'This is a Reservation of Rights letter. This means the insurance company is questioning whether your claim is covered under your policy. You MUST consult an insurance coverage attorney to understand your rights and the implications.',
-    severity: 'critical',
-    allowSelfResponse: false,
-    escalationRequired: true,
-    requiresAttorney: true
-  },
-  
-  LITIGATION: {
-    code: 'LITIGATION_INVOLVED',
-    message: 'This letter involves attorneys, legal counsel, or litigation. You MUST have legal representation. Do not respond without consulting an attorney.',
-    severity: 'critical',
-    allowSelfResponse: false,
-    escalationRequired: true,
-    requiresAttorney: true
-  },
-  
-  BAD_FAITH: {
-    code: 'BAD_FAITH_ALLEGATIONS',
-    message: 'This letter involves bad faith allegations or serious coverage disputes. You MUST consult an attorney who specializes in insurance bad faith claims.',
-    severity: 'critical',
-    allowSelfResponse: false,
-    escalationRequired: true,
-    requiresAttorney: true
-  },
-  
-  COMMERCIAL_HIGH_VALUE: {
-    code: 'COMMERCIAL_HIGH_VALUE',
-    message: 'This is a commercial claim over $25,000. Commercial insurance claims of this value typically involve complex policy language and legal issues. You should consult an attorney or commercial insurance specialist.',
+  HIGH_VALUE_BILL: {
+    code: 'HIGH_VALUE_BILL',
+    message: 'Bill over $100,000 - Attorney consultation recommended',
+    explanation: 'For bills over $100,000, the stakes are too high for DIY dispute. An attorney can negotiate better settlements and protect your assets.',
     severity: 'high',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  PERSONAL_VERY_HIGH_VALUE: {
-    code: 'PERSONAL_VERY_HIGH_VALUE',
-    message: 'This claim is over $50,000. Claims of this value should be reviewed by an attorney to ensure you receive appropriate compensation and do not inadvertently waive rights.',
+  HOSPITAL_LIEN: {
+    code: 'HOSPITAL_LIEN',
+    message: 'Hospital lien filed - Attorney required',
+    explanation: 'Hospital liens can affect your ability to sell property or receive insurance settlements. You need legal representation.',
     severity: 'high',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  SUBROGATION: {
-    code: 'SUBROGATION_DISPUTE',
-    message: 'This letter involves subrogation or recovery actions. These involve complex legal issues regarding liability and recovery. You should consult an attorney.',
+  CLASS_ACTION: {
+    code: 'CLASS_ACTION',
+    message: 'Potential class action - Attorney consultation required',
+    explanation: 'If this is a systemic billing issue affecting multiple patients, you may be part of a class action lawsuit. Consult an attorney.',
     severity: 'high',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  COVERAGE_DISPUTE: {
-    code: 'COVERAGE_DISPUTE',
-    message: 'This letter involves a coverage dispute or policy interpretation issue. You should consult an insurance coverage attorney to understand your rights.',
+  HIPAA_VIOLATION: {
+    code: 'HIPAA_VIOLATION',
+    message: 'HIPAA violation alleged - Attorney required',
+    explanation: 'HIPAA violations are complex legal matters. You need an attorney who specializes in healthcare privacy law.',
     severity: 'high',
     allowSelfResponse: false,
     escalationRequired: true,
     requiresAttorney: true
   },
   
-  UNKNOWN_PHASE: {
-    code: 'UNKNOWN_PHASE',
-    message: 'The system cannot determine the type or phase of this letter. For your protection, you should have this letter reviewed by an attorney or insurance professional before responding.',
-    severity: 'high',
-    allowSelfResponse: false,
-    escalationRequired: true,
+  EMERGENCY_CARE_DISPUTE: {
+    code: 'EMERGENCY_CARE_DISPUTE',
+    message: 'Emergency care billing dispute detected',
+    explanation: 'Emergency care has special protections under the No Surprises Act. This tool can help, but complex cases may require attorney review.',
+    severity: 'medium',
+    allowSelfResponse: true,
+    escalationRequired: false,
+    requiresAttorney: false
+  },
+  
+  OUT_OF_NETWORK_SURPRISE: {
+    code: 'OUT_OF_NETWORK_SURPRISE',
+    message: 'Surprise billing detected',
+    explanation: 'The No Surprises Act provides protections. This tool can help you dispute surprise bills, but complex cases may need attorney review.',
+    severity: 'medium',
+    allowSelfResponse: true,
+    escalationRequired: false,
     requiresAttorney: false
   }
 };
@@ -161,108 +162,95 @@ function evaluateRisk(params) {
   const triggeredConditions = [];
   let highestSeverity = RISK_LEVELS.SAFE;
   
-  // Check phase-based hard stops
-  if (phase.phase === 'fraud_investigation') {
-    triggeredConditions.push(HARD_STOP_CONDITIONS.FRAUD);
-    highestSeverity = RISK_LEVELS.HARD_STOP;
-  }
-  
-  if (phase.phase === 'euo_request') {
-    triggeredConditions.push(HARD_STOP_CONDITIONS.EUO);
-    highestSeverity = RISK_LEVELS.HARD_STOP;
-  }
-  
-  if (phase.phase === 'recorded_statement') {
-    triggeredConditions.push(HARD_STOP_CONDITIONS.RECORDED_STATEMENT);
-    highestSeverity = RISK_LEVELS.HARD_STOP;
-  }
-  
-  if (phase.phase === 'reservation_of_rights') {
-    triggeredConditions.push(HARD_STOP_CONDITIONS.RESERVATION_OF_RIGHTS);
-    highestSeverity = RISK_LEVELS.HARD_STOP;
-  }
-  
-  if (phase.phase === 'litigation') {
-    triggeredConditions.push(HARD_STOP_CONDITIONS.LITIGATION);
-    highestSeverity = RISK_LEVELS.HARD_STOP;
-  }
-  
-  if (phase.phase === 'unknown') {
-    triggeredConditions.push(HARD_STOP_CONDITIONS.UNKNOWN_PHASE);
-    highestSeverity = RISK_LEVELS.HARD_STOP;
-  }
-  
-  // Check user-provided indicators
-  if (userChecks) {
-    if (userChecks.fraud) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.FRAUD);
-      highestSeverity = RISK_LEVELS.HARD_STOP;
-    }
-    if (userChecks.euo) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.EUO);
-      highestSeverity = RISK_LEVELS.HARD_STOP;
-    }
-    if (userChecks.recordedStatement) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.RECORDED_STATEMENT);
-      highestSeverity = RISK_LEVELS.HARD_STOP;
-    }
-    if (userChecks.reservation) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.RESERVATION_OF_RIGHTS);
-      highestSeverity = RISK_LEVELS.HARD_STOP;
-    }
-    if (userChecks.attorney) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.LITIGATION);
-      highestSeverity = RISK_LEVELS.HARD_STOP;
-    }
-    if (userChecks.badFaith) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.BAD_FAITH);
-      highestSeverity = RISK_LEVELS.HARD_STOP;
-    }
-  }
-  
-  // Check classification-based hard stops
-  if (classification) {
-    // Commercial + high value
-    if (classification.isCommercial && classification.isHighValue) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.COMMERCIAL_HIGH_VALUE);
-      if (highestSeverity !== RISK_LEVELS.HARD_STOP) {
-        highestSeverity = RISK_LEVELS.HIGH_RISK;
-      }
-    }
-    
-    // Any claim over $50k
-    if (classification.claimAmount === 'over_50k') {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.PERSONAL_VERY_HIGH_VALUE);
-      if (highestSeverity !== RISK_LEVELS.HARD_STOP) {
-        highestSeverity = RISK_LEVELS.HIGH_RISK;
-      }
-    }
-  }
-  
-  // Check letter text for additional risk indicators
+  // Check letter text for medical billing risk indicators
   if (letterText) {
     const lowerText = letterText.toLowerCase();
     
-    // Subrogation
-    if (lowerText.includes('subrogation') || lowerText.includes('recovery') || lowerText.includes('reimbursement')) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.SUBROGATION);
-      if (highestSeverity === RISK_LEVELS.SAFE) {
-        highestSeverity = RISK_LEVELS.HIGH_RISK;
-      }
-    }
-    
-    // Coverage dispute
-    if (lowerText.includes('coverage dispute') || lowerText.includes('policy interpretation') || lowerText.includes('coverage question')) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.COVERAGE_DISPUTE);
-      if (highestSeverity === RISK_LEVELS.SAFE) {
-        highestSeverity = RISK_LEVELS.HIGH_RISK;
-      }
-    }
-    
-    // Bad faith indicators
-    if (lowerText.includes('bad faith') || lowerText.includes('unfair claim practice')) {
-      triggeredConditions.push(HARD_STOP_CONDITIONS.BAD_FAITH);
+    // Collections lawsuit
+    if (lowerText.includes('lawsuit') || lowerText.includes('summons') || lowerText.includes('court') || 
+        lowerText.includes('legal action') || lowerText.includes('judgment')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.COLLECTIONS_LAWSUIT);
       highestSeverity = RISK_LEVELS.HARD_STOP;
+    }
+    
+    // Fraud investigation
+    if (lowerText.includes('fraud') || lowerText.includes('false claim') || 
+        lowerText.includes('misrepresentation') || lowerText.includes('identity theft')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.FRAUD_INVESTIGATION);
+      highestSeverity = RISK_LEVELS.HARD_STOP;
+    }
+    
+    // Medicare/Medicaid fraud
+    if ((lowerText.includes('medicare') || lowerText.includes('medicaid')) && 
+        (lowerText.includes('fraud') || lowerText.includes('investigation') || lowerText.includes('cms'))) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.MEDICARE_FRAUD);
+      highestSeverity = RISK_LEVELS.HARD_STOP;
+    }
+    
+    // Wage garnishment
+    if (lowerText.includes('wage garnishment') || lowerText.includes('bank levy') || 
+        lowerText.includes('asset seizure')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.WAGE_GARNISHMENT);
+      highestSeverity = RISK_LEVELS.HARD_STOP;
+    }
+    
+    // Hospital lien
+    if (lowerText.includes('hospital lien') || lowerText.includes('medical lien') || 
+        lowerText.includes('lien filed')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.HOSPITAL_LIEN);
+      if (highestSeverity !== RISK_LEVELS.HARD_STOP) {
+        highestSeverity = RISK_LEVELS.HIGH_RISK;
+      }
+    }
+    
+    // Class action
+    if (lowerText.includes('class action') || lowerText.includes('multiple patients') || 
+        lowerText.includes('systemic billing')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.CLASS_ACTION);
+      if (highestSeverity !== RISK_LEVELS.HARD_STOP) {
+        highestSeverity = RISK_LEVELS.HIGH_RISK;
+      }
+    }
+    
+    // HIPAA violation
+    if (lowerText.includes('hipaa violation') || lowerText.includes('privacy breach') || 
+        lowerText.includes('unauthorized disclosure')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.HIPAA_VIOLATION);
+      if (highestSeverity !== RISK_LEVELS.HARD_STOP) {
+        highestSeverity = RISK_LEVELS.HIGH_RISK;
+      }
+    }
+    
+    // High value bill (over $100,000)
+    const amountMatch = letterText.match(/\$[\d,]+/g);
+    if (amountMatch) {
+      amountMatch.forEach(amount => {
+        const numericAmount = parseInt(amount.replace(/[$,]/g, ''));
+        if (numericAmount >= 100000) {
+          triggeredConditions.push(HARD_STOP_CONDITIONS.HIGH_VALUE_BILL);
+          if (highestSeverity !== RISK_LEVELS.HARD_STOP) {
+            highestSeverity = RISK_LEVELS.HIGH_RISK;
+          }
+        }
+      });
+    }
+    
+    // Out-of-network surprise billing
+    if (lowerText.includes('out of network') || lowerText.includes('surprise bill') || 
+        lowerText.includes('balance bill')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.OUT_OF_NETWORK_SURPRISE);
+      if (highestSeverity === RISK_LEVELS.SAFE) {
+        highestSeverity = RISK_LEVELS.CAUTION;
+      }
+    }
+    
+    // Emergency care dispute
+    if (lowerText.includes('emergency room') || lowerText.includes('emergency department') || 
+        lowerText.includes('life-threatening') || lowerText.includes('ambulance')) {
+      triggeredConditions.push(HARD_STOP_CONDITIONS.EMERGENCY_CARE_DISPUTE);
+      if (highestSeverity === RISK_LEVELS.SAFE) {
+        highestSeverity = RISK_LEVELS.CAUTION;
+      }
     }
   }
   

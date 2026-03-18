@@ -1,8 +1,12 @@
 {
-  "name": "claimletterai",
+  "name": "medical-billing-dispute-letters-ai",
   "version": "1.0.0",
-  "description": "AI-powered insurance claim denial analysis and appeal letter generation",
+  "description": "AI-powered medical billing dispute letter generator with verified CPT/ICD-10 codes",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jhouston2019/medicalbillingletters.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build && npm run copy-html",

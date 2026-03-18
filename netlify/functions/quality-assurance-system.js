@@ -29,24 +29,47 @@ const { getSupabaseAdmin } = require("./_supabase");
  * These should be REMOVED or REPLACED with specific language
  */
 const GENERIC_AI_PHRASES = [
-  // Vague time references
-  { phrase: "in a timely manner", severity: "medium", replacement: "within [X] days" },
-  { phrase: "as soon as possible", severity: "medium", replacement: "by [specific date]" },
+  // Medical billing specific generic language
+  { phrase: "I am writing to dispute this bill", severity: "high", replacement: "I am disputing [specific charge/error]" },
+  { phrase: "This bill seems incorrect", severity: "high", replacement: "[state specific error]" },
+  { phrase: "I cannot afford this", severity: "high", replacement: "[remove - focus on billing errors]" },
+  { phrase: "Please reduce my bill", severity: "high", replacement: "I request adjustment of [specific amount]" },
+  { phrase: "This is too expensive", severity: "high", replacement: "[state specific billing error]" },
+  { phrase: "I am a hardship case", severity: "high", replacement: "[remove - focus on billing errors]" },
+  { phrase: "I need financial assistance", severity: "high", replacement: "[remove - focus on billing errors]" },
+  { phrase: "I don't understand this bill", severity: "medium", replacement: "[state specific error]" },
+  { phrase: "This doesn't make sense", severity: "medium", replacement: "[state specific error]" },
+  { phrase: "I was surprised by this bill", severity: "medium", replacement: "[cite No Surprises Act if applicable]" },
+  
+  // Generic AI language
+  { phrase: "I hope this letter finds you well", severity: "high", replacement: "[remove]" },
+  { phrase: "I am reaching out to you", severity: "high", replacement: "[state purpose directly]" },
+  { phrase: "I would like to bring to your attention", severity: "high", replacement: "[state issue directly]" },
+  { phrase: "It has come to my attention", severity: "high", replacement: "[state issue directly]" },
+  { phrase: "I am writing to inform you", severity: "medium", replacement: "[state purpose directly]" },
+  { phrase: "Please be advised", severity: "medium", replacement: "[state fact directly]" },
+  { phrase: "Kindly note", severity: "medium", replacement: "[state fact directly]" },
+  { phrase: "I trust this matter will be resolved", severity: "medium", replacement: "I expect resolution by [date]" },
+  
+  // Emotional appeals
+  { phrase: "This is causing me stress", severity: "high", replacement: "[remove]" },
+  { phrase: "I am very upset", severity: "high", replacement: "[remove]" },
+  { phrase: "This is unfair", severity: "high", replacement: "[state specific billing error]" },
+  { phrase: "I feel cheated", severity: "high", replacement: "[remove]" },
+  { phrase: "This is outrageous", severity: "high", replacement: "[remove]" },
+  { phrase: "I am disappointed", severity: "high", replacement: "[remove]" },
+  
+  // Vague language
+  { phrase: "as soon as possible", severity: "medium", replacement: "within 30 days" },
   { phrase: "at your earliest convenience", severity: "low", replacement: "by [specific date]" },
-  { phrase: "in due course", severity: "medium", replacement: "within [X] business days" },
+  { phrase: "in a timely manner", severity: "medium", replacement: "within [X] days" },
   { phrase: "promptly", severity: "low", replacement: "within [X] days" },
+  { phrase: "expeditiously", severity: "medium", replacement: "within [X] days" },
   
   // Vague amount references
   { phrase: "appropriate compensation", severity: "high", replacement: "$[specific amount]" },
   { phrase: "fair settlement", severity: "high", replacement: "$[specific amount]" },
   { phrase: "reasonable amount", severity: "high", replacement: "$[specific amount]" },
-  { phrase: "adequate coverage", severity: "medium", replacement: "[specific coverage amount]" },
-  
-  // Generic requests
-  { phrase: "I request your attention to this matter", severity: "high", replacement: "I request [specific action]" },
-  { phrase: "please review", severity: "medium", replacement: "please review and respond by [date]" },
-  { phrase: "I look forward to your response", severity: "low", replacement: "Please respond by [specific date]" },
-  { phrase: "I await your reply", severity: "low", replacement: "Please respond by [specific date]" },
   
   // AI-typical hedging
   { phrase: "it appears that", severity: "medium", replacement: "[state fact directly]" },
@@ -62,12 +85,6 @@ const GENERIC_AI_PHRASES = [
   { phrase: "heretofore", severity: "medium", replacement: "[specific time reference]" },
   { phrase: "henceforth", severity: "medium", replacement: "from [date] forward" },
   
-  // Generic descriptions
-  { phrase: "the incident in question", severity: "high", replacement: "the [specific date] incident" },
-  { phrase: "the matter at hand", severity: "high", replacement: "[specific claim/issue]" },
-  { phrase: "this situation", severity: "medium", replacement: "[specific situation]" },
-  { phrase: "these circumstances", severity: "medium", replacement: "[specific circumstances]" },
-  
   // Weak action verbs
   { phrase: "I would like to", severity: "medium", replacement: "I request" },
   { phrase: "I wish to", severity: "medium", replacement: "I request" },
@@ -81,16 +98,8 @@ const GENERIC_AI_PHRASES = [
   { phrase: "please let me know", severity: "medium", replacement: "please respond by [date]" },
   
   // Redundant phrases
-  { phrase: "I am writing to inform you", severity: "medium", replacement: "[state purpose directly]" },
   { phrase: "I am writing this letter to", severity: "medium", replacement: "[state purpose directly]" },
-  { phrase: "the purpose of this letter is", severity: "medium", replacement: "[state purpose directly]" },
-  
-  // Emotional/subjective language
-  { phrase: "unfair", severity: "high", replacement: "[state factual basis]" },
-  { phrase: "unreasonable", severity: "high", replacement: "[state factual basis]" },
-  { phrase: "disappointed", severity: "high", replacement: "[remove]" },
-  { phrase: "frustrated", severity: "high", replacement: "[remove]" },
-  { phrase: "concerned", severity: "medium", replacement: "[state specific issue]" }
+  { phrase: "the purpose of this letter is", severity: "medium", replacement: "[state purpose directly]" }
 ];
 
 // ============================================================================
@@ -121,24 +130,34 @@ const SPECIFICITY_CHECKS = {
     examples: ["$5,000.00", "$1,234.56"]
   },
   
-  claimNumbers: {
+  accountNumbers: {
     patterns: [
-      /claim\s+(?:number|#|no\.?):\s*[A-Z0-9-]+/gi,
-      /claim\s+[A-Z0-9-]{5,}/gi
+      /(?:account|patient|medical record)\s+(?:number|#|no\.?):\s*[A-Z0-9-]+/gi,
+      /account\s+[A-Z0-9-]{5,}/gi
     ],
     weight: 20,
     required: true,
-    examples: ["Claim Number: ABC-123-456", "Claim #XYZ789"]
+    examples: ["Account Number: MED-123-456", "Patient #XYZ789"]
   },
   
-  policyNumbers: {
+  cptCodes: {
     patterns: [
-      /policy\s+(?:number|#|no\.?):\s*[A-Z0-9-]+/gi,
-      /policy\s+[A-Z0-9-]{5,}/gi
+      /\bCPT\s+\d{5}\b/gi,
+      /\b\d{5}\b/g
+    ],
+    weight: 20,
+    required: false,
+    examples: ["CPT 99213", "71046"]
+  },
+  
+  icd10Codes: {
+    patterns: [
+      /\bICD-10\s+[A-Z]\d{2}(\.\d{1,4})?\b/gi,
+      /\b[A-Z]\d{2}\.\d{1,4}\b/g
     ],
     weight: 15,
-    required: true,
-    examples: ["Policy Number: POL-987-654", "Policy #ABC123"]
+    required: false,
+    examples: ["ICD-10 E11.9", "M54.5"]
   },
   
   deadlines: {

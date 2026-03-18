@@ -26,9 +26,291 @@ const { getSupabaseAdmin } = require("./_supabase");
 // ============================================================================
 
 /**
- * State insurance code references
- * Key provisions commonly cited in claim disputes
+ * Medical billing citation database
+ * CPT codes, ICD-10 codes, federal regulations, state balance billing laws
  */
+const CITATION_DATABASE = {
+  // CPT CODES (Current Procedural Terminology)
+  cpt_codes: {
+    // Office Visits
+    '99201': { description: 'Office visit, new patient, level 1', category: 'E&M', valid: true },
+    '99202': { description: 'Office visit, new patient, level 2', category: 'E&M', valid: true },
+    '99203': { description: 'Office visit, new patient, level 3', category: 'E&M', valid: true },
+    '99204': { description: 'Office visit, new patient, level 4', category: 'E&M', valid: true },
+    '99205': { description: 'Office visit, new patient, level 5', category: 'E&M', valid: true },
+    '99211': { description: 'Office visit, established patient, level 1', category: 'E&M', valid: true },
+    '99212': { description: 'Office visit, established patient, level 2', category: 'E&M', valid: true },
+    '99213': { description: 'Office visit, established patient, level 3', category: 'E&M', valid: true },
+    '99214': { description: 'Office visit, established patient, level 4', category: 'E&M', valid: true },
+    '99215': { description: 'Office visit, established patient, level 5', category: 'E&M', valid: true },
+    
+    // Emergency Department
+    '99281': { description: 'Emergency department visit, level 1', category: 'E&M', valid: true },
+    '99282': { description: 'Emergency department visit, level 2', category: 'E&M', valid: true },
+    '99283': { description: 'Emergency department visit, level 3', category: 'E&M', valid: true },
+    '99284': { description: 'Emergency department visit, level 4', category: 'E&M', valid: true },
+    '99285': { description: 'Emergency department visit, level 5', category: 'E&M', valid: true },
+    
+    // Hospital Inpatient
+    '99221': { description: 'Initial hospital care, level 1', category: 'E&M', valid: true },
+    '99222': { description: 'Initial hospital care, level 2', category: 'E&M', valid: true },
+    '99223': { description: 'Initial hospital care, level 3', category: 'E&M', valid: true },
+    '99231': { description: 'Subsequent hospital care, level 1', category: 'E&M', valid: true },
+    '99232': { description: 'Subsequent hospital care, level 2', category: 'E&M', valid: true },
+    '99233': { description: 'Subsequent hospital care, level 3', category: 'E&M', valid: true },
+    
+    // Surgery - Common Procedures
+    '10060': { description: 'Incision and drainage of abscess', category: 'Surgery', valid: true },
+    '11042': { description: 'Debridement, subcutaneous tissue', category: 'Surgery', valid: true },
+    '12001': { description: 'Simple repair of superficial wounds', category: 'Surgery', valid: true },
+    '29881': { description: 'Knee arthroscopy/surgery', category: 'Surgery', valid: true },
+    '43239': { description: 'Upper GI endoscopy with biopsy', category: 'Surgery', valid: true },
+    '45378': { description: 'Colonoscopy, diagnostic', category: 'Surgery', valid: true },
+    '47562': { description: 'Laparoscopic cholecystectomy', category: 'Surgery', valid: true },
+    
+    // Radiology
+    '70450': { description: 'CT head/brain without contrast', category: 'Radiology', valid: true },
+    '70553': { description: 'MRI brain with and without contrast', category: 'Radiology', valid: true },
+    '71045': { description: 'Chest X-ray, single view', category: 'Radiology', valid: true },
+    '71046': { description: 'Chest X-ray, 2 views', category: 'Radiology', valid: true },
+    '72148': { description: 'MRI lumbar spine without contrast', category: 'Radiology', valid: true },
+    '73721': { description: 'MRI any joint of lower extremity', category: 'Radiology', valid: true },
+    '76700': { description: 'Ultrasound, abdominal, complete', category: 'Radiology', valid: true },
+    
+    // Laboratory
+    '80053': { description: 'Comprehensive metabolic panel', category: 'Laboratory', valid: true },
+    '85025': { description: 'Complete blood count (CBC) with differential', category: 'Laboratory', valid: true },
+    '85610': { description: 'Prothrombin time (PT)', category: 'Laboratory', valid: true },
+    '86900': { description: 'Blood type', category: 'Laboratory', valid: true },
+    '87070': { description: 'Culture, bacterial', category: 'Laboratory', valid: true },
+    
+    // Anesthesia
+    '00100': { description: 'Anesthesia for procedures on salivary glands', category: 'Anesthesia', valid: true },
+    '00400': { description: 'Anesthesia for procedures on the integumentary system', category: 'Anesthesia', valid: true },
+    '00800': { description: 'Anesthesia for procedures on lower abdomen', category: 'Anesthesia', valid: true }
+  },
+  
+  // ICD-10 DIAGNOSIS CODES
+  icd10_codes: {
+    // Diabetes
+    'E11.9': { description: 'Type 2 diabetes mellitus without complications', category: 'Endocrine', valid: true },
+    'E11.65': { description: 'Type 2 diabetes with hyperglycemia', category: 'Endocrine', valid: true },
+    
+    // Hypertension
+    'I10': { description: 'Essential (primary) hypertension', category: 'Circulatory', valid: true },
+    'I11.0': { description: 'Hypertensive heart disease with heart failure', category: 'Circulatory', valid: true },
+    
+    // Respiratory
+    'J44.0': { description: 'COPD with acute lower respiratory infection', category: 'Respiratory', valid: true },
+    'J44.1': { description: 'COPD with acute exacerbation', category: 'Respiratory', valid: true },
+    'J45.909': { description: 'Unspecified asthma, uncomplicated', category: 'Respiratory', valid: true },
+    
+    // Musculoskeletal
+    'M25.561': { description: 'Pain in right knee', category: 'Musculoskeletal', valid: true },
+    'M54.5': { description: 'Low back pain', category: 'Musculoskeletal', valid: true },
+    'M79.3': { description: 'Panniculitis, unspecified', category: 'Musculoskeletal', valid: true },
+    
+    // Injury
+    'S82.001A': { description: 'Fracture of right patella, initial encounter', category: 'Injury', valid: true },
+    'S06.0X0A': { description: 'Concussion without loss of consciousness, initial', category: 'Injury', valid: true },
+    
+    // Cardiovascular
+    'I21.9': { description: 'Acute myocardial infarction, unspecified', category: 'Circulatory', valid: true },
+    'I50.9': { description: 'Heart failure, unspecified', category: 'Circulatory', valid: true },
+    
+    // Mental Health
+    'F41.1': { description: 'Generalized anxiety disorder', category: 'Mental', valid: true },
+    'F32.9': { description: 'Major depressive disorder, single episode, unspecified', category: 'Mental', valid: true },
+    
+    // General Symptoms
+    'R07.9': { description: 'Chest pain, unspecified', category: 'Symptoms', valid: true },
+    'R10.9': { description: 'Unspecified abdominal pain', category: 'Symptoms', valid: true },
+    'R50.9': { description: 'Fever, unspecified', category: 'Symptoms', valid: true }
+  },
+  
+  // FEDERAL REGULATIONS
+  federal_regulations: {
+    'No Surprises Act': {
+      citation: 'Public Law 116-260',
+      description: 'Protects patients from surprise medical bills',
+      url: 'https://www.cms.gov/nosurprises',
+      applies_to: ['Emergency services', 'Out-of-network care at in-network facilities'],
+      effective_date: '2022-01-01'
+    },
+    'Balance Billing Protection': {
+      citation: '42 USC § 300gg-111',
+      description: 'Prohibits balance billing for emergency services',
+      url: 'https://www.law.cornell.edu/uscode/text/42/300gg-111',
+      applies_to: ['Emergency services', 'Non-emergency services by out-of-network providers at in-network facilities']
+    },
+    'HIPAA Billing Requirements': {
+      citation: '45 CFR § 164.508',
+      description: 'Requires patient authorization for billing disclosures',
+      url: 'https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164',
+      applies_to: ['All healthcare providers']
+    },
+    'Medicare Claims Processing': {
+      citation: '42 CFR § 424',
+      description: 'Medicare claims submission and processing requirements',
+      url: 'https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-B/part-424',
+      applies_to: ['Medicare providers']
+    },
+    'Fair Debt Collection Practices Act': {
+      citation: '15 USC § 1692',
+      description: 'Regulates debt collection practices',
+      url: 'https://www.law.cornell.edu/uscode/text/15/chapter-41/subchapter-V',
+      applies_to: ['Medical debt collectors']
+    }
+  },
+  
+  // STATE BALANCE BILLING LAWS
+  state_laws: {
+    california: {
+      balance_billing: {
+        citation: 'California Health and Safety Code § 1371.4',
+        description: 'Prohibits balance billing for emergency services and certain out-of-network care',
+        url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=HSC&sectionNum=1371.4'
+      },
+      itemized_bill: {
+        citation: 'California Health and Safety Code § 127400',
+        description: 'Requires hospitals to provide itemized bills upon request',
+        url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=HSC&sectionNum=127400'
+      }
+    },
+    texas: {
+      balance_billing: {
+        citation: 'Texas Insurance Code § 1271.155',
+        description: 'Balance billing protections for HMO enrollees',
+        url: 'https://statutes.capitol.texas.gov/Docs/IN/htm/IN.1271.htm'
+      },
+      surprise_billing: {
+        citation: 'Texas Insurance Code § 1467',
+        description: 'Out-of-network emergency care protections',
+        url: 'https://statutes.capitol.texas.gov/Docs/IN/htm/IN.1467.htm'
+      }
+    },
+    florida: {
+      balance_billing: {
+        citation: 'Florida Statutes § 641.513',
+        description: 'HMO balance billing prohibitions',
+        url: 'http://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0600-0699/0641/0641.html'
+      }
+    },
+    new_york: {
+      surprise_billing: {
+        citation: 'New York Financial Services Law § 605',
+        description: 'Comprehensive surprise billing protections',
+        url: 'https://www.dfs.ny.gov/consumers/health_insurance/surprise_medical_bills'
+      }
+    },
+    illinois: {
+      balance_billing: {
+        citation: '215 ILCS 134',
+        description: 'Health Care Services Lien Act',
+        url: 'https://www.ilga.gov/legislation/ilcs/ilcs3.asp?ActID=1344'
+      }
+    }
+  }
+};
+
+// ============================================================================
+// MEDICAL CODE VERIFICATION FUNCTIONS
+// ============================================================================
+
+/**
+ * Verify CPT code
+ * @param {string} code - CPT code to verify
+ * @returns {Object} - Verification result
+ */
+function verifyCPTCode(code) {
+  if (!/^\d{5}$/.test(code)) {
+    return { valid: false, reason: 'Invalid CPT format (must be 5 digits)' };
+  }
+  
+  const cptInfo = CITATION_DATABASE.cpt_codes[code];
+  if (!cptInfo) {
+    return { valid: false, reason: 'CPT code not found in database' };
+  }
+  
+  return { 
+    valid: true, 
+    description: cptInfo.description,
+    category: cptInfo.category
+  };
+}
+
+/**
+ * Verify ICD-10 code
+ * @param {string} code - ICD-10 code to verify
+ * @returns {Object} - Verification result
+ */
+function verifyICD10Code(code) {
+  if (!/^[A-Z]\d{2}(\.\d{1,4})?$/.test(code)) {
+    return { valid: false, reason: 'Invalid ICD-10 format' };
+  }
+  
+  const icd10Info = CITATION_DATABASE.icd10_codes[code];
+  if (!icd10Info) {
+    return { valid: false, reason: 'ICD-10 code not found in database' };
+  }
+  
+  return { 
+    valid: true, 
+    description: icd10Info.description,
+    category: icd10Info.category
+  };
+}
+
+/**
+ * Extract medical citations from text
+ * @param {string} text - Text to extract citations from
+ * @returns {Array} - Array of extracted citations
+ */
+function extractMedicalCitations(text) {
+  const citations = [];
+  
+  // Extract CPT codes (5 digits)
+  const cptMatches = text.match(/\b\d{5}\b/g) || [];
+  cptMatches.forEach(code => {
+    const verification = verifyCPTCode(code);
+    citations.push({
+      type: 'CPT',
+      code: code,
+      ...verification
+    });
+  });
+  
+  // Extract ICD-10 codes (Letter + digits + optional decimal)
+  const icd10Matches = text.match(/\b[A-Z]\d{2}(\.\d{1,4})?\b/g) || [];
+  icd10Matches.forEach(code => {
+    const verification = verifyICD10Code(code);
+    citations.push({
+      type: 'ICD-10',
+      code: code,
+      ...verification
+    });
+  });
+  
+  // Extract federal regulation references
+  const federalMatches = text.match(/(?:No Surprises Act|Balance Billing Protection|HIPAA|Medicare|FDCPA|Fair Debt Collection)/gi) || [];
+  federalMatches.forEach(match => {
+    const normalized = match.toLowerCase().replace(/\s+/g, '_');
+    const regInfo = Object.entries(CITATION_DATABASE.federal_regulations).find(
+      ([key]) => key.toLowerCase().replace(/\s+/g, '_') === normalized
+    );
+    if (regInfo) {
+      citations.push({
+        type: 'Federal Regulation',
+        name: regInfo[0],
+        citation: regInfo[1].citation,
+        valid: true
+      });
+    }
+  });
+  
+  return citations;
+}
+
 const STATE_INSURANCE_CODES = {
   // California
   CA: {
@@ -850,6 +1132,10 @@ module.exports = {
   getCitationContext,
   saveCitationVerification,
   getCitationStatistics,
+  verifyCPTCode,
+  verifyICD10Code,
+  extractMedicalCitations,
+  CITATION_DATABASE,
   STATE_INSURANCE_CODES,
   FEDERAL_REGULATIONS,
   NAIC_MODEL_LAWS,
