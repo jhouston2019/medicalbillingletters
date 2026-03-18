@@ -16,7 +16,7 @@ const { validateFileSize, validateMimeType, validateTextLength, MAX_PDF_PAGES } 
 
 // LIMITS TO PREVENT ABUSE
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_PDF_PAGES = 15; // Maximum pages to process
+// MAX_PDF_PAGES is imported from file-validator
 const OCR_TIMEOUT = 8000; // 8 seconds (Netlify has 10s limit)
 const MIN_TEXT_LENGTH = 50; // Minimum extracted text
 
