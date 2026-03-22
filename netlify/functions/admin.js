@@ -10,8 +10,8 @@ export async function handler(event) {
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
-      .from("cla_letters")
-      .select("id, created_at, user_email, stripe_payment_status, price_id, status, summary")
+      .from("claim_letters")
+      .select("id, created_at, user_email, stripe_payment_status, payment_status, status, summary")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw error;

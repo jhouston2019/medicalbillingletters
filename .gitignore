@@ -39,3 +39,8 @@ coverage/
 
 # Netlify
 .netlify/
+
+# Credentials files - never commit
+ADMIN_CREDENTIALS.md
+*CREDENTIALS*
+*credentials*

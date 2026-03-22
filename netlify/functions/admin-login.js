@@ -1,10 +1,7 @@
-/**
- * Admin Login
- * Simple hardcoded admin authentication
- */
+import { getSupabaseAdmin } from './_supabase.js';
+import bcrypt from 'bcryptjs';
 
 export async function handler(event) {
-  // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -22,21 +19,44 @@ export async function handler(event) {
       };
     }
 
-    // Hardcoded admin credentials
-    const ADMIN_USERNAME = 'admin';
-    const ADMIN_PASSWORD = 'Axis2026!';
+    const supabase = getSupabaseAdmin();
 
-    // Check credentials (case-insensitive username)
-    if (email.toLowerCase() !== ADMIN_USERNAME.toLowerCase() || password !== ADMIN_PASSWORD) {
+    const { data: adminUser, error } = await supabase
+      .from('admin_users')
+      .select('id, email, password_hash, full_name, role, is_active')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (error || !adminUser || !adminUser.is_active) {
       return {
         statusCode: 401,
         body: JSON.stringify({ error: 'Invalid credentials' })
       };
     }
 
-    // Generate simple session token
-    const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
+    if (!passwordMatch) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: 'Invalid credentials' })
+      };
+    }
+
+    const sessionToken = crypto.randomUUID() + '-' + Date.now().toString(36);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await supabase.from('admin_sessions').insert({
+      admin_user_id: adminUser.id,
+      session_token: sessionToken,
+      expires_at: expiresAt.toISOString(),
+      ip_address: event.headers['x-forwarded-for'] || event.headers['client-ip'],
+      user_agent: event.headers['user-agent']
+    });
+
+    await supabase
+      .from('admin_users')
+      .update({ last_login_at: new Date().toISOString(), login_count: adminUser.login_count + 1 })
+      .eq('id', adminUser.id);
 
     return {
       statusCode: 200,
@@ -44,9 +64,9 @@ export async function handler(event) {
         sessionToken,
         expiresAt: expiresAt.toISOString(),
         user: {
-          email: 'admin',
-          fullName: 'Administrator',
-          role: 'admin'
+          email: adminUser.email,
+          fullName: adminUser.full_name,
+          role: adminUser.role
         }
       })
     };

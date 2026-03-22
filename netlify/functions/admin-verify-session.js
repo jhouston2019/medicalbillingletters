@@ -1,11 +1,8 @@
-/**
- * Admin Verify Session
- * Simple session validation (any valid token is accepted for 24 hours)
- */
+import { getSupabaseAdmin } from './_supabase.js';
 
 export async function handler(event) {
   const authHeader = event.headers.authorization || '';
-  const token = authHeader.replace('Bearer ', '');
+  const token = authHeader.replace('Bearer ', '').trim();
 
   if (!token) {
     return {
@@ -15,16 +12,45 @@ export async function handler(event) {
   }
 
   try {
-    // Simple validation - if token exists, it's valid
-    // In production, you might want to store tokens in memory or a database
+    const supabase = getSupabaseAdmin();
+
+    const { data: session, error } = await supabase
+      .from('admin_sessions')
+      .select('id, expires_at, admin_user_id, admin_users(email, full_name, role, is_active)')
+      .eq('session_token', token)
+      .single();
+
+    if (error || !session) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ valid: false, error: 'Invalid session' })
+      };
+    }
+
+    if (new Date(session.expires_at) < new Date()) {
+      await supabase.from('admin_sessions').delete().eq('session_token', token);
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ valid: false, error: 'Session expired' })
+      };
+    }
+
+    const adminUser = session.admin_users;
+    if (!adminUser || !adminUser.is_active) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ valid: false, error: 'Account inactive' })
+      };
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         valid: true,
         user: {
-          email: 'admin',
-          fullName: 'Administrator',
-          role: 'admin'
+          email: adminUser.email,
+          fullName: adminUser.full_name,
+          role: adminUser.role
         }
       })
     };
