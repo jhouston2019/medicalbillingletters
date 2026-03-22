@@ -23,9 +23,9 @@ export function validateOrigin(event) {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://taxletterhelp.com',
-    'https://www.taxletterhelp.com',
-    'https://taxletterhelp.netlify.app'
+    'https://Medical Bill Dispute Pro.com',
+    'https://www.Medical Bill Dispute Pro.com',
+    'https://Medical Bill Dispute Pro.netlify.app'
   ];
   
   const origin = event.headers.origin || event.headers.Origin;

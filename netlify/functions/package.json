@@ -1,7 +1,7 @@
 {
-  "name": "taxletterhelp-functions",
+  "name": "medical-bill-dispute-pro-functions",
   "version": "1.0.0",
-  "description": "Netlify functions for Tax Letter Help AI",
+  "description": "Netlify functions for Medical Bill Dispute Pro",
   "type": "commonjs",
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

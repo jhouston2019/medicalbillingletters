@@ -1,7 +1,7 @@
 {
-  "name": "medical-billing-dispute-letters-ai",
+  "name": "medical-bill-dispute-pro",
   "version": "1.0.0",
-  "description": "AI-powered medical billing dispute letter generator with verified CPT/ICD-10 codes",
+  "description": "AI-powered medical bill dispute letter generator with verified CPT/ICD-10 codes",
   "type": "module",
   "repository": {
     "type": "git",

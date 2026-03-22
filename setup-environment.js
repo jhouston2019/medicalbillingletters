@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * TaxLetterHelp Environment Setup Script
+ * Medical Bill Dispute Pro Environment Setup Script
  * This script helps you set up all required environment variables and configurations
  */
 
@@ -15,7 +15,7 @@ const rl = readline.createInterface({
 
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
 
-console.log('🚀 TaxLetterHelp Environment Setup');
+console.log('🚀 Medical Bill Dispute Pro Environment Setup');
 console.log('=====================================\n');
 
 async function setupEnvironment() {

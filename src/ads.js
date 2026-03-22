@@ -17,7 +17,7 @@ const AD_CONFIG = {
   maxAdsPerSession: 5
 };
 
-// Insurance Claim Letter Help Slot IDs
+// Medical Bill Dispute Pro Slot IDs
 const SLOT_IDS = {
   POST_CONTENT: 'POST_CONTENT_SLOT_ID_INS', // Replace with actual slot ID
   EXIT_GRID: 'EXIT_GRID_SLOT_ID_INS',       // Replace with actual slot ID

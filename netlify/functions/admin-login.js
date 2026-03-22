@@ -1,11 +1,7 @@
 /**
  * Admin Login
- * Authenticates admin users and creates secure sessions
+ * Simple hardcoded admin authentication
  */
-
-import { getSupabaseAdmin } from "./_supabase.js";
-import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 
 export async function handler(event) {
   // Only allow POST
@@ -26,86 +22,21 @@ export async function handler(event) {
       };
     }
 
-    const supabase = getSupabaseAdmin();
+    // Hardcoded admin credentials
+    const ADMIN_USERNAME = 'admin';
+    const ADMIN_PASSWORD = 'Axis2026!';
 
-    // Get admin user
-    const { data: adminUser, error: userError } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .eq('is_active', true)
-      .single();
-
-    if (userError || !adminUser) {
-      // Log failed attempt
-      await supabase.from('admin_activity_log').insert({
-        action: 'login_failed',
-        resource_type: 'admin_auth',
-        details: { email, reason: 'user_not_found' },
-        ip_address: event.headers['x-forwarded-for'] || event.headers['client-ip']
-      });
-
+    // Check credentials (case-insensitive username)
+    if (email.toLowerCase() !== ADMIN_USERNAME.toLowerCase() || password !== ADMIN_PASSWORD) {
       return {
         statusCode: 401,
         body: JSON.stringify({ error: 'Invalid credentials' })
       };
     }
 
-    // Verify password
-    const passwordValid = await bcrypt.compare(password, adminUser.password_hash);
-
-    if (!passwordValid) {
-      // Log failed attempt
-      await supabase.from('admin_activity_log').insert({
-        admin_user_id: adminUser.id,
-        action: 'login_failed',
-        resource_type: 'admin_auth',
-        details: { email, reason: 'invalid_password' },
-        ip_address: event.headers['x-forwarded-for'] || event.headers['client-ip']
-      });
-
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: 'Invalid credentials' })
-      };
-    }
-
-    // Generate session token
-    const sessionToken = crypto.randomBytes(32).toString('hex');
+    // Generate simple session token
+    const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-    // Create session
-    const { error: sessionError } = await supabase
-      .from('admin_sessions')
-      .insert({
-        admin_user_id: adminUser.id,
-        session_token: sessionToken,
-        ip_address: event.headers['x-forwarded-for'] || event.headers['client-ip'],
-        user_agent: event.headers['user-agent'],
-        expires_at: expiresAt.toISOString()
-      });
-
-    if (sessionError) {
-      throw sessionError;
-    }
-
-    // Update last login
-    await supabase
-      .from('admin_users')
-      .update({
-        last_login_at: new Date().toISOString(),
-        login_count: adminUser.login_count + 1
-      })
-      .eq('id', adminUser.id);
-
-    // Log successful login
-    await supabase.from('admin_activity_log').insert({
-      admin_user_id: adminUser.id,
-      action: 'login_success',
-      resource_type: 'admin_auth',
-      details: { email },
-      ip_address: event.headers['x-forwarded-for'] || event.headers['client-ip']
-    });
 
     return {
       statusCode: 200,
@@ -113,9 +44,9 @@ export async function handler(event) {
         sessionToken,
         expiresAt: expiresAt.toISOString(),
         user: {
-          email: adminUser.email,
-          fullName: adminUser.full_name,
-          role: adminUser.role
+          email: 'admin',
+          fullName: 'Administrator',
+          role: 'admin'
         }
       })
     };
