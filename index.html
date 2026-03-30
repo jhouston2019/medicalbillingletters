@@ -22,6 +22,24 @@
   
   <!-- Ads CSS -->
   <link rel="stylesheet" href="/src/ads.css">
+  <style>
+    .evidence-platform-section .evidence-screenshot-wrap,
+    .evidence-platform-section .evidence-dashboard-visual {
+      box-sizing: border-box;
+    }
+    @media (max-width: 768px) {
+      .evidence-platform-section .evidence-screenshot-wrap,
+      .evidence-platform-section .evidence-dashboard-visual {
+        max-width: 100%;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        box-sizing: border-box;
+      }
+    }
+  </style>
 </head>
 
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -147,52 +165,54 @@
       </div>
     </section>
 
-    <!-- EVIDENCE LAYER: REAL OUTPUT EXAMPLE -->
-    <section style="padding:80px 0; background:#0f172a; color:#ffffff;">
+    <!-- EVIDENCE LAYER: PLATFORM PREVIEW + OUTPUT EXAMPLE -->
+    <section class="evidence-platform-section" style="padding:80px 0; background:#0f172a; color:#ffffff;">
       <div style="width:min(1120px, 92%); margin-inline:auto;">
         <h2 style="text-align:center; font-size:2.8rem; margin-bottom:2rem; color:#ffffff; font-weight:800;">See What You Actually Get</h2>
-        <p style="text-align:center; color:#94a3b8; font-size:1.05rem; max-width:750px; margin:0 auto 1rem; line-height:1.7; font-style:italic;">Phone calls often lead to unclear answers or no record of what was discussed — written requests create documentation and accountability.</p>
-        <p style="text-align:center; color:#94a3b8; font-size:1.2rem; max-width:700px; margin:0 auto 3rem; line-height:1.7;">Real input. Real analysis. Real output.</p>
-        
-        <div style="max-width:900px; margin:0 auto; background:#1e293b; border:2px solid #334155; border-radius:12px; padding:40px;">
-          <h3 style="color:#60a5fa; font-size:1.4rem; margin-bottom:20px; font-weight:700;">Case: Hospital Bill Dispute</h3>
-          
-          <div style="background:#0f172a; border-left:4px solid #3b82f6; padding:20px; border-radius:8px; margin-bottom:25px;">
-            <h4 style="color:#cbd5e1; font-size:1.1rem; margin-bottom:10px; font-weight:600;">Bill (Input):</h4>
-            <p style="color:#e5e7eb; margin:0; font-size:1.05rem; line-height:1.6;">"Total charges: $12,400"</p>
+        <p style="text-align:center; color:rgba(255,255,255,0.65); font-size:1.05rem; max-width:750px; margin:0 auto 1rem; line-height:1.7; font-style:italic;">Phone calls often lead to unclear answers or no record of what was discussed — written requests create documentation and accountability.</p>
+        <p style="text-align:center; color:rgba(255,255,255,0.65); font-size:1.2rem; max-width:700px; margin:0 auto 2.5rem; line-height:1.7;">Real input. Real analysis. Real output.</p>
+
+        <div class="evidence-screenshot-wrap" style="margin:0 auto 3rem; box-shadow:0 40px 100px rgba(0,0,0,0.6); border-radius:8px; overflow:hidden; line-height:0;">
+          <img src="./images/platform-preview.png" alt="Medical Bill Dispute Pro dashboard and workflow preview" width="1200" height="675" style="width:100%; max-width:100%; height:auto; display:block;" />
+        </div>
+
+        <div class="evidence-dashboard-visual" style="max-width:900px; margin:0 auto;">
+          <h3 style="color:#ffffff; font-size:1.4rem; margin-bottom:20px; font-weight:700;">Case: Hospital Bill Dispute</h3>
+
+          <div style="margin-bottom:25px;">
+            <h4 style="color:#ffffff; font-size:1.1rem; margin-bottom:10px; font-weight:600;">Bill (Input):</h4>
+            <p style="color:rgba(255,255,255,0.65); margin:0; font-size:1.05rem; line-height:1.6;">"Total charges: $12,400"</p>
           </div>
-          
-          <div style="background:#0f172a; border-left:4px solid #fbbf24; padding:20px; border-radius:8px; margin-bottom:25px;">
-            <h4 style="color:#cbd5e1; font-size:1.1rem; margin-bottom:10px; font-weight:600;">System Analysis:</h4>
-            <ul style="color:#e5e7eb; margin:0; padding-left:20px; font-size:1.05rem; line-height:1.8;">
+
+          <div style="margin-bottom:25px;">
+            <h4 style="color:#ffffff; font-size:1.1rem; margin-bottom:10px; font-weight:600;">System Analysis:</h4>
+            <ul style="color:rgba(255,255,255,0.65); margin:0; padding-left:20px; font-size:1.05rem; line-height:1.8;">
               <li>Potential duplicate charges identified</li>
               <li>Possible unbundled billing codes detected</li>
               <li>Out-of-network pricing flagged</li>
             </ul>
           </div>
-          
-          <div style="background:#0f172a; border-left:4px solid #22c55e; padding:20px; border-radius:8px;">
-            <h4 style="color:#cbd5e1; font-size:1.1rem; margin-bottom:10px; font-weight:600;">Generated Letter (Excerpt):</h4>
-            <p style="color:#e5e7eb; margin:0; font-size:1.05rem; line-height:1.8; font-style:italic;">"This letter is submitted to request a review of the charges associated with the above account.<br><br>Upon review, certain charges appear to be duplicated or incorrectly categorized.<br><br>Additionally, billing codes may reflect unbundled services that should be grouped.<br><br>We respectfully request an itemized review and adjustment of the billed amounts."</p>
-          </div>
-          
-          <p style="color:#94a3b8; margin:25px 0 0 0; font-size:0.95rem; text-align:center; font-style:italic;">Neutral tone. No accusations. Structured language.</p>
-        </div>
 
-        <div style="max-width:900px; margin:3rem auto 0; background:#0f172a; border:2px solid #22c55e; border-radius:12px; padding:35px;">
-          <h3 style="color:#22c55e; font-size:1.6rem; margin-bottom:20px; text-align:center; font-weight:700;">Structured Like Professional Billing Review</h3>
-          <ul style="color:#cbd5e1; font-size:1.1rem; line-height:2; margin:0; padding-left:25px;">
+          <div style="margin-bottom:25px;">
+            <h4 style="color:#ffffff; font-size:1.1rem; margin-bottom:10px; font-weight:600;">Generated Letter (Excerpt):</h4>
+            <p style="color:rgba(255,255,255,0.65); margin:0; font-size:1.05rem; line-height:1.8; font-style:italic;">"This letter is submitted to request a review of the charges associated with the above account.<br><br>Upon review, certain charges appear to be duplicated or incorrectly categorized.<br><br>Additionally, billing codes may reflect unbundled services that should be grouped.<br><br>We respectfully request an itemized review and adjustment of the billed amounts."</p>
+          </div>
+
+          <p style="color:rgba(255,255,255,0.65); margin:25px 0 0 0; font-size:0.95rem; text-align:center; font-style:italic;">Neutral tone. No accusations. Structured language.</p>
+
+          <h3 style="color:#ffffff; font-size:1.6rem; margin:3rem 0 20px; text-align:center; font-weight:700;">Structured Like Professional Billing Review</h3>
+          <ul style="color:rgba(255,255,255,0.65); font-size:1.1rem; line-height:2; margin:0; padding-left:25px;">
             <li>Identifies common billing issues (duplicates, coding errors, pricing discrepancies)</li>
             <li>Applies structured dispute language</li>
             <li>Organizes the response in a clear, reviewable format</li>
             <li>Focuses on relevant billing issues without unnecessary information</li>
           </ul>
-          <p style="color:#94a3b8; margin:25px 0 0 0; font-size:1.05rem; text-align:center; font-style:italic;">This is the same structured approach used in standard billing dispute preparation.</p>
+          <p style="color:rgba(255,255,255,0.65); margin:25px 0 0 0; font-size:1.05rem; text-align:center; font-style:italic;">This is the same structured approach used in standard billing dispute preparation.</p>
         </div>
 
         <div style="text-align:center; margin-top:3rem;">
           <a href="/payment.html" style="background:#22c55e; color:#fff; padding:18px 44px; border-radius:10px; text-decoration:none; box-shadow:0 6px 20px rgba(34, 197, 94, 0.5); font-size:1.25rem; font-weight:700; display:inline-block;">Get Started - $29</a>
-          <p style="color:#94a3b8; margin-top:1.5rem; font-size:1.05rem; font-weight:500;">Generate a structured billing dispute aligned with standard industry practices.</p>
+          <p style="color:rgba(255,255,255,0.65); margin-top:1.5rem; font-size:1.05rem; font-weight:500;">Generate a structured billing dispute aligned with standard industry practices.</p>
         </div>
       </div>
     </section>
