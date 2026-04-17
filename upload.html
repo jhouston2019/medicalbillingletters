@@ -92,6 +92,13 @@
       font-size: 0.9rem;
     }
     #file-drop-error { color: #dc2626; }
+    .wiz-circle-clickable:hover {
+      box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.85);
+    }
+    .wiz-label-clickable:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
   </style>
 </head>
 <body style="margin:0; background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; line-height:1.5;">
@@ -466,13 +473,18 @@
       if (el) el.style.display = on ? 'block' : 'none';
     }
 
-    function showStep(n) {
+    function goToStep(n) {
+      if (n < 1 || n > 6) return;
       currentStep = n;
       for (let i = 1; i <= 6; i++) {
         const el = document.getElementById('step' + i + '-container');
         if (el) el.style.display = i === n ? 'block' : 'none';
       }
       renderProgress();
+    }
+
+    function showStep(n) {
+      goToStep(n);
     }
 
     function renderProgress() {
@@ -487,6 +499,13 @@
           console.warn('[renderProgress] missing step node', step, { circle: !!circle, label: !!label });
           continue;
         }
+        circle.onclick = null;
+        label.onclick = null;
+        circle.removeAttribute('title');
+        label.removeAttribute('title');
+        circle.classList.remove('wiz-circle-clickable');
+        label.classList.remove('wiz-label-clickable');
+
         label.textContent = STEP_LABELS[i];
         label.style.fontSize = '0.7rem';
         circle.style.cssText = baseCircle;
@@ -511,6 +530,26 @@
           circle.style.color = '#cbd5e1';
           label.style.color = '#94a3b8';
           label.style.fontWeight = '500';
+        }
+
+        const clickable = step <= currentStep;
+        if (clickable) {
+          circle.classList.add('wiz-circle-clickable');
+          label.classList.add('wiz-label-clickable');
+          circle.style.cursor = 'pointer';
+          label.style.cursor = 'pointer';
+          const tip = 'Go back to ' + STEP_LABELS[i];
+          circle.setAttribute('title', tip);
+          label.setAttribute('title', tip);
+          circle.onclick = function () {
+            if (step <= currentStep) goToStep(step);
+          };
+          label.onclick = function () {
+            if (step <= currentStep) goToStep(step);
+          };
+        } else {
+          circle.style.cursor = 'default';
+          label.style.cursor = 'default';
         }
       }
     }
