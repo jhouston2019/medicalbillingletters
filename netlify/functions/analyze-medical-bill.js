@@ -7,6 +7,12 @@ const pdfParse = require("pdf-parse");
 const { verifyWizardAccess } = require("./_wizardAuth");
 
 const MAX_TEXT = 48000;
+const MIN_EXTRACTED_TEXT = 50;
+
+const VISION_EXTRACT_PROMPT =
+  "Extract all text from this medical bill. " +
+  "Return only the raw text content, preserving line breaks and structure as much as possible. " +
+  "Include all charges, codes, dates, and amounts.";
 
 function corsHeaders(extra = {}) {
   return {
@@ -24,6 +30,14 @@ function detectMime(buf) {
   if (buf[0] === 0xff && buf[1] === 0xd8) return "image/jpeg";
   if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return "image/png";
   return "application/octet-stream";
+}
+
+/** Prefer magic-byte detection; fall back to client fileType when ambiguous. */
+function resolveMime(buf, fileType) {
+  const d = detectMime(buf);
+  if (d === "application/pdf" || d === "image/jpeg" || d === "image/png") return d;
+  if (fileType === "image/jpeg" || fileType === "image/png" || fileType === "application/pdf") return fileType;
+  return d;
 }
 
 function hardStopFromBillText(text) {
@@ -44,22 +58,22 @@ function hardStopFromBillText(text) {
   return null;
 }
 
-async function transcribeImageWithVision(openai, base64, mime) {
+async function visionExtractBillText(openai, fileBase64, mediaType) {
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
-    max_tokens: 4096,
+    max_tokens: 4000,
     messages: [
       {
         role: "user",
         content: [
           {
-            type: "text",
-            text: "Transcribe all visible text from this medical bill or EOB image. Preserve line breaks. Output plain text only. Do not summarize.",
-          },
-          {
             type: "image_url",
-            image_url: { url: `data:${mime};base64,${base64}` },
+            image_url: {
+              url: `data:${mediaType};base64,${fileBase64}`,
+              detail: "high",
+            },
           },
+          { type: "text", text: VISION_EXTRACT_PROMPT },
         ],
       },
     ],
@@ -67,16 +81,84 @@ async function transcribeImageWithVision(openai, base64, mime) {
   return completion.choices?.[0]?.message?.content || "";
 }
 
-async function extractBillText(openai, buffer, mime) {
-  if (mime === "application/pdf") {
-    const pdfData = await pdfParse(buffer);
-    const text = (pdfData && pdfData.text) || "";
-    return text.trim();
-  }
+function metadataFallbackText(ctx) {
+  const { providerType, totalBilled, insuranceStatus, networkStatus, serviceType } = ctx;
+  return (
+    "[Bill text could not be extracted. " +
+    "Analyze based on the metadata provided: " +
+    `Provider: ${providerType}, ` +
+    `Total billed: ${totalBilled}, ` +
+    `Insurance status: ${insuranceStatus}, ` +
+    `Network status: ${networkStatus}, ` +
+    `Service type: ${serviceType}]`
+  );
+}
+
+/**
+ * Multi-method extraction: pdf-parse (×2), then OpenAI vision (PDF / image / jpeg mime fallback), then metadata stub.
+ * Never throws — returns at least the metadata fallback string.
+ */
+async function extractBillText(openai, buffer, mime, fileBase64, ctx) {
+  const b64 = fileBase64 && typeof fileBase64 === "string" ? fileBase64 : buffer.toString("base64");
+  const fallback = () => metadataFallbackText(ctx);
+
+  const tryPdfParse = async (label, opts) => {
+    try {
+      const pdfData = opts ? await pdfParse(buffer, opts) : await pdfParse(buffer);
+      const text = (pdfData && pdfData.text) || "";
+      return typeof text === "string" ? text.trim() : "";
+    } catch (e) {
+      console.warn(`[analyze-medical-bill] pdf-parse ${label} failed:`, e.message);
+      return "";
+    }
+  };
+
+  // METHOD 4 — Images: skip pdf-parse; vision only
   if (mime === "image/jpeg" || mime === "image/png") {
-    return (await transcribeImageWithVision(openai, buffer.toString("base64"), mime)).trim();
+    try {
+      const t = await visionExtractBillText(openai, b64, mime);
+      if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+    } catch (e) {
+      console.warn("[analyze-medical-bill] vision (image) failed:", e.message);
+    }
+    try {
+      const t = await visionExtractBillText(openai, b64, "image/jpeg");
+      if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+    } catch (e) {
+      console.warn("[analyze-medical-bill] vision (image as jpeg mime) failed:", e.message);
+    }
+    return fallback();
   }
-  throw new Error("Unsupported file type. Use PDF, JPG, or PNG.");
+
+  if (mime !== "application/pdf") {
+    return fallback();
+  }
+
+  // METHOD 1 — pdf-parse default
+  let text = await tryPdfParse("attempt1", undefined);
+  if (text.length > MIN_EXTRACTED_TEXT) return text;
+
+  // METHOD 2 — pdf-parse explicit lenient options (same defaults; second pass after partial failure / short text)
+  const text2 = await tryPdfParse("attempt2", { max: 0 });
+  if (text2.length > MIN_EXTRACTED_TEXT) return text2;
+  if (text2.length > text.length) text = text2;
+
+  // METHOD 3 — Vision: PDF as base64 (then jpeg media-type fallback per API quirks)
+  try {
+    const t = await visionExtractBillText(openai, b64, "application/pdf");
+    if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+  } catch (e) {
+    console.warn("[analyze-medical-bill] vision (application/pdf) failed:", e.message);
+  }
+  try {
+    const t = await visionExtractBillText(openai, b64, "image/jpeg");
+    if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+  } catch (e) {
+    console.warn("[analyze-medical-bill] vision (image/jpeg mime fallback) failed:", e.message);
+  }
+
+  if (text.length > 0) return text;
+  return fallback();
 }
 
 function defaultStrategies(recommendedId) {
@@ -181,6 +263,7 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const {
       fileBase64,
+      fileType,
       billDate,
       providerType,
       totalBilled,
@@ -218,7 +301,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const mime = detectMime(buf);
+    const mime = resolveMime(buf, fileType);
     if (!["application/pdf", "image/jpeg", "image/png"].includes(mime)) {
       return {
         statusCode: 400,
@@ -237,7 +320,13 @@ exports.handler = async (event) => {
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    let billText = await extractBillText(openai, buf, mime);
+    let billText = await extractBillText(openai, buf, mime, fileBase64, {
+      providerType,
+      totalBilled,
+      insuranceStatus,
+      networkStatus,
+      serviceType,
+    });
     if (billText.length > MAX_TEXT) {
       billText = billText.slice(0, MAX_TEXT) + "\n[TRUNCATED]";
     }

@@ -659,6 +659,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             fileBase64: state.fileBase64,
+            fileType: state.file ? state.file.type : '',
             billDate: state.billDate,
             providerType: state.providerType,
             totalBilled: state.totalBilled,
