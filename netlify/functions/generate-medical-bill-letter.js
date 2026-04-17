@@ -99,14 +99,37 @@ exports.handler = async (event) => {
       .map((e) => `- ${e.type}: ${e.description}${e.cptCode ? ` [CPT/HCPCS: ${e.cptCode}]` : ""}${e.amount != null ? ` Amount: ${e.amount}` : ""}`)
       .join("\n");
 
+    const formattedDOS =
+      dateOfService != null && String(dateOfService).trim() !== ""
+        ? (() => {
+            const raw = String(dateOfService).trim();
+            const d = new Date(raw + "T00:00:00");
+            return Number.isNaN(d.getTime())
+              ? raw
+              : d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+          })()
+        : dateOfService;
+
+    const titleCaseName =
+      patientName != null && String(patientName).trim() !== ""
+        ? String(patientName)
+            .trim()
+            .toLowerCase()
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ")
+        : patientName;
+
     const systemPrompt = `You write formal medical billing dispute letters as plain text only — formatted as real legal correspondence, not an outline or memo with section labels.
 
 OUTPUT FORMAT (plain text only — no HTML, no markdown, no bullet lists, no numbered lists):
 - Output a formal legal correspondence letter.
 - Do NOT use bold, ALL CAPS section headers, or labels such as BACKGROUND, BASIS FOR DISPUTE, etc. The letter must read as continuous formal prose.
 - The first line of the letter MUST be exactly the letterDate value from the user JSON (field "letterDate"), formatted as provided (Month DD, YYYY). Do not invent a different date.
+- Format dateOfService everywhere in the letter (including the Re: block and body) as Month DD, YYYY (e.g. "April 15, 2026") — never ISO format (YYYY-MM-DD).
 - After one blank line, the inside address block: providerName on its own line, then "Billing Department" on the next line.
-- After one blank line, a "Re:" block (use "Re: Formal Dispute — Account #[account number]" with the real account number inserted). On the following lines in the same block, indented with spaces as in a formal letter: Date of Service, Patient name, Disputed Amount with dollar amount — all filled from the payload with real values.
+- After one blank line, a "Re:" block (use "Re: Formal Dispute — Account #[account number]" with the real account number inserted). On the following lines in the same block, indented with spaces as in a formal letter: Date of Service (use the formatted date only), Patient: (label exactly "Patient:" followed by the name), Disputed Amount with dollar amount — all filled from the payload with real values.
 - After one blank line, the salutation: "Dear Billing Department:"
 - Body: separate paragraphs with a blank line between each. Order and substance:
   1) Opening: one sentence stating that this letter is a formal dispute of the charges.
@@ -116,8 +139,7 @@ OUTPUT FORMAT (plain text only — no HTML, no markdown, no bullet lists, no num
   5) Provider obligations: what the provider IS required to do under those regulations (not "should" or "may need to").
   6) Demand: use "I demand" followed by the resolution matching resolutionAsk in plain language. In the same paragraph: require a written response within 10 business days; state that failure to comply will result in escalation to the relevant regulatory bodies (name only bodies consistent with the regulatory hooks provided — e.g. state insurance department, CMS where applicable, state attorney general — do not invent agencies).
   7) Reservation of rights: one short paragraph preserving all rights and remedies.
-- Closing: after a blank line, "Sincerely," then a blank line, then the patient name on its own line (patientName from payload).
-- Final line(s): You may state that the letter is sent via certified mail or email (pick one plausible method). The letter MUST include this exact sentence somewhere in the closing (can be its own short paragraph): This letter constitutes formal written notice of dispute.
+- Closing: after a blank line, "Sincerely," then a blank line, then the patient name on its own line (use patientName from the JSON payload exactly as given). Nothing may follow the patient name — no certified mail line, no "formal written notice" line, and no other closing lines.
 
 FACTUAL AND LEGAL CONSTRAINTS:
 - Insert every factual value from the user payload; no remaining bracket placeholders such as [FIELD NAME], [YOUR NAME], or [accountNumber].
@@ -131,9 +153,9 @@ TONE:
     const userPayload = {
       letterDate: letterDate || null,
       strategy,
-      patientName,
+      patientName: titleCaseName,
       accountNumber,
-      dateOfService,
+      dateOfService: formattedDOS,
       providerName,
       disputedAmount,
       billDate,
