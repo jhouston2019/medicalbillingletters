@@ -114,7 +114,14 @@ OUTPUT RULES:
 - Demand section: include a clear request matching the resolution ask and state that you expect a written response within 10 business days.
 - Reservation of Rights: reference escalation paths consistent ONLY with the regulatory hooks provided (e.g. state insurance department, CMS where applicable, state attorney general). Do not invent agencies or citations not supported by those hooks.
 - Cite only regulatory hooks from the analysis.regulatoryHooks list verbatim (law names and citations as given). Do not add new statutes or case law.
-- Never fabricate CPT/ICD codes; only reference codes that appear in the specific charges or detected errors provided.`;
+- Never fabricate CPT/ICD codes; only reference codes that appear in the specific charges or detected errors provided.
+
+TONE AND ASSERTIVENESS:
+- Use direct, assertive language. Do not say "may be" or "may not" — state violations as the basis for dispute, not possibilities.
+- In the Basis for Dispute section, state the specific billing error directly (e.g. "This charge constitutes balance billing prohibited under [statute]"), not "this may constitute balance billing."
+- In Provider Obligations, state what the provider IS required to do under the cited standards, not what they "should" or "may need to" do.
+- In the Demand section, use "I demand" (not "I request"). State the consequence of non-compliance (escalation to regulatory bodies) in the same paragraph, not only in Reservation of Rights.
+- The tone must be firm and professional — someone who knows their rights, not someone asking for a favor.`;
 
     const userPayload = {
       strategy,

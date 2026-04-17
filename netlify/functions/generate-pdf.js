@@ -1,114 +1,135 @@
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 
+const FONT_SIZE = 12;
+const LINE_HEIGHT = FONT_SIZE * 1.2;
+const MARGIN = 50;
+const PAGE_SIZE = [612, 792];
+
+function wrapLineToWidth(textLine, font, size, maxWidth) {
+  const lines = [];
+  const words = String(textLine).split(/\s+/).filter(Boolean);
+  if (words.length === 0) {
+    return textLine.trim() === "" ? [] : [""];
+  }
+  let currentLine = "";
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const w = font.widthOfTextAtSize(testLine, size);
+    if (w <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        lines.push(word);
+      }
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
 exports.handler = async (event) => {
-  // Handle CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
+  if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
       },
-      body: ''
+      body: "",
     };
   }
 
   try {
-    const { text, fileName = 'response-letter.pdf' } = JSON.parse(event.body || '{}');
-    
+    const { text, fileName = "response-letter.pdf" } = JSON.parse(event.body || "{}");
+
     if (!text) {
       return {
         statusCode: 400,
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ error: 'No text provided for PDF generation' })
+        body: JSON.stringify({ error: "No text provided for PDF generation" }),
       };
     }
-    
-    // Create a new PDF document
+
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([612, 792]); // Standard letter size
-    
-    // Get fonts
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    
-    // Set up text formatting
-    const fontSize = 12;
-    const lineHeight = fontSize * 1.2;
-    const margin = 50;
-    const maxWidth = page.getWidth() - (margin * 2);
-    
-    // Split text into lines that fit the page width
-    const lines = [];
-    const words = text.split(' ');
-    let currentLine = '';
-    
-    for (const word of words) {
-      const testLine = currentLine + (currentLine ? ' ' : '') + word;
-      const textWidth = font.widthOfTextAtSize(testLine, fontSize);
-      
-      if (textWidth <= maxWidth) {
-        currentLine = testLine;
-      } else {
-        if (currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          lines.push(word);
-        }
-      }
-    }
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-    
-    // Draw the text (track current page for multi-page letters)
-    let currentPage = page;
-    let yPosition = currentPage.getHeight() - margin;
 
-    for (const line of lines) {
-      if (yPosition < margin) {
-        currentPage = pdfDoc.addPage([612, 792]);
-        yPosition = currentPage.getHeight() - margin;
+    let currentPage = pdfDoc.addPage(PAGE_SIZE);
+    let yPosition = currentPage.getHeight() - MARGIN;
+    const maxWidth = currentPage.getWidth() - MARGIN * 2;
+
+    const rawLines = String(text).replace(/\r\n/g, "\n").split("\n");
+
+    for (const rawLine of rawLines) {
+      if (rawLine === "") {
+        if (yPosition < MARGIN + LINE_HEIGHT * 0.5) {
+          currentPage = pdfDoc.addPage(PAGE_SIZE);
+          yPosition = currentPage.getHeight() - MARGIN;
+        }
+        yPosition -= LINE_HEIGHT * 0.5;
+        continue;
       }
-      currentPage.drawText(line, {
-        x: margin,
-        y: yPosition,
-        size: fontSize,
-        font: font,
-        color: rgb(0, 0, 0)
-      });
-      yPosition -= lineHeight;
+
+      const trimmed = rawLine.trim();
+      const isHeader = /^[A-Z\s\/]+$/.test(trimmed) && trimmed.length > 3;
+
+      if (isHeader) {
+        if (yPosition - LINE_HEIGHT < MARGIN) {
+          currentPage = pdfDoc.addPage(PAGE_SIZE);
+          yPosition = currentPage.getHeight() - MARGIN;
+        }
+        yPosition -= LINE_HEIGHT;
+      }
+
+      const measureFont = isHeader ? boldFont : font;
+      const segments = wrapLineToWidth(rawLine, measureFont, FONT_SIZE, maxWidth);
+
+      for (const segment of segments) {
+        if (yPosition < MARGIN) {
+          currentPage = pdfDoc.addPage(PAGE_SIZE);
+          yPosition = currentPage.getHeight() - MARGIN;
+        }
+        currentPage.drawText(segment, {
+          x: MARGIN,
+          y: yPosition,
+          size: FONT_SIZE,
+          font: isHeader ? boldFont : font,
+          color: rgb(0, 0, 0),
+        });
+        yPosition -= LINE_HEIGHT;
+      }
     }
-    
-    // Generate PDF bytes
+
     const pdfBytes = await pdfDoc.save();
-    
+
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-        'Access-Control-Allow-Origin': '*'
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Access-Control-Allow-Origin": "*",
       },
       body: Buffer.from(pdfBytes).toString("base64"),
-      isBase64Encoded: true
+      isBase64Encoded: true,
     };
   } catch (error) {
     return {
       statusCode: 500,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({ 
-        error: 'Failed to generate PDF',
-        details: error.message 
-      })
+      body: JSON.stringify({
+        error: "Failed to generate PDF",
+        details: error.message,
+      }),
     };
   }
-}
+};

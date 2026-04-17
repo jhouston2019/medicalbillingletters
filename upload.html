@@ -80,9 +80,12 @@
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       color: #0f172a;
-      white-space: pre-wrap;
+      white-space: normal;
       box-sizing: border-box;
       width: 100%;
+    }
+    #letter-body h3:first-child {
+      margin-top: 0;
     }
     #attorney-note {
       background: #fffbeb;
@@ -882,6 +885,30 @@
       });
     }
 
+    function letterPlainTextToStep6Html(letter) {
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+      const normalized = String(letter || '').replace(/\r\n/g, '\n');
+      const blocks = normalized.split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
+      const h3Style =
+        'font-weight:700;color:#0f172a;margin:1.5rem 0 0.5rem;font-size:1rem;text-transform:uppercase;letter-spacing:0.05em;';
+      const pStyle = 'color:#374151;line-height:1.7;margin:0 0 1rem;';
+      const parts = [];
+      for (const block of blocks) {
+        if (/^[A-Z\s\/]+$/.test(block)) {
+          parts.push(`<h3 style="${h3Style}">${escapeHtml(block)}</h3>`);
+        } else {
+          parts.push(`<p style="${pStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+        }
+      }
+      return parts.join('');
+    }
+
     async function runLetterGeneration() {
       setError('step6-error', '');
       showEl('step6-loading', true);
@@ -926,8 +953,8 @@
           setError('step6-error', 'Letter display error.');
           return;
         }
-        lb.textContent = '';
-        lb.textContent = data.letter;
+        lb.innerHTML = '';
+        lb.innerHTML = letterPlainTextToStep6Html(data.letter);
         showEl('step6-loading', false);
         showEl('step6-main', true);
       } catch (e) {
@@ -1028,7 +1055,7 @@
         btn3.style.display = '';
       }
       const lb = document.getElementById('letter-body');
-      if (lb) lb.textContent = '';
+      if (lb) lb.innerHTML = '';
       setError('step1-error', '');
       setError('step2-error', '');
       setError('step3-error', '');
@@ -1327,6 +1354,7 @@
     });
 
     document.getElementById('btn-copy').addEventListener('click', async () => {
+      // Copy, PDF, and DOCX use innerText so exports stay plain text (no HTML tags).
       const text = document.getElementById('letter-body').innerText;
       await navigator.clipboard.writeText(text);
     });
