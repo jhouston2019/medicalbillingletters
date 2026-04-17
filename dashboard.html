@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Dashboard | Medical Bill Dispute Pro</title>
     <meta name="description" content="Access your Medical Bill Dispute Pro dashboard to view your claim letter analyses, response letters, and account information.">
-    <link rel="canonical" href="https://insuranceMedical Bill Dispute Pro.com/dashboard.html">
+    <link rel="canonical" href="https://medicalbillingdisputehelp.ai/dashboard.html">
     <meta property="og:title" content="Your Dashboard | Medical Bill Dispute Pro">
     <meta property="og:description" content="Access your Medical Bill Dispute Pro dashboard to view your claim letter analyses, response letters, and account information.">
-    <meta property="og:image" content="https://insuranceMedical Bill Dispute Pro.com/images/og-image.jpg">
-    <meta property="og:url" content="https://insuranceMedical Bill Dispute Pro.com/dashboard.html">
+    <meta property="og:image" content="https://medicalbillingdisputehelp.ai/images/og-image.jpg">
+    <meta property="og:url" content="https://medicalbillingdisputehelp.ai/dashboard.html">
     <meta property="og:type" content="website">
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -108,15 +108,22 @@
                 return;
             }
             
-            const lettersHtml = documents.slice(0, 5).map(doc => `
-                <div style="border: 1px solid #334155; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background:#0f172a;">
-                    <strong style="color:#ffffff;">${doc.file_name}</strong>
-                    <br>
-                    <small style="color:#94a3b8;">Uploaded: ${new Date(doc.created_at).toLocaleDateString()}</small>
-                </div>
-            `).join('');
-            
-            container.innerHTML = lettersHtml;
+            container.replaceChildren();
+            documents.slice(0, 5).forEach((doc) => {
+                const row = document.createElement('div');
+                row.style.cssText = 'border: 1px solid #334155; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background:#0f172a;';
+                const strong = document.createElement('strong');
+                strong.style.color = '#ffffff';
+                strong.textContent = doc.file_name != null ? String(doc.file_name) : '';
+                const br = document.createElement('br');
+                const small = document.createElement('small');
+                small.style.color = '#94a3b8';
+                small.textContent = 'Uploaded: ' + new Date(doc.created_at).toLocaleDateString();
+                row.appendChild(strong);
+                row.appendChild(br);
+                row.appendChild(small);
+                container.appendChild(row);
+            });
         }
         
         async function updateAccountStatus() {

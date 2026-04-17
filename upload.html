@@ -6,8 +6,98 @@
   <title>Medical Bill Dispute Pro — Dispute Wizard</title>
   <meta name="description" content="Upload your medical bill and generate a professional dispute letter." />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <style>
+    #protocol-warning code { font-size: 0.85em; }
+    #step1-error, #step2-error, #step3-error, #step4-error, #step5-error, #step6-error {
+      background: #fee2e2 !important;
+      color: #dc2626 !important;
+      border: 1px solid #fca5a5 !important;
+      border-radius: 8px;
+    }
+    #step2-container h2, #step3-container h2, #step4-container h2, #step5-container h2, #step6-container h2 {
+      color: #0f172a;
+    }
+    #step2-container label,
+    #step2-container legend,
+    #step5-container label {
+      color: #374151;
+      font-weight: 500;
+    }
+    #step2-container fieldset label {
+      color: #374151;
+      font-weight: 500;
+    }
+    #step2-container select,
+    #step2-container input:not([type="radio"]),
+    #step5-container input,
+    #step5-container select,
+    #step5-container textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    #step2-back, #step3-back, #step4-back, #step5-back {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid #334155;
+    }
+    #step2-next, #step3-next, #step4-next, #step5-next {
+      background: #22c55e;
+      color: #ffffff;
+    }
+    #step3-next:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .wizard-hint-label { color: #64748b; margin: 0 0 0.25rem; }
+    .wizard-hint-label-spaced { color: #64748b; margin: 1rem 0 0.25rem; }
+    #step3-content #analysis-error-type,
+    #step3-content #analysis-summary {
+      color: #0f172a;
+      font-weight: 600;
+    }
+    #step3-content #analysis-risk-level { color: #0f172a; }
+    #analysis-regulatory-hooks,
+    #analysis-cpt-findings {
+      color: #374151;
+    }
+    #step3-loading-text { color: #64748b; }
+    .wizard-spinner {
+      border: 3px solid #cbd5e1;
+      border-top-color: #22c55e;
+    }
+    #step3-hardstop { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 12px; color: #dc2626; }
+    #selected-strategy-display { color: #64748b; }
+    #step6-loading { color: #64748b; }
+    #letter-body {
+      min-height: 280px;
+      padding: 1rem;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      color: #0f172a;
+      white-space: pre-wrap;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    #attorney-note {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      color: #92400e;
+      font-size: 0.9rem;
+    }
+    #file-drop-error { color: #dc2626; }
+  </style>
 </head>
 <body style="margin:0; background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; line-height:1.5;">
+  <div id="protocol-warning" style="display:none; background:#fef3c7; color:#92400e; padding:12px 24px; text-align:center; font-size:0.9rem; font-weight:500; border-bottom:1px solid #fcd34d;">
+    ⚠️ You are opening this file directly from disk. API calls will fail. Run via <code>netlify dev</code> or visit the deployed URL to test the full wizard.
+  </div>
   <nav style="background:#1e293b; padding:1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
     <strong style="color:#ffffff;">Medical Bill Dispute Pro</strong>
     <div>
@@ -50,7 +140,7 @@
     </div>
 
     <!-- STEP 1 -->
-    <div id="step1-container" class="wizard-step" style="display:block; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; border-radius:12px; padding:1.5rem;">
+    <div id="step1-container" class="wizard-step" style="display:block; background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem;">
       <style>
         #step1-container h2 { color: #0f172a; }
         #step1-container .step1-label { color: #374151; }
@@ -166,35 +256,35 @@
         <option value="uninsured">Uninsured (no coverage)</option>
         <option value="underinsured">Underinsured (had coverage but high deductible/gaps)</option>
       </select>
-      <div id="step1-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div id="step1-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
       <button type="button" id="step1-next" style="margin-top:1.25rem; width:100%; padding:14px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Next</button>
     </div>
 
     <!-- STEP 2 -->
-    <div id="step2-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+    <div id="step2-container" class="wizard-step" style="display:none; background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem;">
       <h2 style="margin:0 0 1rem;">Step 2 — Your situation</h2>
-      <label style="display:block; color:#94a3b8; margin-bottom:0.25rem;">Network status</label>
-      <select id="network-status" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+      <label style="display:block; margin-bottom:0.25rem;">Network status</label>
+      <select id="network-status">
         <option value="">Select…</option>
         <option value="in_network">In-Network (provider was in my insurance network)</option>
         <option value="out_of_network">Out-of-Network (provider was outside my network)</option>
         <option value="unknown">I Don't Know / Uninsured</option>
       </select>
-      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Service type</label>
-      <select id="service-type" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Service type</label>
+      <select id="service-type">
         <option value="">Select…</option>
         <option value="emergency">Emergency (ER visit, urgent ambulance, emergency surgery)</option>
         <option value="elective">Elective / Scheduled (planned procedure, routine visit)</option>
         <option value="unknown">I'm Not Sure</option>
       </select>
       <fieldset style="border:none; padding:0; margin:1rem 0 0;">
-        <legend style="color:#94a3b8;">Do you have an EOB (Explanation of Benefits)?</legend>
-        <label style="margin-right:1rem; color:#fff;"><input type="radio" name="has-eob" value="true" /> Yes</label>
-        <label style="margin-right:1rem; color:#fff;"><input type="radio" name="has-eob" value="false" /> No</label>
-        <label style="color:#fff;"><input type="radio" name="has-eob" value="unsure" /> Not Sure</label>
+        <legend>Do you have an EOB (Explanation of Benefits)?</legend>
+        <label style="margin-right:1rem;"><input type="radio" name="has-eob" value="true" /> Yes</label>
+        <label style="margin-right:1rem;"><input type="radio" name="has-eob" value="false" /> No</label>
+        <label><input type="radio" name="has-eob" value="unsure" /> Not Sure</label>
       </fieldset>
-      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Prior contact</label>
-      <select id="prior-contact" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Prior contact</label>
+      <select id="prior-contact">
         <option value="">Select…</option>
         <option value="none">I haven't contacted anyone yet</option>
         <option value="called_billing">I called the billing department</option>
@@ -203,94 +293,94 @@
         <option value="multiple">I've done multiple of the above</option>
       </select>
       <div id="deadline-warning" style="display:none; margin-top:1rem; padding:0.75rem; border-radius:8px;"></div>
-      <div id="step2-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div id="step2-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
       <div style="display:flex; gap:1rem; margin-top:1.25rem;">
-        <button type="button" id="step2-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
-        <button type="button" id="step2-next" style="flex:1; padding:12px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Next</button>
+        <button type="button" id="step2-back" style="flex:1; padding:12px; border-radius:8px; cursor:pointer;">Back</button>
+        <button type="button" id="step2-next" style="flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">Next</button>
       </div>
     </div>
 
     <!-- STEP 3 -->
-    <div id="step3-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+    <div id="step3-container" class="wizard-step" style="display:none; background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem;">
       <h2 style="margin:0 0 1rem;">Step 3 — Analysis</h2>
       <div id="step3-loading" style="display:none; text-align:center; padding:2rem;">
-        <div style="width:40px; height:40px; border:3px solid #334155; border-top-color:#22c55e; border-radius:50%; margin:0 auto 1rem; animation:wspin 1s linear infinite;"></div>
-        <p id="step3-loading-text" style="color:#94a3b8;">Reading your bill…</p>
+        <div class="wizard-spinner" style="width:40px; height:40px; border-radius:50%; margin:0 auto 1rem; animation:wspin 1s linear infinite;"></div>
+        <p id="step3-loading-text">Reading your bill…</p>
       </div>
       <style>@keyframes wspin { to { transform: rotate(360deg); } }</style>
-      <div id="step3-hardstop" style="display:none; padding:1.25rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:12px; color:#fecaca;"></div>
+      <div id="step3-hardstop" style="display:none; padding:1.25rem;"></div>
       <div id="step3-content" style="display:none;">
         <div id="analysis-deadline-flag" style="display:none; margin-bottom:1rem; padding:0.75rem; border-radius:8px;"></div>
-        <p style="color:#94a3b8; margin:0 0 0.25rem;">Primary concern</p>
-        <p id="analysis-error-type" style="color:#fff; font-weight:600;"></p>
-        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Risk level</p>
-        <p id="analysis-risk-level" style="color:#fff;"></p>
-        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Regulatory hooks</p>
-        <ul id="analysis-regulatory-hooks" style="color:#cbd5e1; padding-left:1.25rem;"></ul>
-        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">CPT / ICD findings</p>
-        <div id="analysis-cpt-findings" style="color:#cbd5e1;"></div>
-        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Summary</p>
-        <p id="analysis-summary" style="color:#fff;"></p>
-        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Detected issues</p>
+        <p class="wizard-hint-label">Primary concern</p>
+        <p id="analysis-error-type"></p>
+        <p class="wizard-hint-label-spaced">Risk level</p>
+        <p id="analysis-risk-level"></p>
+        <p class="wizard-hint-label-spaced">Regulatory hooks</p>
+        <ul id="analysis-regulatory-hooks" style="padding-left:1.25rem;"></ul>
+        <p class="wizard-hint-label-spaced">CPT / ICD findings</p>
+        <div id="analysis-cpt-findings"></div>
+        <p class="wizard-hint-label-spaced">Summary</p>
+        <p id="analysis-summary"></p>
+        <p class="wizard-hint-label-spaced">Detected issues</p>
         <div id="analysis-error-cards" style="display:grid; gap:0.75rem;"></div>
       </div>
-      <div id="step3-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div id="step3-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
       <div style="display:flex; gap:1rem; margin-top:1.25rem;">
-        <button type="button" id="step3-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
-        <button type="button" id="step3-next" disabled style="flex:1; padding:12px; border-radius:8px; border:none; background:#3b82f6; color:#fff; font-weight:700; cursor:pointer; opacity:0.5;">Next</button>
+        <button type="button" id="step3-back" style="flex:1; padding:12px; border-radius:8px; cursor:pointer;">Back</button>
+        <button type="button" id="step3-next" disabled style="flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer; opacity:0.5;">Next</button>
       </div>
     </div>
 
     <!-- STEP 4 -->
-    <div id="step4-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+    <div id="step4-container" class="wizard-step" style="display:none; background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem;">
       <h2 style="margin:0 0 1rem;">Step 4 — Strategy</h2>
-      <p id="selected-strategy-display" style="color:#94a3b8; margin-bottom:1rem;"></p>
+      <p id="selected-strategy-display" style="margin-bottom:1rem;"></p>
       <div id="strategy-cards" style="display:grid; gap:1rem;"></div>
-      <div id="step4-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div id="step4-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
       <div style="display:flex; gap:1rem; margin-top:1.25rem;">
-        <button type="button" id="step4-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
-        <button type="button" id="step4-next" style="flex:1; padding:12px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Next</button>
+        <button type="button" id="step4-back" style="flex:1; padding:12px; border-radius:8px; cursor:pointer;">Back</button>
+        <button type="button" id="step4-next" style="flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">Next</button>
       </div>
     </div>
 
     <!-- STEP 5 -->
-    <div id="step5-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+    <div id="step5-container" class="wizard-step" style="display:none; background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem;">
       <h2 style="margin:0 0 1rem;">Step 5 — Your details</h2>
-      <label style="color:#94a3b8; display:block; margin:0.5rem 0 0.25rem;">Patient name</label>
-      <input type="text" id="patient-name" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Account number</label>
-      <input type="text" id="account-number" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Date of service</label>
-      <input type="date" id="date-of-service" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Provider name</label>
-      <input type="text" id="provider-name" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Disputed amount ($)</label>
-      <input type="text" id="disputed-amount" inputmode="decimal" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Specific charges (one per line: Description | Amount | CPT Code)</label>
-      <textarea id="specific-charges" rows="5" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; font-family:inherit;"></textarea>
+      <label style="display:block; margin:0.5rem 0 0.25rem;">Patient name</label>
+      <input type="text" id="patient-name" />
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Account number</label>
+      <input type="text" id="account-number" />
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Date of service</label>
+      <input type="date" id="date-of-service" />
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Provider name</label>
+      <input type="text" id="provider-name" />
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Disputed amount ($)</label>
+      <input type="text" id="disputed-amount" inputmode="decimal" />
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Specific charges (one per line: Description | Amount | CPT Code)</label>
+      <textarea id="specific-charges" rows="5" style="font-family:inherit;"></textarea>
       <p id="specific-charges-hint" style="color:#64748b; font-size:0.85rem; margin:0.25rem 0 0;"></p>
-      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Resolution you want</label>
-      <select id="resolution-ask" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+      <label style="display:block; margin:0.75rem 0 0.25rem;">Resolution you want</label>
+      <select id="resolution-ask">
         <option value="">Select…</option>
         <option value="full_removal">Full removal of disputed charges</option>
         <option value="reduction">Reduction to correct billing amount</option>
         <option value="itemized_bill">Provide itemized bill before any payment</option>
         <option value="payment_plan">Set up a payment plan for undisputed balance</option>
       </select>
-      <div id="step5-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div id="step5-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
       <div style="display:flex; gap:1rem; margin-top:1.25rem;">
-        <button type="button" id="step5-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
-        <button type="button" id="step5-next" style="flex:1; padding:12px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Generate My Letter</button>
+        <button type="button" id="step5-back" style="flex:1; padding:12px; border-radius:8px; cursor:pointer;">Back</button>
+        <button type="button" id="step5-next" style="flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">Generate My Letter</button>
       </div>
     </div>
 
     <!-- STEP 6 -->
-    <div id="step6-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+    <div id="step6-container" class="wizard-step" style="display:none; background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem;">
       <h2 style="margin:0 0 1rem;">Step 6 — Your letter</h2>
-      <div id="step6-loading" style="display:none; text-align:center; padding:2rem; color:#94a3b8;">Generating your letter…</div>
+      <div id="step6-loading" style="display:none; text-align:center; padding:2rem;">Generating your letter…</div>
       <div id="step6-main" style="display:none;">
-        <div id="letter-body" contenteditable="true" style="min-height:280px; padding:1rem; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff; white-space:pre-wrap;"></div>
-        <div id="attorney-note" style="margin-top:1rem; padding:1rem; background:#422006; border:1px solid #fbbf24; border-radius:8px; color:#fef3c7; font-size:0.9rem;">
+        <div id="letter-body" contenteditable="true"></div>
+        <div id="attorney-note" style="margin-top:1rem; padding:1rem;">
           This letter is for your use in billing disputes and is not legal advice. If you receive fraud investigations, litigation papers, or examination-under-oath demands, seek a qualified healthcare attorney or advocate.
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1rem;">
@@ -300,7 +390,7 @@
           <button type="button" id="btn-start-over" style="padding:10px 16px; border-radius:8px; border:1px solid #dc2626; background:transparent; color:#fca5a5; font-weight:600; cursor:pointer;">Start over</button>
         </div>
       </div>
-      <div id="step6-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div id="step6-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
     </div>
   </div>
 
@@ -309,7 +399,25 @@
   </footer>
 
   <script type="module">
-    import { syncWizardAccessToken } from './src/_wizardAuth.js';
+    function readSupabaseAccessTokenFromStorage() {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.includes('auth-token')) continue;
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          const data = JSON.parse(raw);
+          const token = data?.access_token ?? data?.currentSession?.access_token;
+          if (typeof token === 'string' && token.length > 20) return token;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    async function syncWizardAccessToken(state) {
+      const token = readSupabaseAccessTokenFromStorage();
+      state.accessToken = token ?? 'bypass';
+    }
 
     function initialState() {
       return {
@@ -369,7 +477,6 @@
 
     function renderProgress() {
       const host = document.getElementById('wizard-progress');
-      console.log('[renderProgress] #wizard-progress:', host ? 'found' : 'MISSING', host);
       if (!host) return;
       const baseCircle = 'width:28px; height:28px; border-radius:50%; margin:0 auto 6px; line-height:28px; font-size:14px; font-weight:600; box-sizing:border-box;';
       for (let i = 0; i < 6; i++) {
@@ -469,15 +576,15 @@
       computeDeadlineWarning();
       if (state.deadlineWarning === 'yellow') {
         box.style.display = 'block';
-        box.style.background = '#422006';
-        box.style.border = '1px solid #fbbf24';
-        box.style.color = '#fef3c7';
+        box.style.background = '#fef3c7';
+        box.style.border = '1px solid #fcd34d';
+        box.style.color = '#92400e';
         box.textContent = 'Your bill is 60+ days old. Many providers require disputes within 90 days — act soon.';
       } else if (state.deadlineWarning === 'red') {
         box.style.display = 'block';
-        box.style.background = '#7f1d1d';
-        box.style.border = '1px solid #dc2626';
-        box.style.color = '#fecaca';
+        box.style.background = '#fee2e2';
+        box.style.border = '1px solid #fca5a5';
+        box.style.color = '#dc2626';
         box.textContent = 'Your bill may be past the standard 90-day dispute window. Your letter will note this and request an exception based on billing error grounds.';
       } else {
         box.style.display = 'none';
@@ -488,9 +595,11 @@
     async function runAnalysis() {
       setError('step3-error', '');
       const btnNextRun = document.getElementById('step3-next');
-      btnNextRun.disabled = true;
-      btnNextRun.style.opacity = '0.5';
-      btnNextRun.style.display = '';
+      if (btnNextRun) {
+        btnNextRun.disabled = true;
+        btnNextRun.style.opacity = '0.5';
+        btnNextRun.style.display = '';
+      }
       showEl('step3-loading', true);
       showEl('step3-content', false);
       showEl('step3-hardstop', false);
@@ -546,18 +655,22 @@
     }
 
     function renderStep3(data) {
-      const hard = data.hardStop === true;
       const hs = document.getElementById('step3-hardstop');
       const content = document.getElementById('step3-content');
       const btnNext = document.getElementById('step3-next');
+      if (!hs || !content || !btnNext) return;
+
+      const hard = data.hardStop === true;
       if (hard) {
         hs.style.display = 'block';
         hs.textContent = '';
         const p1 = document.createElement('p');
         p1.style.fontWeight = '700';
+        p1.style.color = '#dc2626';
         p1.textContent = data.hardStopReason || 'This situation requires professional representation.';
         hs.appendChild(p1);
         const p2 = document.createElement('p');
+        p2.style.color = '#dc2626';
         p2.textContent = 'Based on your bill details, this situation requires professional representation. Please contact a medical billing advocate or healthcare attorney.';
         hs.appendChild(p2);
         content.style.display = 'none';
@@ -572,63 +685,77 @@
       btnNext.style.display = '';
 
       const errTypes = (data.errorTypes || []).join(', ') || '—';
-      document.getElementById('analysis-error-type').textContent = errTypes;
+      const errTypeEl = document.getElementById('analysis-error-type');
+      if (errTypeEl) errTypeEl.textContent = errTypes;
 
       const rl = (data.riskLevel || '').toLowerCase();
       const rlEl = document.getElementById('analysis-risk-level');
-      rlEl.textContent = rl ? rl.charAt(0).toUpperCase() + rl.slice(1) : '—';
-      rlEl.style.color = rl === 'high' ? '#fca5a5' : rl === 'medium' ? '#fbbf24' : '#86efac';
+      if (rlEl) {
+        rlEl.textContent = rl ? rl.charAt(0).toUpperCase() + rl.slice(1) : '—';
+        rlEl.style.color = rl === 'high' ? '#dc2626' : rl === 'medium' ? '#b45309' : '#15803d';
+      }
 
       const df = document.getElementById('analysis-deadline-flag');
-      if (state.deadlineWarning) {
-        df.style.display = 'block';
-        df.style.background = state.deadlineWarning === 'red' ? '#7f1d1d' : '#422006';
-        df.style.color = state.deadlineWarning === 'red' ? '#fecaca' : '#fef3c7';
-        df.style.padding = '0.75rem';
-        df.style.borderRadius = '8px';
-        df.textContent = state.deadlineWarning === 'red'
-          ? 'Deadline: Your bill may be outside typical dispute windows — review timing carefully.'
-          : 'Reminder: Your bill is in the 60–90 day window — act soon.';
-      } else {
-        df.style.display = 'none';
+      if (df) {
+        if (state.deadlineWarning) {
+          df.style.display = 'block';
+          df.style.background = state.deadlineWarning === 'red' ? '#fee2e2' : '#fef3c7';
+          df.style.color = state.deadlineWarning === 'red' ? '#dc2626' : '#92400e';
+          df.style.border = state.deadlineWarning === 'red' ? '1px solid #fca5a5' : '1px solid #fcd34d';
+          df.style.padding = '0.75rem';
+          df.style.borderRadius = '8px';
+          df.textContent = state.deadlineWarning === 'red'
+            ? 'Deadline: Your bill may be outside typical dispute windows — review timing carefully.'
+            : 'Reminder: Your bill is in the 60–90 day window — act soon.';
+        } else {
+          df.style.display = 'none';
+        }
       }
 
       const hookList = document.getElementById('analysis-regulatory-hooks');
-      hookList.replaceChildren();
-      (data.regulatoryHooks || []).forEach((h) => {
-        const li = document.createElement('li');
-        li.textContent = `${h.law} — ${h.citation}. ${h.applicability || ''}`;
-        hookList.appendChild(li);
-      });
-
-      const cptHost = document.getElementById('analysis-cpt-findings');
-      cptHost.replaceChildren();
-      (data.detectedErrors || []).forEach((err) => {
-        if (err.cptCode) {
-          const p = document.createElement('p');
-          p.textContent = `${err.cptCode}: ${err.description || err.type || ''}`;
-          cptHost.appendChild(p);
-        }
-      });
-      if (!cptHost.childNodes.length) {
-        const p = document.createElement('p');
-        p.style.color = '#94a3b8';
-        p.textContent = 'No coded line items extracted — see detected issues below.';
-        cptHost.appendChild(p);
+      if (hookList) {
+        hookList.replaceChildren();
+        (data.regulatoryHooks || []).forEach((h) => {
+          const li = document.createElement('li');
+          li.textContent = `${h.law} — ${h.citation}. ${h.applicability || ''}`;
+          hookList.appendChild(li);
+        });
       }
 
-      document.getElementById('analysis-summary').textContent = data.summaryForUser || '';
+      const cptHost = document.getElementById('analysis-cpt-findings');
+      if (cptHost) {
+        cptHost.replaceChildren();
+        (data.detectedErrors || []).forEach((err) => {
+          if (err.cptCode) {
+            const p = document.createElement('p');
+            p.style.color = '#374151';
+            p.textContent = `${err.cptCode}: ${err.description || err.type || ''}`;
+            cptHost.appendChild(p);
+          }
+        });
+        if (!cptHost.childNodes.length) {
+          const p = document.createElement('p');
+          p.style.color = '#64748b';
+          p.textContent = 'No coded line items extracted — see detected issues below.';
+          cptHost.appendChild(p);
+        }
+      }
+
+      const summaryEl = document.getElementById('analysis-summary');
+      if (summaryEl) summaryEl.textContent = data.summaryForUser || '';
 
       const cards = document.getElementById('analysis-error-cards');
+      if (!cards) return;
       cards.replaceChildren();
       (data.detectedErrors || []).forEach((err) => {
         const card = document.createElement('div');
-        card.style.cssText = 'padding:1rem; border-radius:8px; border:1px solid #334155; background:#0f172a;';
+        card.style.cssText = 'padding:1rem; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff;';
         const t = document.createElement('div');
         t.style.fontWeight = '700';
+        t.style.color = '#0f172a';
         t.textContent = err.type || 'Issue';
         const d = document.createElement('div');
-        d.style.color = '#94a3b8';
+        d.style.color = '#64748b';
         d.style.marginTop = '0.5rem';
         d.textContent = err.description || '';
         const meta = document.createElement('div');
@@ -649,12 +776,19 @@
       return '#fbbf24';
     }
 
+    function aggressivenessBadgeTextColor(ag) {
+      if (ag === 'conservative') return '#ffffff';
+      if (ag === 'aggressive') return '#ffffff';
+      return '#0f172a';
+    }
+
     function safeStrategyDomId(id) {
       return String(id || 'strategy').replace(/[^a-zA-Z0-9_-]/g, '-');
     }
 
     function renderStrategyCards() {
       const host = document.getElementById('strategy-cards');
+      if (!host) return;
       host.replaceChildren();
       const strategies = state.analysis?.availableStrategies || [];
       let selected = strategies.find((s) => s.recommended) || strategies[0];
@@ -664,23 +798,24 @@
         const sid = safeStrategyDomId(s.id);
         const card = document.createElement('div');
         card.id = 'strategy-card-' + sid;
-        card.style.cssText = 'padding:1rem; border-radius:12px; border:2px solid #334155; background:#0f172a; cursor:pointer;';
+        card.style.cssText = 'padding:1rem; border-radius:12px; border:1px solid #cbd5e1; background:#ffffff; cursor:pointer; color:#0f172a;';
         card.dataset.strategyId = s.id;
         const title = document.createElement('div');
         title.style.fontWeight = '700';
+        title.style.color = '#0f172a';
         title.textContent = s.name || s.id;
         const badge = document.createElement('span');
         badge.textContent = (s.aggressiveness || '').toUpperCase();
-        badge.style.cssText = 'display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; font-size:0.7rem; color:#0f172a; background:' + aggressivenessColor(s.aggressiveness) + ';';
+        badge.style.cssText = 'display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; font-size:0.7rem; color:' + aggressivenessBadgeTextColor(s.aggressiveness) + '; background:' + aggressivenessColor(s.aggressiveness) + ';';
         title.appendChild(badge);
         if (s.recommended) {
           const rec = document.createElement('span');
           rec.textContent = 'Recommended';
-          rec.style.cssText = 'display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; font-size:0.7rem; background:#22c55e; color:#fff;';
+          rec.style.cssText = 'display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; font-size:0.7rem; background:#22c55e; color:#ffffff;';
           title.appendChild(rec);
         }
         const desc = document.createElement('div');
-        desc.style.color = '#94a3b8';
+        desc.style.color = '#64748b';
         desc.style.marginTop = '0.5rem';
         desc.textContent = s.description || '';
         const best = document.createElement('div');
@@ -697,12 +832,12 @@
             const xid = safeStrategyDomId(x.id);
             const cel = document.getElementById('strategy-card-' + xid);
             if (cel) {
-              cel.style.border = '2px solid #334155';
-              cel.style.background = '#0f172a';
+              cel.style.border = '1px solid #cbd5e1';
+              cel.style.background = '#ffffff';
             }
           });
           card.style.border = '2px solid #22c55e';
-          card.style.background = 'rgba(34,197,94,0.12)';
+          card.style.background = '#f0fdf4';
           state.strategy = s;
           document.getElementById('selected-strategy-display').textContent = 'Selected: ' + (s.name || s.id);
         }
@@ -786,6 +921,11 @@
         }
         state.letterRaw = data.letter;
         const lb = document.getElementById('letter-body');
+        if (!lb) {
+          showEl('step6-loading', false);
+          setError('step6-error', 'Letter display error.');
+          return;
+        }
         lb.textContent = '';
         lb.textContent = data.letter;
         showEl('step6-loading', false);
@@ -834,8 +974,61 @@
       showStep(1);
       document.getElementById('file-upload').value = '';
       applyStep1FileSelection(null);
-      document.querySelectorAll('input[name="has-eob"]').forEach((x) => { x.checked = false; });
-      document.getElementById('letter-body').textContent = '';
+      document.getElementById('bill-date').value = '';
+      document.getElementById('provider-type').value = '';
+      document.getElementById('total-billed').value = '';
+      document.getElementById('insurance-status').value = '';
+      document.getElementById('network-status').value = '';
+      document.getElementById('service-type').value = '';
+      document.getElementById('prior-contact').value = '';
+      document.querySelectorAll('input[name="has-eob"]').forEach((r) => { r.checked = false; });
+      document.getElementById('patient-name').value = '';
+      document.getElementById('account-number').value = '';
+      document.getElementById('date-of-service').value = '';
+      document.getElementById('provider-name').value = '';
+      document.getElementById('disputed-amount').value = '';
+      document.getElementById('specific-charges').value = '';
+      document.getElementById('resolution-ask').value = '';
+      const dw = document.getElementById('deadline-warning');
+      if (dw) {
+        dw.style.display = 'none';
+        dw.textContent = '';
+      }
+      showEl('step3-hardstop', false);
+      showEl('step3-content', false);
+      showEl('step3-loading', false);
+      const aet = document.getElementById('analysis-error-type');
+      if (aet) aet.textContent = '';
+      const arl = document.getElementById('analysis-risk-level');
+      if (arl) {
+        arl.textContent = '';
+        arl.style.color = '';
+      }
+      const adf = document.getElementById('analysis-deadline-flag');
+      if (adf) {
+        adf.style.display = 'none';
+        adf.textContent = '';
+      }
+      const hookList = document.getElementById('analysis-regulatory-hooks');
+      if (hookList) hookList.replaceChildren();
+      const cptHost = document.getElementById('analysis-cpt-findings');
+      if (cptHost) cptHost.replaceChildren();
+      const asum = document.getElementById('analysis-summary');
+      if (asum) asum.textContent = '';
+      const aec = document.getElementById('analysis-error-cards');
+      if (aec) aec.replaceChildren();
+      const sc = document.getElementById('strategy-cards');
+      if (sc) sc.replaceChildren();
+      const ssd = document.getElementById('selected-strategy-display');
+      if (ssd) ssd.textContent = '';
+      const btn3 = document.getElementById('step3-next');
+      if (btn3) {
+        btn3.disabled = true;
+        btn3.style.opacity = '0.5';
+        btn3.style.display = '';
+      }
+      const lb = document.getElementById('letter-body');
+      if (lb) lb.textContent = '';
       setError('step1-error', '');
       setError('step2-error', '');
       setError('step3-error', '');
@@ -938,7 +1131,6 @@
       });
 
       fileDropZone.addEventListener('click', (e) => {
-        console.log('[drop-zone] click triggered');
         if (e.target === fileUpload) return;
         fileUpload.click();
       });
@@ -971,7 +1163,6 @@
         e.stopPropagation();
         fileDropZone.classList.remove('file-drop-zone--drag');
         const f = e.dataTransfer?.files?.[0];
-        console.log('[drop-zone] file dropped:', f?.name);
         if (f) applyStep1FileSelection(f);
       }, dragCapture);
 
@@ -989,7 +1180,6 @@
         const f = getClipboardFile(e);
         if (!f) return;
         e.preventDefault();
-        console.log('[drop-zone] file pasted:', f?.name);
         applyStep1FileSelection(f);
       });
     }
@@ -1166,6 +1356,10 @@
       showStep(1);
     }
     function bootOnDomReady() {
+      if (window.location.protocol === 'file:') {
+        const pw = document.getElementById('protocol-warning');
+        if (pw) pw.style.display = 'block';
+      }
       renderProgress();
       void bootWizard();
     }

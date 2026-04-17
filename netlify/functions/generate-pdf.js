@@ -66,30 +66,22 @@ exports.handler = async (event) => {
       lines.push(currentLine);
     }
     
-    // Draw the text
-    let yPosition = page.getHeight() - margin;
-    
+    // Draw the text (track current page for multi-page letters)
+    let currentPage = page;
+    let yPosition = currentPage.getHeight() - margin;
+
     for (const line of lines) {
       if (yPosition < margin) {
-        // Add new page if needed
-        const newPage = pdfDoc.addPage([612, 792]);
-        yPosition = newPage.getHeight() - margin;
-        newPage.drawText(line, {
-          x: margin,
-          y: yPosition,
-          size: fontSize,
-          font: font,
-          color: rgb(0, 0, 0)
-        });
-      } else {
-        page.drawText(line, {
-          x: margin,
-          y: yPosition,
-          size: fontSize,
-          font: font,
-          color: rgb(0, 0, 0)
-        });
+        currentPage = pdfDoc.addPage([612, 792]);
+        yPosition = currentPage.getHeight() - margin;
       }
+      currentPage.drawText(line, {
+        x: margin,
+        y: yPosition,
+        size: fontSize,
+        font: font,
+        color: rgb(0, 0, 0)
+      });
       yPosition -= lineHeight;
     }
     
