@@ -65,7 +65,21 @@
           border-radius: 8px;
           padding: 10px 12px;
         }
-        #file-upload { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+        #file-upload {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          opacity: 0;
+          cursor: pointer;
+          font-size: 0;
+          z-index: 1;
+          border: 0;
+          box-sizing: border-box;
+        }
         #file-drop-zone {
           border: 2px dashed #cbd5e1;
           border-radius: 12px;
@@ -78,7 +92,17 @@
         }
         #file-drop-zone.file-drop-zone--drag { border-color: #22c55e; background: #f0fdf4; }
         #file-drop-zone.file-drop-zone--error { border-color: #dc2626; }
-        #file-drop-selected { display: none; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; text-align: center; }
+        #file-drop-selected {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+          text-align: center;
+          position: relative;
+          z-index: 2;
+          background: #ffffff;
+        }
         #file-drop-selected.is-visible { display: flex; }
         #file-drop-check { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
         #file-drop-filename { color: #0f172a; font-weight: 600; }
@@ -96,7 +120,6 @@
       </style>
       <h2 style="margin:0 0 1rem;">Step 1 — Bill upload and details</h2>
       <label class="step1-label" style="display:block; margin-bottom:0.5rem;">Bill file (PDF, JPG, PNG — max 10MB)</label>
-      <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" />
       <div id="file-drop-zone" role="button" tabindex="0" aria-label="Upload bill file">
         <div id="file-drop-default">
           <div style="display:flex; justify-content:center;">
@@ -110,6 +133,7 @@
           <div style="color:#374151; font-size:0.95rem; margin-bottom:0.5rem;">or click to browse — or paste from clipboard</div>
           <div style="color:#64748b; font-size:0.85rem;">PDF, JPG, PNG · Max 10MB</div>
         </div>
+        <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" aria-label="Choose bill file" />
         <div id="file-drop-selected">
           <span id="file-drop-check" aria-hidden="true">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px">
@@ -886,65 +910,95 @@
       if (nameEl) nameEl.textContent = file.name + ' · ' + formatFileSize(file.size);
     }
 
-    const fileDropZone = document.getElementById('file-drop-zone');
-    const fileDropClear = document.getElementById('file-drop-clear');
+    function getClipboardFile(event) {
+      const cd = event.clipboardData;
+      if (!cd) return null;
+      const fromFiles = cd.files?.[0];
+      if (fromFiles) return fromFiles;
+      const item = [...cd.items].find((i) => i.kind === 'file');
+      return item?.getAsFile() ?? null;
+    }
 
-    document.getElementById('file-upload').addEventListener('change', (e) => {
-      const f = e.target.files?.[0];
-      if (!f) {
-        applyStep1FileSelection(null);
-        return;
-      }
-      applyStep1FileSelection(f);
-    });
+    let step1DropZoneListenersBound = false;
+    function initStep1DropZone() {
+      if (step1DropZoneListenersBound) return;
+      const fileDropZone = document.getElementById('file-drop-zone');
+      const fileUpload = document.getElementById('file-upload');
+      const fileDropClear = document.getElementById('file-drop-clear');
+      if (!fileDropZone || !fileUpload) return;
+      step1DropZoneListenersBound = true;
 
-    if (fileDropZone) {
-      fileDropZone.addEventListener('click', () => {
-        document.getElementById('file-upload').click();
+      fileUpload.addEventListener('change', (e) => {
+        const f = e.target.files?.[0];
+        if (!f) {
+          applyStep1FileSelection(null);
+          return;
+        }
+        applyStep1FileSelection(f);
+      });
+
+      fileDropZone.addEventListener('click', (e) => {
+        console.log('[drop-zone] click triggered');
+        if (e.target === fileUpload) return;
+        fileUpload.click();
       });
       fileDropZone.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          document.getElementById('file-upload').click();
+          fileUpload.click();
         }
       });
+
+      const dragCapture = { capture: true };
       fileDropZone.addEventListener('dragenter', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         fileDropZone.classList.add('file-drop-zone--drag');
-      });
+      }, dragCapture);
       fileDropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
         fileDropZone.classList.add('file-drop-zone--drag');
-      });
+      }, dragCapture);
       fileDropZone.addEventListener('dragleave', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         if (!fileDropZone.contains(e.relatedTarget)) fileDropZone.classList.remove('file-drop-zone--drag');
-      });
+      }, dragCapture);
       fileDropZone.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         fileDropZone.classList.remove('file-drop-zone--drag');
         const f = e.dataTransfer?.files?.[0];
+        console.log('[drop-zone] file dropped:', f?.name);
         if (f) applyStep1FileSelection(f);
-      });
-    }
+      }, dragCapture);
 
-    if (fileDropClear) {
-      fileDropClear.addEventListener('click', (e) => {
-        e.stopPropagation();
+      if (fileDropClear) {
+        fileDropClear.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          fileUpload.value = '';
+          applyStep1FileSelection(null);
+        });
+      }
+
+      window.addEventListener('paste', (e) => {
+        if (currentStep !== 1) return;
+        const f = getClipboardFile(e);
+        if (!f) return;
         e.preventDefault();
-        document.getElementById('file-upload').value = '';
-        applyStep1FileSelection(null);
+        console.log('[drop-zone] file pasted:', f?.name);
+        applyStep1FileSelection(f);
       });
     }
 
-    window.addEventListener('paste', (e) => {
-      if (currentStep !== 1) return;
-      const files = e.clipboardData?.files;
-      if (!files || !files.length) return;
-      const f = files[0];
-      e.preventDefault();
-      applyStep1FileSelection(f);
-    });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStep1DropZone);
+    } else {
+      initStep1DropZone();
+    }
 
     document.getElementById('step1-next').addEventListener('click', async () => {
       setError('step1-error', '');
