@@ -23,15 +23,71 @@
     <div id="wizard-progress" style="margin-bottom:2rem; padding:1rem; background:#1e293b; border-radius:12px; border:1px solid #334155;"></div>
 
     <!-- STEP 1 -->
-    <div id="step1-container" class="wizard-step" style="display:block; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
-      <h2 style="margin:0 0 1rem; color:#ffffff;">Step 1 — Bill upload and details</h2>
-      <label style="display:block; color:#94a3b8; margin-bottom:0.5rem;">Bill file (PDF, JPG, PNG — max 10MB)</label>
-      <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <div id="file-preview" style="margin:0.75rem 0; color:#94a3b8; font-size:0.9rem;"></div>
-      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Bill date</label>
-      <input type="date" id="bill-date" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Provider type</label>
-      <select id="provider-type" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+    <div id="step1-container" class="wizard-step" style="display:block; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; border-radius:12px; padding:1.5rem;">
+      <style>
+        #step1-container h2 { color: #0f172a; }
+        #step1-container .step1-label { color: #374151; }
+        #step1-container input:not(#file-upload),
+        #step1-container select,
+        #step1-container textarea {
+          width: 100%;
+          box-sizing: border-box;
+          background: #ffffff;
+          color: #0f172a;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          padding: 10px 12px;
+        }
+        #file-upload { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+        #file-drop-zone {
+          border: 2px dashed #cbd5e1;
+          border-radius: 12px;
+          background: #ffffff;
+          padding: 2rem;
+          text-align: center;
+          cursor: pointer;
+          position: relative;
+          box-sizing: border-box;
+        }
+        #file-drop-zone.file-drop-zone--drag { border-color: #22c55e; background: #f0fdf4; }
+        #file-drop-zone.file-drop-zone--error { border-color: #dc2626; }
+        #file-drop-selected { display: none; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; text-align: center; }
+        #file-drop-selected.is-visible { display: flex; }
+        #file-drop-check { color: #22c55e; font-weight: 700; font-size: 1.25rem; line-height: 1; }
+        #file-drop-filename { color: #0f172a; font-weight: 600; }
+        #file-drop-clear {
+          margin-left: 0.25rem;
+          border: none;
+          background: transparent;
+          color: #64748b;
+          font-size: 1.5rem;
+          line-height: 1;
+          cursor: pointer;
+          padding: 0 0.25rem;
+        }
+        #file-drop-clear:hover { color: #0f172a; }
+      </style>
+      <h2 style="margin:0 0 1rem;">Step 1 — Bill upload and details</h2>
+      <label class="step1-label" style="display:block; margin-bottom:0.5rem;">Bill file (PDF, JPG, PNG — max 10MB)</label>
+      <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" />
+      <div id="file-drop-zone" role="button" tabindex="0" aria-label="Upload bill file">
+        <div id="file-drop-default">
+          <div style="font-size:2rem; line-height:1; margin-bottom:0.5rem;">📄</div>
+          <div style="font-weight:600; color:#0f172a; margin-bottom:0.25rem;">Drag &amp; drop your bill here</div>
+          <div style="color:#374151; font-size:0.95rem; margin-bottom:0.5rem;">or click to browse — or paste from clipboard</div>
+          <div style="color:#64748b; font-size:0.85rem;">PDF, JPG, PNG · Max 10MB</div>
+        </div>
+        <div id="file-drop-selected">
+          <span id="file-drop-check" aria-hidden="true">✓</span>
+          <span id="file-drop-filename"></span>
+          <button type="button" id="file-drop-clear" aria-label="Remove file">×</button>
+        </div>
+      </div>
+      <div id="file-drop-error" style="display:none; margin-top:0.5rem; color:#dc2626; font-size:0.9rem;"></div>
+      <label class="step1-label" style="display:block; margin:0.75rem 0 0.25rem;">Bill date</label>
+      <input type="date" id="bill-date" />
+      <label class="step1-label" style="display:block; margin:0.75rem 0 0.25rem;">Provider type</label>
+      <select id="provider-type">
         <option value="">Select…</option>
         <option value="hospital">Hospital / Health System</option>
         <option value="physician">Physician / Medical Group</option>
@@ -40,10 +96,10 @@
         <option value="ambulance">Ambulance / Emergency Transport</option>
         <option value="other">Other</option>
       </select>
-      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Total billed ($)</label>
-      <input type="text" id="total-billed" inputmode="decimal" placeholder="e.g. 1250.00" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
-      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Insurance status</label>
-      <select id="insurance-status" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+      <label class="step1-label" style="display:block; margin:0.75rem 0 0.25rem;">Total billed ($)</label>
+      <input type="text" id="total-billed" inputmode="decimal" placeholder="e.g. 1250.00" />
+      <label class="step1-label" style="display:block; margin:0.75rem 0 0.25rem;">Insurance status</label>
+      <select id="insurance-status">
         <option value="">Select…</option>
         <option value="insured">Insured (had active coverage at time of service)</option>
         <option value="uninsured">Uninsured (no coverage)</option>
@@ -260,27 +316,31 @@
         const col = document.createElement('div');
         col.style.cssText = 'flex:1; min-width:72px; text-align:center;';
         const circle = document.createElement('div');
-        circle.style.cssText = 'width:28px; height:28px; border-radius:50%; margin:0 auto 6px; line-height:28px; font-size:14px;';
+        circle.style.cssText = 'width:28px; height:28px; border-radius:50%; margin:0 auto 6px; line-height:28px; font-size:14px; font-weight:600; box-sizing:border-box;';
         const label = document.createElement('div');
         label.textContent = STEP_LABELS[i];
         label.style.fontSize = '0.7rem';
         if (i + 1 < currentStep) {
           circle.style.background = '#22c55e';
           circle.style.color = '#fff';
+          circle.style.border = 'none';
           circle.textContent = '\u2713';
-          label.style.color = '#fff';
+          label.style.color = '#e2e8f0';
           label.style.fontWeight = '600';
         } else if (i + 1 === currentStep) {
-          circle.style.background = '#3b82f6';
+          circle.style.background = '#22c55e';
           circle.style.color = '#fff';
+          circle.style.border = 'none';
           circle.textContent = String(i + 1);
-          label.style.color = '#fff';
+          label.style.color = '#f8fafc';
           label.style.fontWeight = '700';
         } else {
-          circle.textContent = '';
-          circle.style.border = '2px solid #475569';
+          circle.textContent = String(i + 1);
+          circle.style.border = '2px solid #94a3b8';
           circle.style.background = 'transparent';
-          label.style.color = '#64748b';
+          circle.style.color = '#cbd5e1';
+          label.style.color = '#94a3b8';
+          label.style.fontWeight = '500';
         }
         col.appendChild(circle);
         col.appendChild(label);
@@ -714,7 +774,7 @@
       currentStep = 1;
       showStep(1);
       document.getElementById('file-upload').value = '';
-      document.getElementById('file-preview').textContent = '';
+      applyStep1FileSelection(null);
       document.querySelectorAll('input[name="has-eob"]').forEach((x) => { x.checked = false; });
       document.getElementById('letter-body').textContent = '';
       setError('step1-error', '');
@@ -726,15 +786,129 @@
       showEl('step6-main', false);
     }
 
-    document.getElementById('file-upload').addEventListener('change', (e) => {
-      const f = e.target.files?.[0];
-      state.file = f || null;
-      const prev = document.getElementById('file-preview');
-      if (!f) {
-        prev.textContent = '';
+    function formatFileSize(bytes) {
+      if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
+      if (bytes < 1024) return bytes + ' B';
+      const kb = bytes / 1024;
+      if (kb < 1024) return kb.toFixed(1) + ' KB';
+      return (kb / 1024).toFixed(1) + ' MB';
+    }
+
+    function validateStep1BillFile(f) {
+      if (!f) return 'Please choose a bill file.';
+      const okTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      const extOk = /\.(pdf|jpe?g|png)$/i.test(f.name);
+      if (!okTypes.includes(f.type) && !extOk) return 'File must be PDF, JPG, or PNG.';
+      if (f.size > 10 * 1024 * 1024) return 'File must be under 10MB.';
+      return null;
+    }
+
+    function applyStep1FileSelection(file) {
+      const zone = document.getElementById('file-drop-zone');
+      const errEl = document.getElementById('file-drop-error');
+      const input = document.getElementById('file-upload');
+      const def = document.getElementById('file-drop-default');
+      const sel = document.getElementById('file-drop-selected');
+      if (zone) zone.classList.remove('file-drop-zone--drag');
+      const msg = file ? validateStep1BillFile(file) : null;
+      if (!file || msg) {
+        state.file = null;
+        if (input) input.value = '';
+        const showErr = !!(file && msg);
+        if (zone) {
+          if (showErr) zone.classList.add('file-drop-zone--error');
+          else zone.classList.remove('file-drop-zone--error');
+        }
+        if (errEl) {
+          if (showErr) {
+            errEl.style.display = 'block';
+            errEl.textContent = msg || '';
+          } else {
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+          }
+        }
+        if (def) def.style.display = '';
+        if (sel) sel.classList.remove('is-visible');
         return;
       }
-      prev.textContent = f.name + ' — ' + (f.size / 1024).toFixed(1) + ' KB';
+      if (zone) zone.classList.remove('file-drop-zone--error');
+      if (errEl) {
+        errEl.style.display = 'none';
+        errEl.textContent = '';
+      }
+      state.file = file;
+      try {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+      } catch (_) {
+        input.value = '';
+      }
+      if (def) def.style.display = 'none';
+      if (sel) sel.classList.add('is-visible');
+      const nameEl = document.getElementById('file-drop-filename');
+      if (nameEl) nameEl.textContent = file.name + ' · ' + formatFileSize(file.size);
+    }
+
+    const fileDropZone = document.getElementById('file-drop-zone');
+    const fileDropClear = document.getElementById('file-drop-clear');
+
+    document.getElementById('file-upload').addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      if (!f) {
+        applyStep1FileSelection(null);
+        return;
+      }
+      applyStep1FileSelection(f);
+    });
+
+    if (fileDropZone) {
+      fileDropZone.addEventListener('click', () => {
+        document.getElementById('file-upload').click();
+      });
+      fileDropZone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          document.getElementById('file-upload').click();
+        }
+      });
+      fileDropZone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        fileDropZone.classList.add('file-drop-zone--drag');
+      });
+      fileDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileDropZone.classList.add('file-drop-zone--drag');
+      });
+      fileDropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        if (!fileDropZone.contains(e.relatedTarget)) fileDropZone.classList.remove('file-drop-zone--drag');
+      });
+      fileDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileDropZone.classList.remove('file-drop-zone--drag');
+        const f = e.dataTransfer?.files?.[0];
+        if (f) applyStep1FileSelection(f);
+      });
+    }
+
+    if (fileDropClear) {
+      fileDropClear.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        document.getElementById('file-upload').value = '';
+        applyStep1FileSelection(null);
+      });
+    }
+
+    window.addEventListener('paste', (e) => {
+      if (currentStep !== 1) return;
+      const files = e.clipboardData?.files;
+      if (!files || !files.length) return;
+      const f = files[0];
+      e.preventDefault();
+      applyStep1FileSelection(f);
     });
 
     document.getElementById('step1-next').addEventListener('click', async () => {
@@ -902,10 +1076,14 @@
       await syncWizardAccessToken(state);
       showStep(1);
     }
+    function bootOnDomReady() {
+      renderProgress();
+      void bootWizard();
+    }
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', bootWizard);
+      document.addEventListener('DOMContentLoaded', bootOnDomReady);
     } else {
-      bootWizard();
+      bootOnDomReady();
     }
   </script>
 </body>
