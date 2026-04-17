@@ -8,7 +8,7 @@
  * NO PLACEHOLDERS - PRODUCTION READY
  */
 
-const pdfParse = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const { getSupabaseAdmin } = require('./_supabase');
 const { verifyOwnership } = require('./_helpers/ownership-verifier');
@@ -111,20 +111,36 @@ exports.handler = async (event) => {
 
     // Extract based on file type
     if (fileType === 'application/pdf' || filePath.toLowerCase().endsWith('.pdf')) {
-      // PDF extraction with page limit
+      // PDF extraction with page limit (pdf-parse v2: PDFParse + getText)
       console.log('Extracting from PDF...');
       const buffer = await fileData.arrayBuffer();
-      
+      const pdfBuffer = Buffer.from(buffer);
+
       const pdfData = await withTimeout(
-        pdfParse(Buffer.from(buffer), {
-          max: MAX_PDF_PAGES // Limit pages processed
-        }),
+        (async () => {
+          const parser = new PDFParse({ data: pdfBuffer });
+          return parser.getText();
+        })(),
         OCR_TIMEOUT
       );
-      
-      extractedText = pdfData.text;
-      
-      console.log(`PDF: ${pdfData.numpages} pages, processed first ${Math.min(pdfData.numpages, MAX_PDF_PAGES)} pages`);
+
+      extractedText = (pdfData && pdfData.text) || '';
+      if (pdfData && Array.isArray(pdfData.pages) && pdfData.pages.length > MAX_PDF_PAGES) {
+        extractedText = pdfData.pages
+          .slice(0, MAX_PDF_PAGES)
+          .map((p) => (p && p.text) || '')
+          .join('\n');
+      }
+
+      const numPages =
+        typeof pdfData.total === 'number'
+          ? pdfData.total
+          : Array.isArray(pdfData.pages)
+            ? pdfData.pages.length
+            : 0;
+      console.log(
+        `PDF: ${numPages} pages, processed first ${Math.min(numPages, MAX_PDF_PAGES)} pages`
+      );
       
     } else if (fileType?.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(filePath)) {
       // Image OCR extraction with timeout

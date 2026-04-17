@@ -15,12 +15,36 @@ const Stripe = require("stripe");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /**
+ * Local/staging ONLY. Set ALLOW_PAYMENT_BYPASS=true in Netlify env or .env for Netlify Dev.
+ * Never enable in production.
+ */
+function isPaymentBypassEnabled() {
+  const a = (process.env.ALLOW_PAYMENT_BYPASS || "").toLowerCase();
+  const b = (process.env.BYPASS_PAYMENT_WALL || "").toLowerCase();
+  const on = (v) => v === "true" || v === "1" || v === "yes";
+  return on(a) || on(b);
+}
+
+/**
  * Verify user has valid payment
  * @param {string} userId - User ID from auth
  * @param {string} email - User email
  * @returns {Promise<object>} - Payment verification result
  */
 async function verifyPayment(userId, email) {
+  if (isPaymentBypassEnabled()) {
+    console.warn(
+      "[ALLOW_PAYMENT_BYPASS] verifyPayment skipped — remove this env var before production"
+    );
+    return {
+      verified: true,
+      bypass: true,
+      paymentRecord: null,
+      documentId: null,
+      canGenerate: true,
+    };
+  }
+
   const supabase = getSupabaseAdmin();
   
   // Check database for paid status
@@ -97,6 +121,13 @@ async function verifyPayment(userId, email) {
  * @returns {Promise<boolean>} - Success status
  */
 async function markPaymentUsed(documentId) {
+  if (isPaymentBypassEnabled()) {
+    console.warn(
+      "[ALLOW_PAYMENT_BYPASS] markPaymentUsed skipped — letter credit not consumed"
+    );
+    return true;
+  }
+
   const supabase = getSupabaseAdmin();
   
   const { error } = await supabase
@@ -159,6 +190,17 @@ async function canGenerateLetter(userId, documentId) {
     return {
       allowed: false,
       reason: 'Document not found or access denied'
+    };
+  }
+
+  if (isPaymentBypassEnabled()) {
+    console.warn(
+      "[ALLOW_PAYMENT_BYPASS] canGenerateLetter payment checks skipped — dev/test only"
+    );
+    return {
+      allowed: true,
+      document: data,
+      bypass: true,
     };
   }
 
@@ -253,5 +295,6 @@ module.exports = {
   markPaymentUsed,
   canUpload,
   canGenerateLetter,
-  withPaymentEnforcement
+  withPaymentEnforcement,
+  isPaymentBypassEnabled,
 };

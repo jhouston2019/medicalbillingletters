@@ -1,363 +1,912 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Letter Analysis – Medical Bill Dispute Pro</title>
-    <meta name="description" content="Procedural insurance correspondence preparation system. Scope-limited, risk-aware letter analysis.">
-    <link rel="canonical" href="https://insuranceMedical Bill Dispute Pro.com/upload.html">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Bill Dispute Pro — Dispute Wizard</title>
+  <meta name="description" content="Upload your medical bill and generate a professional dispute letter." />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 </head>
-<body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
-    <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
-        <div style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
-        <div>
-            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Upload</a> |
-            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Dashboard</a> |
-            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a>
-        </div>
-    </nav>
+<body style="margin:0; background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; line-height:1.5;">
+  <nav style="background:#1e293b; padding:1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
+    <strong style="color:#ffffff;">Medical Bill Dispute Pro</strong>
+    <div>
+      <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a> |
+      <a href="/examples.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Examples</a> |
+      <a href="/pricing.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Pricing</a> |
+      <a href="/login.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a> |
+      <a href="/terms.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Terms</a>
+    </div>
+  </nav>
 
-    <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
-        <!-- CRITICAL WARNING -->
-        <div style="background:#7f1d1d; border:2px solid #dc2626; border-radius:12px; padding:1.5rem; margin-bottom:2rem; color:#ffffff;">
-            <h3 style="color:#fca5a5; margin:0 0 1rem 0; font-size:1.2rem;">⚠️ IMPORTANT LIMITATIONS</h3>
-            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>This system CANNOT help with:</strong></p>
-            <ul style="margin:0; padding-left:1.5rem; font-size:0.9rem; line-height:1.6;">
-                <li>Fraud investigations or misrepresentation allegations</li>
-                <li>Examination Under Oath (EUO) requests</li>
-                <li>Recorded statement requests</li>
-                <li>Reservation of rights letters</li>
-                <li>Bad faith allegations or litigation threats</li>
-                <li>Commercial claims over $50,000</li>
-                <li>Any letter mentioning attorneys or legal action</li>
-            </ul>
-            <p style="margin:1rem 0 0 0; font-size:0.85rem; font-style:italic;">If your letter involves any of the above, you MUST consult an attorney. This system will refuse to generate output.</p>
-        </div>
+  <div style="width:min(900px, 94%); margin:0 auto; padding:1.5rem 0 3rem;">
+    <div id="wizard-progress" style="margin-bottom:2rem; padding:1rem; background:#1e293b; border-radius:12px; border:1px solid #334155;"></div>
 
-        <div style="max-width:700px; margin:2rem auto; padding:2rem; background:#ffffff; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-            <h2 style="text-align:center; margin-bottom:2rem; color:#2d3748; font-size:1.8rem;">Upload Insurance Letter</h2>
-            
-            <!-- STEP 1: FILE UPLOAD -->
-            <div style="margin-bottom:2rem; padding:1.5rem; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-                <h3 style="color:#1e40af; margin:0 0 1rem 0; font-size:1.1rem;">Step 1: Upload Letter</h3>
-                <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required 
-                    style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; background:#ffffff; color:#2d3748;">
-                <small style="color:#64748b; font-size:0.85rem; display:block; margin-top:0.5rem;">Supported: PDF, JPG, PNG (Max 10MB)</small>
-            </div>
-
-            <!-- STEP 2: CLAIM CLASSIFICATION (REQUIRED) -->
-            <div style="margin-bottom:2rem; padding:1.5rem; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-                <h3 style="color:#1e40af; margin:0 0 1rem 0; font-size:1.1rem;">Step 2: Claim Classification (Required)</h3>
-                
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#2d3748;">Claim Type:</label>
-                    <select id="claimType" required style="width:100%; padding:10px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#ffffff;">
-                        <option value="">-- Select Claim Type --</option>
-                        <option value="property_homeowners">Property - Homeowners</option>
-                        <option value="property_renters">Property - Renters</option>
-                        <option value="auto_collision">Auto - Collision</option>
-                        <option value="auto_comprehensive">Auto - Comprehensive</option>
-                        <option value="health_medical">Health - Medical Services</option>
-                        <option value="health_prescription">Health - Prescription</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#2d3748;">Party Type:</label>
-                    <select id="partyType" required style="width:100%; padding:10px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#ffffff;">
-                        <option value="">-- Select Party Type --</option>
-                        <option value="first_party">First-Party (Your own insurance)</option>
-                        <option value="third_party">Third-Party (Someone else's insurance)</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#2d3748;">Claim Context:</label>
-                    <select id="claimContext" required style="width:100%; padding:10px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#ffffff;">
-                        <option value="">-- Select Context --</option>
-                        <option value="personal">Personal</option>
-                        <option value="commercial">Commercial (Business-related)</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom:0;">
-                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#2d3748;">Estimated Claim Amount:</label>
-                    <select id="claimAmount" required style="width:100%; padding:10px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#ffffff;">
-                        <option value="">-- Select Amount Range --</option>
-                        <option value="under_5k">Under $5,000</option>
-                        <option value="5k_to_25k">$5,000 - $25,000</option>
-                        <option value="25k_to_50k">$25,000 - $50,000</option>
-                        <option value="over_50k">Over $50,000 (May require attorney)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- STEP 3: LETTER CONTEXT (STRUCTURED ONLY) -->
-            <div style="margin-bottom:2rem; padding:1.5rem; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-                <h3 style="color:#1e40af; margin:0 0 1rem 0; font-size:1.1rem;">Step 3: Letter Context</h3>
-                
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#2d3748;">Does the letter mention any of the following? (Check all that apply)</label>
-                    <div style="background:#ffffff; padding:1rem; border-radius:6px; border:1px solid #e2e8f0;">
-                        <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-                            <input type="checkbox" id="mentionsFraud" value="fraud" style="margin-right:0.5rem;">
-                            Fraud, misrepresentation, or false statements
-                        </label>
-                        <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-                            <input type="checkbox" id="mentionsEUO" value="euo" style="margin-right:0.5rem;">
-                            Examination Under Oath (EUO)
-                        </label>
-                        <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-                            <input type="checkbox" id="mentionsRecordedStatement" value="recorded_statement" style="margin-right:0.5rem;">
-                            Recorded statement request
-                        </label>
-                        <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-                            <input type="checkbox" id="mentionsReservation" value="reservation" style="margin-right:0.5rem;">
-                            Reservation of rights
-                        </label>
-                        <label style="display:block; margin-bottom:0.5rem; cursor:pointer;">
-                            <input type="checkbox" id="mentionsAttorney" value="attorney" style="margin-right:0.5rem;">
-                            Attorney, lawyer, or legal counsel
-                        </label>
-                        <label style="display:block; margin-bottom:0; cursor:pointer;">
-                            <input type="checkbox" id="mentionsBadFaith" value="bad_faith" style="margin-right:0.5rem;">
-                            Bad faith or litigation threats
-                        </label>
-                    </div>
-                </div>
-
-                <div style="margin-bottom:0;">
-                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#2d3748;">Letter Date (if visible):</label>
-                    <input type="date" id="letterDate" style="width:100%; padding:10px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#ffffff;">
-                </div>
-            </div>
-
-            <!-- OVER-DISCLOSURE WARNING -->
-            <div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:8px; padding:1rem; margin-bottom:2rem;">
-                <p style="margin:0; color:#92400e; font-size:0.9rem; font-weight:500;">
-                    ⚠️ <strong>Over-Disclosure Warning:</strong> Do NOT provide narrative explanations, stories, or additional details. 
-                    This system uses only the information in your uploaded letter and the structured selections above. 
-                    Additional information can harm your claim.
-                </p>
-            </div>
-
-            <button type="submit" id="analyzeBtn" 
-                style="background:#1e40af; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; width:100%; transition:background 0.2s;">
-                Analyze Letter
-            </button>
-
-            <div id="uploadStatus" style="margin-top: 1rem; display: none;">
-                <p id="statusText" style="color:#2d3748; font-weight:500;"></p>
-            </div>
-        </div>
-
-        <!-- ANALYSIS RESULTS (Hidden until complete) -->
-        <div id="analysisResults" style="max-width:900px; margin:2rem auto; display:none;">
-            <div style="background:#ffffff; border-radius:12px; padding:2rem; color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#1e40af; font-size:1.5rem; margin-bottom:1.5rem;">Letter Analysis</h3>
-                
-                <!-- Classification Results -->
-                <div id="classificationResults" style="background:#f8fafc; padding:1.5rem; border-radius:8px; margin-bottom:1.5rem; border:1px solid #e2e8f0;"></div>
-                
-                <!-- Phase Detection Results -->
-                <div id="phaseResults" style="background:#f8fafc; padding:1.5rem; border-radius:8px; margin-bottom:1.5rem; border:1px solid #e2e8f0;"></div>
-                
-                <!-- Risk Assessment -->
-                <div id="riskAssessment" style="background:#fef3c7; padding:1.5rem; border-radius:8px; margin-bottom:1.5rem; border:2px solid #f59e0b;"></div>
-                
-                <!-- Analysis Content -->
-                <div id="analysisContent" style="background:#f8fafc; padding:1.5rem; border-radius:8px; margin-bottom:1.5rem; border:1px solid #e2e8f0;"></div>
-                
-                <!-- Next Steps (Only if safe to proceed) -->
-                <div id="nextSteps" style="display:none;">
-                    <button id="generateResponseBtn" 
-                        style="background:#059669; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; width:100%;">
-                        Generate Procedural Response
-                    </button>
-                </div>
-                
-                <!-- Hard Stop Message (If triggered) -->
-                <div id="hardStopMessage" style="display:none; background:#7f1d1d; border:2px solid #dc2626; border-radius:8px; padding:1.5rem; color:#ffffff;">
-                    <h4 style="color:#fca5a5; margin:0 0 1rem 0;">⛔ Professional Representation Required</h4>
-                    <p id="hardStopReason" style="margin:0; font-size:0.95rem; line-height:1.6;"></p>
-                </div>
-            </div>
-        </div>
+    <!-- STEP 1 -->
+    <div id="step1-container" class="wizard-step" style="display:block; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+      <h2 style="margin:0 0 1rem; color:#ffffff;">Step 1 — Bill upload and details</h2>
+      <label style="display:block; color:#94a3b8; margin-bottom:0.5rem;">Bill file (PDF, JPG, PNG — max 10MB)</label>
+      <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <div id="file-preview" style="margin:0.75rem 0; color:#94a3b8; font-size:0.9rem;"></div>
+      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Bill date</label>
+      <input type="date" id="bill-date" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Provider type</label>
+      <select id="provider-type" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+        <option value="">Select…</option>
+        <option value="hospital">Hospital / Health System</option>
+        <option value="physician">Physician / Medical Group</option>
+        <option value="lab">Laboratory / Diagnostic</option>
+        <option value="dme">Durable Medical Equipment (DME)</option>
+        <option value="ambulance">Ambulance / Emergency Transport</option>
+        <option value="other">Other</option>
+      </select>
+      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Total billed ($)</label>
+      <input type="text" id="total-billed" inputmode="decimal" placeholder="e.g. 1250.00" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Insurance status</label>
+      <select id="insurance-status" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+        <option value="">Select…</option>
+        <option value="insured">Insured (had active coverage at time of service)</option>
+        <option value="uninsured">Uninsured (no coverage)</option>
+        <option value="underinsured">Underinsured (had coverage but high deductible/gaps)</option>
+      </select>
+      <div id="step1-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <button type="button" id="step1-next" style="margin-top:1.25rem; width:100%; padding:14px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Next</button>
     </div>
 
-    <script type="module">
-        import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js';
-        import { getCurrentUser } from './src/components/Auth.js';
-        
-        let currentUser = null;
-        let uploadedFilePath = null;
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            currentUser = await getCurrentUser();
-            if (!currentUser) {
-                alert('Please login to access the upload page.');
-                window.location.href = '/login.html';
-                return;
-            }
-            
-            // Payment verification happens server-side on API calls
-            // No client-side checks - all enforcement in backend
-        });
-        
-        document.getElementById('analyzeBtn').addEventListener('click', async () => {
-            // Validation
-            const file = document.getElementById('file').files[0];
-            const claimType = document.getElementById('claimType').value;
-            const partyType = document.getElementById('partyType').value;
-            const claimContext = document.getElementById('claimContext').value;
-            const claimAmount = document.getElementById('claimAmount').value;
-            
-            if (!file) {
-                alert('Please upload a letter file.');
-                return;
-            }
-            
-            if (!claimType || !partyType || !claimContext || !claimAmount) {
-                alert('Please complete all required classification fields.');
-                return;
-            }
-            
-            // Check for hard-stop conditions
-            const hardStopChecks = {
-                fraud: document.getElementById('mentionsFraud').checked,
-                euo: document.getElementById('mentionsEUO').checked,
-                recordedStatement: document.getElementById('mentionsRecordedStatement').checked,
-                reservation: document.getElementById('mentionsReservation').checked,
-                attorney: document.getElementById('mentionsAttorney').checked,
-                badFaith: document.getElementById('mentionsBadFaith').checked
-            };
-            
-            // Check commercial + high amount
-            const isHighRiskCommercial = claimContext === 'commercial' && 
-                (claimAmount === '25k_to_50k' || claimAmount === 'over_50k');
-            
-            showStatus('Uploading file...');
-            
-            try {
-                // Upload file to Supabase Storage
-                const uploadResult = await uploadFile(file, currentUser.id);
-                uploadedFilePath = uploadResult.path || uploadResult.fullPath;
-                
-                showStatus('Saving document...');
-                
-                // Save to database
-                const classificationData = {
-                    claimType,
-                    partyType,
-                    claimContext,
-                    claimAmount,
-                    letterDate: document.getElementById('letterDate').value,
-                    hardStopChecks,
-                    isHighRiskCommercial
-                };
-                
-                const savedDoc = await saveDocumentToDatabase(
-                    currentUser.id, 
-                    file.name, 
-                    uploadResult,
-                    classificationData
-                );
-                
-                showStatus('Extracting text from document...');
-                
-                // Extract text from uploaded file
-                const extractResponse = await fetch('/.netlify/functions/extract-text-from-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        filePath: uploadedFilePath,
-                        fileType: file.type,
-                        documentId: savedDoc.id
-                    })
-                });
-                
-                const extractResult = await extractResponse.json();
-                
-                if (!extractResult.success) {
-                    throw new Error(extractResult.details || 'Text extraction failed');
-                }
-                
-                showStatus('Analyzing letter and checking safety conditions...');
-                
-                // Call analysis endpoint with extracted text
-                const response = await fetch('/.netlify/functions/analyze-insurance-letter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        filePath: uploadedFilePath,
-                        fileName: file.name,
-                        classification: classificationData,
-                        userId: currentUser.id,
-                        documentId: savedDoc.id
-                    })
-                });
-                
-                const result = await response.json();
-                
-                hideStatus();
-                displayAnalysisResults(result);
-                
-            } catch (error) {
-                showStatus(`Error: ${error.message}`);
-            }
-        });
-        
-        function displayAnalysisResults(result) {
-            document.getElementById('analysisResults').style.display = 'block';
-            
-            // Display classification
-            document.getElementById('classificationResults').innerHTML = `
-                <h4 style="color:#1e40af; margin:0 0 1rem 0;">Claim Classification</h4>
-                <p style="margin:0.5rem 0;"><strong>Type:</strong> ${result.classification.claimType}</p>
-                <p style="margin:0.5rem 0;"><strong>Party:</strong> ${result.classification.partyType}</p>
-                <p style="margin:0.5rem 0;"><strong>Context:</strong> ${result.classification.claimContext}</p>
-            `;
-            
-            // Display phase detection
-            document.getElementById('phaseResults').innerHTML = `
-                <h4 style="color:#1e40af; margin:0 0 1rem 0;">Letter Phase</h4>
-                <p style="margin:0;"><strong>${result.phase.detected}</strong></p>
-                <p style="margin:0.5rem 0; font-size:0.9rem; color:#64748b;">${result.phase.description}</p>
-            `;
-            
-            // Display risk assessment
-            if (result.hardStop) {
-                document.getElementById('hardStopMessage').style.display = 'block';
-                document.getElementById('hardStopReason').textContent = result.hardStopReason;
-                document.getElementById('nextSteps').style.display = 'none';
-            } else {
-                document.getElementById('riskAssessment').innerHTML = `
-                    <h4 style="color:#92400e; margin:0 0 1rem 0;">Risk Assessment</h4>
-                    <p style="margin:0; color:#92400e;">${result.riskAssessment}</p>
-                `;
-                document.getElementById('analysisContent').innerHTML = `
-                    <h4 style="color:#1e40af; margin:0 0 1rem 0;">Analysis</h4>
-                    <div style="line-height:1.6;">${result.analysis}</div>
-                `;
-                document.getElementById('nextSteps').style.display = 'block';
-            }
-        }
-        
-        function showStatus(message) {
-            document.getElementById('statusText').textContent = message;
-            document.getElementById('uploadStatus').style.display = 'block';
-        }
-        
-        function hideStatus() {
-            document.getElementById('uploadStatus').style.display = 'none';
-        }
-    </script>
+    <!-- STEP 2 -->
+    <div id="step2-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+      <h2 style="margin:0 0 1rem;">Step 2 — Your situation</h2>
+      <label style="display:block; color:#94a3b8; margin-bottom:0.25rem;">Network status</label>
+      <select id="network-status" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+        <option value="">Select…</option>
+        <option value="in_network">In-Network (provider was in my insurance network)</option>
+        <option value="out_of_network">Out-of-Network (provider was outside my network)</option>
+        <option value="unknown">I Don't Know / Uninsured</option>
+      </select>
+      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Service type</label>
+      <select id="service-type" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+        <option value="">Select…</option>
+        <option value="emergency">Emergency (ER visit, urgent ambulance, emergency surgery)</option>
+        <option value="elective">Elective / Scheduled (planned procedure, routine visit)</option>
+        <option value="unknown">I'm Not Sure</option>
+      </select>
+      <fieldset style="border:none; padding:0; margin:1rem 0 0;">
+        <legend style="color:#94a3b8;">Do you have an EOB (Explanation of Benefits)?</legend>
+        <label style="margin-right:1rem; color:#fff;"><input type="radio" name="has-eob" value="true" /> Yes</label>
+        <label style="margin-right:1rem; color:#fff;"><input type="radio" name="has-eob" value="false" /> No</label>
+        <label style="color:#fff;"><input type="radio" name="has-eob" value="unsure" /> Not Sure</label>
+      </fieldset>
+      <label style="display:block; color:#94a3b8; margin:0.75rem 0 0.25rem;">Prior contact</label>
+      <select id="prior-contact" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+        <option value="">Select…</option>
+        <option value="none">I haven't contacted anyone yet</option>
+        <option value="called_billing">I called the billing department</option>
+        <option value="requested_itemized">I requested an itemized bill</option>
+        <option value="filed_insurance">I filed a complaint with my insurance</option>
+        <option value="multiple">I've done multiple of the above</option>
+      </select>
+      <div id="deadline-warning" style="display:none; margin-top:1rem; padding:0.75rem; border-radius:8px;"></div>
+      <div id="step2-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div style="display:flex; gap:1rem; margin-top:1.25rem;">
+        <button type="button" id="step2-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
+        <button type="button" id="step2-next" style="flex:1; padding:12px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Next</button>
+      </div>
+    </div>
 
-    <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:60px;">
-        <div style="width:min(1120px, 92%); margin-inline:auto;">
-            <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd; text-decoration:none;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd; text-decoration:none;">Terms</a> | <a href="/disclaimer.html" style="color:#93c5fd; text-decoration:none;">Disclaimer</a> | <a href="/admin-login.html" style="color:#475569; text-decoration:none; font-size:0.75rem;">Admin</a></p>
+    <!-- STEP 3 -->
+    <div id="step3-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+      <h2 style="margin:0 0 1rem;">Step 3 — Analysis</h2>
+      <div id="step3-loading" style="display:none; text-align:center; padding:2rem;">
+        <div style="width:40px; height:40px; border:3px solid #334155; border-top-color:#22c55e; border-radius:50%; margin:0 auto 1rem; animation:wspin 1s linear infinite;"></div>
+        <p id="step3-loading-text" style="color:#94a3b8;">Reading your bill…</p>
+      </div>
+      <style>@keyframes wspin { to { transform: rotate(360deg); } }</style>
+      <div id="step3-hardstop" style="display:none; padding:1.25rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:12px; color:#fecaca;"></div>
+      <div id="step3-content" style="display:none;">
+        <div id="analysis-deadline-flag" style="display:none; margin-bottom:1rem; padding:0.75rem; border-radius:8px;"></div>
+        <p style="color:#94a3b8; margin:0 0 0.25rem;">Primary concern</p>
+        <p id="analysis-error-type" style="color:#fff; font-weight:600;"></p>
+        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Risk level</p>
+        <p id="analysis-risk-level" style="color:#fff;"></p>
+        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Regulatory hooks</p>
+        <ul id="analysis-regulatory-hooks" style="color:#cbd5e1; padding-left:1.25rem;"></ul>
+        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">CPT / ICD findings</p>
+        <div id="analysis-cpt-findings" style="color:#cbd5e1;"></div>
+        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Summary</p>
+        <p id="analysis-summary" style="color:#fff;"></p>
+        <p style="color:#94a3b8; margin:1rem 0 0.25rem;">Detected issues</p>
+        <div id="analysis-error-cards" style="display:grid; gap:0.75rem;"></div>
+      </div>
+      <div id="step3-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div style="display:flex; gap:1rem; margin-top:1.25rem;">
+        <button type="button" id="step3-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
+        <button type="button" id="step3-next" disabled style="flex:1; padding:12px; border-radius:8px; border:none; background:#3b82f6; color:#fff; font-weight:700; cursor:pointer; opacity:0.5;">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+      <h2 style="margin:0 0 1rem;">Step 4 — Strategy</h2>
+      <p id="selected-strategy-display" style="color:#94a3b8; margin-bottom:1rem;"></p>
+      <div id="strategy-cards" style="display:grid; gap:1rem;"></div>
+      <div id="step4-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div style="display:flex; gap:1rem; margin-top:1.25rem;">
+        <button type="button" id="step4-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
+        <button type="button" id="step4-next" style="flex:1; padding:12px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div id="step5-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+      <h2 style="margin:0 0 1rem;">Step 5 — Your details</h2>
+      <label style="color:#94a3b8; display:block; margin:0.5rem 0 0.25rem;">Patient name</label>
+      <input type="text" id="patient-name" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Account number</label>
+      <input type="text" id="account-number" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Date of service</label>
+      <input type="date" id="date-of-service" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Provider name</label>
+      <input type="text" id="provider-name" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Disputed amount ($)</label>
+      <input type="text" id="disputed-amount" inputmode="decimal" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;" />
+      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Specific charges (one per line: Description | Amount | CPT Code)</label>
+      <textarea id="specific-charges" rows="5" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; font-family:inherit;"></textarea>
+      <p id="specific-charges-hint" style="color:#64748b; font-size:0.85rem; margin:0.25rem 0 0;"></p>
+      <label style="color:#94a3b8; display:block; margin:0.75rem 0 0.25rem;">Resolution you want</label>
+      <select id="resolution-ask" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff;">
+        <option value="">Select…</option>
+        <option value="full_removal">Full removal of disputed charges</option>
+        <option value="reduction">Reduction to correct billing amount</option>
+        <option value="itemized_bill">Provide itemized bill before any payment</option>
+        <option value="payment_plan">Set up a payment plan for undisputed balance</option>
+      </select>
+      <div id="step5-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+      <div style="display:flex; gap:1rem; margin-top:1.25rem;">
+        <button type="button" id="step5-back" style="flex:1; padding:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; cursor:pointer;">Back</button>
+        <button type="button" id="step5-next" style="flex:1; padding:12px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:700; cursor:pointer;">Generate My Letter</button>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div id="step6-container" class="wizard-step" style="display:none; background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.5rem;">
+      <h2 style="margin:0 0 1rem;">Step 6 — Your letter</h2>
+      <div id="step6-loading" style="display:none; text-align:center; padding:2rem; color:#94a3b8;">Generating your letter…</div>
+      <div id="step6-main" style="display:none;">
+        <div id="letter-body" contenteditable="true" style="min-height:280px; padding:1rem; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff; white-space:pre-wrap;"></div>
+        <div id="attorney-note" style="margin-top:1rem; padding:1rem; background:#422006; border:1px solid #fbbf24; border-radius:8px; color:#fef3c7; font-size:0.9rem;">
+          This letter is for your use in billing disputes and is not legal advice. If you receive fraud investigations, litigation papers, or examination-under-oath demands, seek a qualified healthcare attorney or advocate.
         </div>
-    </footer>
+        <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1rem;">
+          <button type="button" id="btn-copy" style="padding:10px 16px; border-radius:8px; border:none; background:#3b82f6; color:#fff; font-weight:600; cursor:pointer;">Copy letter</button>
+          <button type="button" id="btn-pdf" style="padding:10px 16px; border-radius:8px; border:none; background:#22c55e; color:#fff; font-weight:600; cursor:pointer;">Download PDF</button>
+          <button type="button" id="btn-docx" style="padding:10px 16px; border-radius:8px; border:none; background:#64748b; color:#fff; font-weight:600; cursor:pointer;">Download DOCX</button>
+          <button type="button" id="btn-start-over" style="padding:10px 16px; border-radius:8px; border:1px solid #dc2626; background:transparent; color:#fca5a5; font-weight:600; cursor:pointer;">Start over</button>
+        </div>
+      </div>
+      <div id="step6-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#7f1d1d; border:1px solid #dc2626; border-radius:8px; color:#fecaca;"></div>
+    </div>
+  </div>
+
+  <footer style="padding:28px 0; background:#0b1220; color:#94a3b8; text-align:center;">
+    <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd;">Terms</a> | <a href="/disclaimer.html" style="color:#93c5fd;">Disclaimer</a></p>
+  </footer>
+
+  <script type="module">
+    import { syncWizardAccessToken } from './src/_wizardAuth.js';
+
+    function initialState() {
+      return {
+        accessToken: null,
+        file: null,
+        fileBase64: null,
+        billDate: null,
+        providerType: null,
+        totalBilled: null,
+        insuranceStatus: null,
+        networkStatus: null,
+        serviceType: null,
+        hasEOB: null,
+        priorContact: null,
+        deadlineWarning: null,
+        analysis: null,
+        strategy: null,
+        patientName: null,
+        accountNumber: null,
+        dateOfService: null,
+        providerName: null,
+        disputedAmount: null,
+        specificCharges: null,
+        resolutionAsk: null,
+        prefillApplied: false,
+        letterRaw: null,
+      };
+    }
+
+    let state = initialState();
+    let currentStep = 1;
+    let loadingMsgTimer = null;
+    const LOADING_MSGS = [
+      'Reading your bill…',
+      'Identifying CPT and ICD-10 codes…',
+      'Checking for duplicate charges…',
+      'Verifying against billing standards…',
+      'Checking applicable regulations…',
+      'Building your analysis…',
+    ];
+
+    const STEP_LABELS = ['Upload Bill', 'Your Situation', 'Analysis', 'Strategy', 'Your Details', 'Your Letter'];
+
+    function showEl(id, on) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = on ? 'block' : 'none';
+    }
+
+    function showStep(n) {
+      currentStep = n;
+      for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById('step' + i + '-container');
+        if (el) el.style.display = i === n ? 'block' : 'none';
+      }
+      renderProgress();
+    }
+
+    function renderProgress() {
+      const host = document.getElementById('wizard-progress');
+      if (!host) return;
+      host.replaceChildren();
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; flex-wrap:wrap;';
+      for (let i = 0; i < 6; i++) {
+        const col = document.createElement('div');
+        col.style.cssText = 'flex:1; min-width:72px; text-align:center;';
+        const circle = document.createElement('div');
+        circle.style.cssText = 'width:28px; height:28px; border-radius:50%; margin:0 auto 6px; line-height:28px; font-size:14px;';
+        const label = document.createElement('div');
+        label.textContent = STEP_LABELS[i];
+        label.style.fontSize = '0.7rem';
+        if (i + 1 < currentStep) {
+          circle.style.background = '#22c55e';
+          circle.style.color = '#fff';
+          circle.textContent = '\u2713';
+          label.style.color = '#fff';
+          label.style.fontWeight = '600';
+        } else if (i + 1 === currentStep) {
+          circle.style.background = '#3b82f6';
+          circle.style.color = '#fff';
+          circle.textContent = String(i + 1);
+          label.style.color = '#fff';
+          label.style.fontWeight = '700';
+        } else {
+          circle.textContent = '';
+          circle.style.border = '2px solid #475569';
+          circle.style.background = 'transparent';
+          label.style.color = '#64748b';
+        }
+        col.appendChild(circle);
+        col.appendChild(label);
+        row.appendChild(col);
+      }
+      host.appendChild(row);
+    }
+
+    function parseMoney(s) {
+      const n = parseFloat(String(s).replace(/[^0-9.]/g, ''));
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => {
+          const dataUrl = r.result;
+          const comma = String(dataUrl).indexOf(',');
+          resolve(String(dataUrl).slice(comma + 1));
+        };
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function setError(id, msg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!msg) {
+        el.style.display = 'none';
+        el.textContent = '';
+        return;
+      }
+      el.style.display = 'block';
+      el.textContent = msg;
+    }
+
+    function readHasEOB() {
+      const r = document.querySelector('input[name="has-eob"]:checked');
+      if (!r) return null;
+      if (r.value === 'true') return true;
+      if (r.value === 'false') return false;
+      return 'unsure';
+    }
+
+    function computeDeadlineWarning() {
+      if (!state.billDate) {
+        state.deadlineWarning = null;
+        return;
+      }
+      const bill = new Date(state.billDate + 'T12:00:00');
+      const now = new Date();
+      const days = Math.floor((now - bill) / (86400000));
+      if (days >= 90) {
+        state.deadlineWarning = 'red';
+      } else if (days >= 60) {
+        state.deadlineWarning = 'yellow';
+      } else {
+        state.deadlineWarning = null;
+      }
+    }
+
+    function updateDeadlineUI() {
+      const box = document.getElementById('deadline-warning');
+      if (!box) return;
+      computeDeadlineWarning();
+      if (state.deadlineWarning === 'yellow') {
+        box.style.display = 'block';
+        box.style.background = '#422006';
+        box.style.border = '1px solid #fbbf24';
+        box.style.color = '#fef3c7';
+        box.textContent = 'Your bill is 60+ days old. Many providers require disputes within 90 days — act soon.';
+      } else if (state.deadlineWarning === 'red') {
+        box.style.display = 'block';
+        box.style.background = '#7f1d1d';
+        box.style.border = '1px solid #dc2626';
+        box.style.color = '#fecaca';
+        box.textContent = 'Your bill may be past the standard 90-day dispute window. Your letter will note this and request an exception based on billing error grounds.';
+      } else {
+        box.style.display = 'none';
+        box.textContent = '';
+      }
+    }
+
+    async function runAnalysis() {
+      setError('step3-error', '');
+      const btnNextRun = document.getElementById('step3-next');
+      btnNextRun.disabled = true;
+      btnNextRun.style.opacity = '0.5';
+      btnNextRun.style.display = '';
+      showEl('step3-loading', true);
+      showEl('step3-content', false);
+      showEl('step3-hardstop', false);
+      let mi = 0;
+      const lt = document.getElementById('step3-loading-text');
+      if (loadingMsgTimer) clearInterval(loadingMsgTimer);
+      loadingMsgTimer = setInterval(() => {
+        mi = (mi + 1) % LOADING_MSGS.length;
+        if (lt) lt.textContent = LOADING_MSGS[mi];
+      }, 3000);
+      if (lt) lt.textContent = LOADING_MSGS[0];
+
+      await syncWizardAccessToken(state);
+
+      try {
+        const res = await fetch('/.netlify/functions/analyze-medical-bill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileBase64: state.fileBase64,
+            billDate: state.billDate,
+            providerType: state.providerType,
+            totalBilled: state.totalBilled,
+            insuranceStatus: state.insuranceStatus,
+            networkStatus: state.networkStatus,
+            serviceType: state.serviceType,
+            hasEOB: state.hasEOB,
+            priorContact: state.priorContact,
+            accessToken: state.accessToken,
+          }),
+        });
+        const raw = await res.text();
+        let data;
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          throw new Error('Invalid response from analysis service');
+        }
+        if (!res.ok || data.success === false) {
+          throw new Error(data.error || 'Analysis failed');
+        }
+        state.analysis = data;
+        clearInterval(loadingMsgTimer);
+        loadingMsgTimer = null;
+        showEl('step3-loading', false);
+        renderStep3(data);
+      } catch (e) {
+        clearInterval(loadingMsgTimer);
+        loadingMsgTimer = null;
+        showEl('step3-loading', false);
+        setError('step3-error', e.message || 'Analysis failed');
+      }
+    }
+
+    function renderStep3(data) {
+      const hard = data.hardStop === true;
+      const hs = document.getElementById('step3-hardstop');
+      const content = document.getElementById('step3-content');
+      const btnNext = document.getElementById('step3-next');
+      if (hard) {
+        hs.style.display = 'block';
+        hs.textContent = '';
+        const p1 = document.createElement('p');
+        p1.style.fontWeight = '700';
+        p1.textContent = data.hardStopReason || 'This situation requires professional representation.';
+        hs.appendChild(p1);
+        const p2 = document.createElement('p');
+        p2.textContent = 'Based on your bill details, this situation requires professional representation. Please contact a medical billing advocate or healthcare attorney.';
+        hs.appendChild(p2);
+        content.style.display = 'none';
+        btnNext.disabled = true;
+        btnNext.style.opacity = '0.5';
+        btnNext.style.display = 'none';
+        return;
+      }
+      content.style.display = 'block';
+      btnNext.disabled = false;
+      btnNext.style.opacity = '1';
+      btnNext.style.display = '';
+
+      const errTypes = (data.errorTypes || []).join(', ') || '—';
+      document.getElementById('analysis-error-type').textContent = errTypes;
+
+      const rl = (data.riskLevel || '').toLowerCase();
+      const rlEl = document.getElementById('analysis-risk-level');
+      rlEl.textContent = rl ? rl.charAt(0).toUpperCase() + rl.slice(1) : '—';
+      rlEl.style.color = rl === 'high' ? '#fca5a5' : rl === 'medium' ? '#fbbf24' : '#86efac';
+
+      const df = document.getElementById('analysis-deadline-flag');
+      if (state.deadlineWarning) {
+        df.style.display = 'block';
+        df.style.background = state.deadlineWarning === 'red' ? '#7f1d1d' : '#422006';
+        df.style.color = state.deadlineWarning === 'red' ? '#fecaca' : '#fef3c7';
+        df.style.padding = '0.75rem';
+        df.style.borderRadius = '8px';
+        df.textContent = state.deadlineWarning === 'red'
+          ? 'Deadline: Your bill may be outside typical dispute windows — review timing carefully.'
+          : 'Reminder: Your bill is in the 60–90 day window — act soon.';
+      } else {
+        df.style.display = 'none';
+      }
+
+      const hookList = document.getElementById('analysis-regulatory-hooks');
+      hookList.replaceChildren();
+      (data.regulatoryHooks || []).forEach((h) => {
+        const li = document.createElement('li');
+        li.textContent = `${h.law} — ${h.citation}. ${h.applicability || ''}`;
+        hookList.appendChild(li);
+      });
+
+      const cptHost = document.getElementById('analysis-cpt-findings');
+      cptHost.replaceChildren();
+      (data.detectedErrors || []).forEach((err) => {
+        if (err.cptCode) {
+          const p = document.createElement('p');
+          p.textContent = `${err.cptCode}: ${err.description || err.type || ''}`;
+          cptHost.appendChild(p);
+        }
+      });
+      if (!cptHost.childNodes.length) {
+        const p = document.createElement('p');
+        p.style.color = '#94a3b8';
+        p.textContent = 'No coded line items extracted — see detected issues below.';
+        cptHost.appendChild(p);
+      }
+
+      document.getElementById('analysis-summary').textContent = data.summaryForUser || '';
+
+      const cards = document.getElementById('analysis-error-cards');
+      cards.replaceChildren();
+      (data.detectedErrors || []).forEach((err) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'padding:1rem; border-radius:8px; border:1px solid #334155; background:#0f172a;';
+        const t = document.createElement('div');
+        t.style.fontWeight = '700';
+        t.textContent = err.type || 'Issue';
+        const d = document.createElement('div');
+        d.style.color = '#94a3b8';
+        d.style.marginTop = '0.5rem';
+        d.textContent = err.description || '';
+        const meta = document.createElement('div');
+        meta.style.fontSize = '0.85rem';
+        meta.style.color = '#64748b';
+        meta.style.marginTop = '0.5rem';
+        meta.textContent = [err.cptCode ? 'CPT: ' + err.cptCode : '', err.amount != null ? 'Amount: ' + err.amount : '', err.confidence || ''].filter(Boolean).join(' · ');
+        card.appendChild(t);
+        card.appendChild(d);
+        card.appendChild(meta);
+        cards.appendChild(card);
+      });
+    }
+
+    function aggressivenessColor(ag) {
+      if (ag === 'conservative') return '#3b82f6';
+      if (ag === 'aggressive') return '#ef4444';
+      return '#fbbf24';
+    }
+
+    function safeStrategyDomId(id) {
+      return String(id || 'strategy').replace(/[^a-zA-Z0-9_-]/g, '-');
+    }
+
+    function renderStrategyCards() {
+      const host = document.getElementById('strategy-cards');
+      host.replaceChildren();
+      const strategies = state.analysis?.availableStrategies || [];
+      let selected = strategies.find((s) => s.recommended) || strategies[0];
+      state.strategy = selected || null;
+
+      strategies.forEach((s) => {
+        const sid = safeStrategyDomId(s.id);
+        const card = document.createElement('div');
+        card.id = 'strategy-card-' + sid;
+        card.style.cssText = 'padding:1rem; border-radius:12px; border:2px solid #334155; background:#0f172a; cursor:pointer;';
+        card.dataset.strategyId = s.id;
+        const title = document.createElement('div');
+        title.style.fontWeight = '700';
+        title.textContent = s.name || s.id;
+        const badge = document.createElement('span');
+        badge.textContent = (s.aggressiveness || '').toUpperCase();
+        badge.style.cssText = 'display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; font-size:0.7rem; color:#0f172a; background:' + aggressivenessColor(s.aggressiveness) + ';';
+        title.appendChild(badge);
+        if (s.recommended) {
+          const rec = document.createElement('span');
+          rec.textContent = 'Recommended';
+          rec.style.cssText = 'display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; font-size:0.7rem; background:#22c55e; color:#fff;';
+          title.appendChild(rec);
+        }
+        const desc = document.createElement('div');
+        desc.style.color = '#94a3b8';
+        desc.style.marginTop = '0.5rem';
+        desc.textContent = s.description || '';
+        const best = document.createElement('div');
+        best.style.color = '#64748b';
+        best.style.marginTop = '0.5rem';
+        best.style.fontSize = '0.85rem';
+        best.textContent = 'Best for: ' + (s.bestFor || '');
+        card.appendChild(title);
+        card.appendChild(desc);
+        card.appendChild(best);
+
+        function selectCard() {
+          strategies.forEach((x) => {
+            const xid = safeStrategyDomId(x.id);
+            const cel = document.getElementById('strategy-card-' + xid);
+            if (cel) {
+              cel.style.border = '2px solid #334155';
+              cel.style.background = '#0f172a';
+            }
+          });
+          card.style.border = '2px solid #22c55e';
+          card.style.background = 'rgba(34,197,94,0.12)';
+          state.strategy = s;
+          document.getElementById('selected-strategy-display').textContent = 'Selected: ' + (s.name || s.id);
+        }
+
+        card.addEventListener('click', selectCard);
+        host.appendChild(card);
+        if (selected && s.id === selected.id) {
+          selectCard();
+        }
+      });
+    }
+
+    function applyStep5Prefill() {
+      if (state.prefillApplied) return;
+      const ta = document.getElementById('specific-charges');
+      const hint = document.getElementById('specific-charges-hint');
+      const lines = [];
+      (state.analysis?.detectedErrors || []).forEach((e) => {
+        if (e.cptCode || e.amount != null) {
+          lines.push([e.description || e.type || 'Line item', e.amount != null ? String(e.amount) : '', e.cptCode || ''].join(' | '));
+        }
+      });
+      if (ta && lines.length) {
+        ta.value = lines.join('\n');
+      }
+      if (hint) {
+        hint.textContent = lines.length ? 'Pre-filled from analysis. Edit as needed.' : 'Enter each disputed line as: Description | Amount | CPT Code';
+      }
+      state.prefillApplied = true;
+    }
+
+    function parseSpecificChargesTextarea() {
+      const raw = document.getElementById('specific-charges').value.trim();
+      if (!raw) return [];
+      return raw.split('\n').map((line) => {
+        const parts = line.split('|').map((p) => p.trim());
+        return {
+          description: parts[0] || '',
+          amount: parts[1] ? parseMoney(parts[1]) : null,
+          cptCode: parts[2] || null,
+        };
+      });
+    }
+
+    async function runLetterGeneration() {
+      setError('step6-error', '');
+      showEl('step6-loading', true);
+      showEl('step6-main', false);
+      await syncWizardAccessToken(state);
+      try {
+        const res = await fetch('/.netlify/functions/generate-medical-bill-letter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            analysis: state.analysis,
+            strategy: state.strategy,
+            patientName: state.patientName,
+            accountNumber: state.accountNumber,
+            dateOfService: state.dateOfService,
+            providerName: state.providerName,
+            disputedAmount: state.disputedAmount,
+            specificCharges: state.specificCharges,
+            resolutionAsk: state.resolutionAsk,
+            billDate: state.billDate,
+            networkStatus: state.networkStatus,
+            serviceType: state.serviceType,
+            hasEOB: state.hasEOB,
+            priorContact: state.priorContact,
+            accessToken: state.accessToken,
+          }),
+        });
+        const rawLetterRes = await res.text();
+        let data;
+        try {
+          data = JSON.parse(rawLetterRes);
+        } catch {
+          throw new Error('Invalid response from letter service');
+        }
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Generation failed');
+        }
+        state.letterRaw = data.letter;
+        const lb = document.getElementById('letter-body');
+        lb.textContent = '';
+        lb.textContent = data.letter;
+        showEl('step6-loading', false);
+        showEl('step6-main', true);
+      } catch (e) {
+        showEl('step6-loading', false);
+        setError('step6-error', e.message || 'Failed to generate letter');
+      }
+    }
+
+    async function downloadBinaryFunction(url, body, filename) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const ct = res.headers.get('Content-Type') || '';
+      if (!res.ok) {
+        let msg = 'Download failed';
+        try {
+          const j = await res.json();
+          msg = j.error || j.details || msg;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+      if (!ct.includes('pdf') && !ct.includes('wordprocessingml') && !ct.includes('octet-stream')) {
+        try {
+          const j = await res.json();
+          throw new Error(j.error || 'Unexpected response');
+        } catch (e) {
+          if (e.message !== 'Unexpected response') throw e;
+        }
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function startOver() {
+      state = initialState();
+      syncWizardAccessToken(state).then(() => {});
+      currentStep = 1;
+      showStep(1);
+      document.getElementById('file-upload').value = '';
+      document.getElementById('file-preview').textContent = '';
+      document.querySelectorAll('input[name="has-eob"]').forEach((x) => { x.checked = false; });
+      document.getElementById('letter-body').textContent = '';
+      setError('step1-error', '');
+      setError('step2-error', '');
+      setError('step3-error', '');
+      setError('step4-error', '');
+      setError('step5-error', '');
+      setError('step6-error', '');
+      showEl('step6-main', false);
+    }
+
+    document.getElementById('file-upload').addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      state.file = f || null;
+      const prev = document.getElementById('file-preview');
+      if (!f) {
+        prev.textContent = '';
+        return;
+      }
+      prev.textContent = f.name + ' — ' + (f.size / 1024).toFixed(1) + ' KB';
+    });
+
+    document.getElementById('step1-next').addEventListener('click', async () => {
+      setError('step1-error', '');
+      const f = state.file;
+      if (!f) {
+        setError('step1-error', 'Please choose a bill file.');
+        return;
+      }
+      const okTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      const extOk = /\.(pdf|jpe?g|png)$/i.test(f.name);
+      if (!okTypes.includes(f.type) && !extOk) {
+        setError('step1-error', 'File must be PDF, JPG, or PNG.');
+        return;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        setError('step1-error', 'File must be under 10MB.');
+        return;
+      }
+      const bd = document.getElementById('bill-date').value;
+      if (!bd) {
+        setError('step1-error', 'Bill date is required.');
+        return;
+      }
+      const pt = document.getElementById('provider-type').value;
+      if (!pt) {
+        setError('step1-error', 'Provider type is required.');
+        return;
+      }
+      const tb = parseMoney(document.getElementById('total-billed').value);
+      if (!Number.isFinite(tb) || tb <= 0) {
+        setError('step1-error', 'Total billed must be a number greater than 0.');
+        return;
+      }
+      const ins = document.getElementById('insurance-status').value;
+      if (!ins) {
+        setError('step1-error', 'Insurance status is required.');
+        return;
+      }
+      state.billDate = bd;
+      state.providerType = pt;
+      state.totalBilled = tb;
+      state.insuranceStatus = ins;
+      state.fileBase64 = await fileToBase64(f);
+      showStep(2);
+      updateDeadlineUI();
+    });
+
+    document.getElementById('step2-back').addEventListener('click', () => showStep(1));
+    document.getElementById('step2-next').addEventListener('click', () => {
+      setError('step2-error', '');
+      const ns = document.getElementById('network-status').value;
+      if (!ns) {
+        setError('step2-error', 'Network status is required.');
+        return;
+      }
+      const st = document.getElementById('service-type').value;
+      if (!st) {
+        setError('step2-error', 'Service type is required.');
+        return;
+      }
+      const he = readHasEOB();
+      if (he === null) {
+        setError('step2-error', 'Please indicate whether you have an EOB.');
+        return;
+      }
+      const pc = document.getElementById('prior-contact').value;
+      if (!pc) {
+        setError('step2-error', 'Prior contact is required.');
+        return;
+      }
+      state.networkStatus = ns;
+      state.serviceType = st;
+      state.hasEOB = he;
+      state.priorContact = pc;
+      computeDeadlineWarning();
+      showStep(3);
+      runAnalysis();
+    });
+
+    document.getElementById('step3-back').addEventListener('click', () => showStep(2));
+    document.getElementById('step3-next').addEventListener('click', () => {
+      if (!state.analysis || state.analysis.hardStop) return;
+      state.analysis = state.analysis;
+      showStep(4);
+      renderStrategyCards();
+    });
+
+    document.getElementById('step4-back').addEventListener('click', () => showStep(3));
+    document.getElementById('step4-next').addEventListener('click', () => {
+      setError('step4-error', '');
+      if (!state.strategy) {
+        setError('step4-error', 'Select a strategy.');
+        return;
+      }
+      showStep(5);
+      applyStep5Prefill();
+    });
+
+    document.getElementById('step5-back').addEventListener('click', () => showStep(4));
+    document.getElementById('step5-next').addEventListener('click', () => {
+      setError('step5-error', '');
+      const pn = document.getElementById('patient-name').value.trim();
+      const pr = document.getElementById('provider-name').value.trim();
+      const dos = document.getElementById('date-of-service').value;
+      const da = parseMoney(document.getElementById('disputed-amount').value);
+      const ra = document.getElementById('resolution-ask').value;
+      if (!pn) {
+        setError('step5-error', 'Patient name is required.');
+        return;
+      }
+      if (!pr) {
+        setError('step5-error', 'Provider name is required.');
+        return;
+      }
+      if (!dos) {
+        setError('step5-error', 'Date of service is required.');
+        return;
+      }
+      if (!Number.isFinite(da) || da <= 0) {
+        setError('step5-error', 'Disputed amount must be a number greater than 0.');
+        return;
+      }
+      if (!ra) {
+        setError('step5-error', 'Resolution is required.');
+        return;
+      }
+      state.patientName = pn;
+      state.accountNumber = document.getElementById('account-number').value.trim();
+      state.dateOfService = dos;
+      state.providerName = pr;
+      state.disputedAmount = da;
+      state.specificCharges = parseSpecificChargesTextarea();
+      state.resolutionAsk = ra;
+      showStep(6);
+      runLetterGeneration();
+    });
+
+    document.getElementById('btn-copy').addEventListener('click', async () => {
+      const text = document.getElementById('letter-body').innerText;
+      await navigator.clipboard.writeText(text);
+    });
+
+    document.getElementById('btn-pdf').addEventListener('click', async () => {
+      try {
+        const letterText = document.getElementById('letter-body').innerText;
+        await downloadBinaryFunction('/.netlify/functions/generate-pdf', { text: letterText, fileName: 'medical-dispute-letter.pdf' }, 'medical-dispute-letter.pdf');
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    document.getElementById('btn-docx').addEventListener('click', async () => {
+      try {
+        const letterText = document.getElementById('letter-body').innerText;
+        await downloadBinaryFunction('/.netlify/functions/generate-docx', { text: letterText, fileName: 'medical-dispute-letter.docx' }, 'medical-dispute-letter.docx');
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    document.getElementById('btn-start-over').addEventListener('click', () => startOver());
+
+    async function bootWizard() {
+      await syncWizardAccessToken(state);
+      showStep(1);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootWizard);
+    } else {
+      bootWizard();
+    }
+  </script>
 </body>
 </html>
-

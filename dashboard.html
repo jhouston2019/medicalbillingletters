@@ -16,10 +16,11 @@
     <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
         <div style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
         <div>
-            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Upload</a> |
-            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Dashboard</a> |
-            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Pricing</a> |
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Login</a>
+            <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a> |
+            <a href="/examples.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Examples</a> |
+            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a> |
+            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a> |
+            <a href="/terms.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Terms</a>
         </div>
     </nav>
 
@@ -27,34 +28,40 @@
         <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:2rem;">Your Dashboard</h1>
         
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; margin:2rem 0;">
-            <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Recent Letters</h3>
+            <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
+                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Recent Letters</h3>
                 <div id="recentLetters">
-                    <p style="color:#4a5568;">Loading your letters...</p>
+                    <p style="color:#94a3b8;">Loading your letters...</p>
                 </div>
-                <a href="/payment.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; margin-top:1rem;">Upload New Letter</a>
+                <a href="/upload.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; margin-top:1rem; border:1px solid #475569;">New dispute wizard</a>
             </div>
             
-            <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Quick Actions</h3>
+            <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
+                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Quick Actions</h3>
                 <div style="display:flex; flex-direction:column; gap:1rem;">
-                    <a href="/payment.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; text-align:center;">Analyze New Letter</a>
-                    <a href="/pricing.html" style="background:#6c757d; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; text-align:center;">Upgrade Plan</a>
+                    <a href="/upload.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; text-align:center; border:1px solid #475569;">Open wizard</a>
+                    <a href="/pricing.html" style="background:#475569; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; text-align:center;">Pricing</a>
                 </div>
             </div>
             
-            <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Account Status</h3>
+            <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
+                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Account Status</h3>
                 <div id="accountStatus">
-                    <p style="color:#4a5568;">Loading account information...</p>
+                    <p style="color:#94a3b8;">Loading account information...</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="module">
+        import { createClient } from '@supabase/supabase-js';
         import { getUserDocuments } from './src/components/UploadForm.js';
         import { getCurrentUser } from './src/components/Auth.js';
+
+        const supabase = createClient(
+            import.meta.env.VITE_SUPABASE_URL,
+            import.meta.env.VITE_SUPABASE_ANON_KEY
+        );
         
         let currentUser = null;
         
@@ -80,11 +87,11 @@
                 displayRecentLetters(documents);
                 
                 // Update account status
-                updateAccountStatus();
+                await updateAccountStatus();
                 
             } catch (error) {
                 console.error('Failed to load user data:', error);
-                document.getElementById('recentLetters').innerHTML = '<p>Failed to load letters</p>';
+                document.getElementById('recentLetters').innerHTML = '<p style="color:#94a3b8;">Failed to load letters</p>';
             }
         }
         
@@ -92,27 +99,48 @@
             const container = document.getElementById('recentLetters');
             
             if (documents.length === 0) {
-                container.innerHTML = '<p>No letters uploaded yet. <a href="/payment.html">Upload your first letter</a></p>';
+                container.innerHTML = `
+                <div style="text-align:center; padding:2rem;">
+                  <div style="font-size:3rem; margin-bottom:1rem;" aria-hidden="true">&#128196;</div>
+                  <p style="color:#94a3b8; margin-bottom:1.5rem;">No dispute letters yet.</p>
+                  <a href="/payment.html" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">Dispute Your First Bill</a>
+                </div>`;
                 return;
             }
             
             const lettersHtml = documents.slice(0, 5).map(doc => `
-                <div style="border: 1px solid #e1e5e9; padding: 1rem; margin: 0.5rem 0; border-radius: 8px;">
-                    <strong>${doc.file_name}</strong>
+                <div style="border: 1px solid #334155; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background:#0f172a;">
+                    <strong style="color:#ffffff;">${doc.file_name}</strong>
                     <br>
-                    <small>Uploaded: ${new Date(doc.created_at).toLocaleDateString()}</small>
+                    <small style="color:#94a3b8;">Uploaded: ${new Date(doc.created_at).toLocaleDateString()}</small>
                 </div>
             `).join('');
             
             container.innerHTML = lettersHtml;
         }
         
-        function updateAccountStatus() {
+        async function updateAccountStatus() {
             const statusDiv = document.getElementById('accountStatus');
+            let planLabel = '\u2014';
+            try {
+                const { data, error } = await supabase
+                    .from('claim_letters')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('payment_status', 'paid')
+                    .limit(1);
+                if (!error && data && data.length > 0) {
+                    planLabel = 'Pro (Active)';
+                } else if (!error) {
+                    planLabel = 'Free';
+                }
+            } catch (_) {
+                planLabel = '\u2014';
+            }
             statusDiv.innerHTML = `
-                <p><strong>Email:</strong> ${currentUser.email}</p>
-                <p><strong>Member since:</strong> ${new Date(currentUser.created_at).toLocaleDateString()}</p>
-                <p><strong>Plan:</strong> Free</p>
+                <p style="color:#ffffff;"><strong>Email:</strong> <span style="color:#94a3b8;">${currentUser.email}</span></p>
+                <p style="color:#ffffff;"><strong>Member since:</strong> <span style="color:#94a3b8;">${new Date(currentUser.created_at).toLocaleDateString()}</span></p>
+                <p style="color:#ffffff;"><strong>Plan:</strong> <span style="color:#94a3b8;">${planLabel}</span></p>
             `;
         }
     </script>

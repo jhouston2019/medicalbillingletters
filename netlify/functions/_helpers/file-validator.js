@@ -4,7 +4,7 @@
  * NO TRUST OF FRONTEND VALIDATION
  */
 
-const pdfParse = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_PDF_PAGES = 15;
@@ -88,20 +88,25 @@ function validateMimeType(mimeType, fileName) {
  */
 async function validatePdfPageCount(fileBuffer) {
   try {
-    const pdfData = await pdfParse(fileBuffer, {
-      max: 0 // Don't extract text, just get metadata
-    });
+    const parser = new PDFParse({ data: fileBuffer });
+    const { text, pages, total } = await parser.getText();
 
-    if (pdfData.numpages > MAX_PDF_PAGES) {
+    const numpages = Array.isArray(pages)
+      ? pages.length
+      : typeof total === 'number'
+        ? total
+        : 0;
+
+    if (numpages > MAX_PDF_PAGES) {
       return {
         valid: false,
-        error: `PDF has ${pdfData.numpages} pages. Maximum allowed: ${MAX_PDF_PAGES} pages.`
+        error: `PDF has ${numpages} pages. Maximum allowed: ${MAX_PDF_PAGES} pages.`
       };
     }
 
     return {
       valid: true,
-      pageCount: pdfData.numpages
+      pageCount: numpages
     };
   } catch (error) {
     return {

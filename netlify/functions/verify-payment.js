@@ -11,6 +11,7 @@
 
 const Stripe = require("stripe");
 const { getSupabaseAdmin } = require("./_supabase");
+const { isPaymentBypassEnabled } = require("./payment-enforcer");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -28,6 +29,23 @@ exports.handler = async (event) => {
   }
 
   try {
+    if (isPaymentBypassEnabled()) {
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+          verified: true,
+          hasPaid: true,
+          bypass: true,
+          paymentDetails: null,
+          message: 'ALLOW_PAYMENT_BYPASS is set — not a real payment (testing only)'
+        })
+      };
+    }
+
     const { sessionId, userId, email } = JSON.parse(event.body || '{}');
 
     console.log('Verifying payment:', { sessionId, userId, email });
