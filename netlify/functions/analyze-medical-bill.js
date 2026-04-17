@@ -3,10 +3,9 @@
  */
 
 const OpenAI = require("openai");
-const { PDFParse } = require("pdf-parse");
+const pdfParse = require("pdf-parse");
 const { verifyWizardAccess } = require("./_wizardAuth");
 
-const MAX_PDF_PAGES = 8;
 const MAX_TEXT = 48000;
 
 function corsHeaders(extra = {}) {
@@ -70,15 +69,8 @@ async function transcribeImageWithVision(openai, base64, mime) {
 
 async function extractBillText(openai, buffer, mime) {
   if (mime === "application/pdf") {
-    const parser = new PDFParse({ data: buffer });
-    const data = await parser.getText();
-    let text = (data && data.text) || "";
-    if (data && Array.isArray(data.pages) && data.pages.length > MAX_PDF_PAGES) {
-      text = data.pages
-        .slice(0, MAX_PDF_PAGES)
-        .map((p) => p.text || "")
-        .join("\n");
-    }
+    const pdfData = await pdfParse(buffer);
+    const text = (pdfData && pdfData.text) || "";
     return text.trim();
   }
   if (mime === "image/jpeg" || mime === "image/png") {

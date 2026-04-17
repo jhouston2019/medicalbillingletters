@@ -4,7 +4,7 @@
  * NO TRUST OF FRONTEND VALIDATION
  */
 
-const { PDFParse } = require('pdf-parse');
+const pdfParse = require('pdf-parse');
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_PDF_PAGES = 15;
@@ -88,14 +88,8 @@ function validateMimeType(mimeType, fileName) {
  */
 async function validatePdfPageCount(fileBuffer) {
   try {
-    const parser = new PDFParse({ data: fileBuffer });
-    const { text, pages, total } = await parser.getText();
-
-    const numpages = Array.isArray(pages)
-      ? pages.length
-      : typeof total === 'number'
-        ? total
-        : 0;
+    const pdfData = await pdfParse(fileBuffer);
+    const numpages = (pdfData && pdfData.numpages) || 0;
 
     if (numpages > MAX_PDF_PAGES) {
       return {

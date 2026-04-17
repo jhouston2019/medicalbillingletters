@@ -8,15 +8,14 @@
  * NO PLACEHOLDERS - PRODUCTION READY
  */
 
-const { PDFParse } = require('pdf-parse');
+const pdfParse = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const { getSupabaseAdmin } = require('./_supabase');
 const { verifyOwnership } = require('./_helpers/ownership-verifier');
-const { validateFileSize, validateMimeType, validateTextLength, MAX_PDF_PAGES } = require('./_helpers/file-validator');
+const { validateFileSize, validateMimeType, validateTextLength } = require('./_helpers/file-validator');
 
 // LIMITS TO PREVENT ABUSE
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-// MAX_PDF_PAGES is imported from file-validator
 const OCR_TIMEOUT = 8000; // 8 seconds (Netlify has 10s limit)
 const MIN_TEXT_LENGTH = 50; // Minimum extracted text
 
@@ -111,36 +110,16 @@ exports.handler = async (event) => {
 
     // Extract based on file type
     if (fileType === 'application/pdf' || filePath.toLowerCase().endsWith('.pdf')) {
-      // PDF extraction with page limit (pdf-parse v2: PDFParse + getText)
+      // PDF extraction (pdf-parse v1: pdfParse(buffer) -> { text, numpages, ... })
       console.log('Extracting from PDF...');
       const buffer = await fileData.arrayBuffer();
       const pdfBuffer = Buffer.from(buffer);
 
-      const pdfData = await withTimeout(
-        (async () => {
-          const parser = new PDFParse({ data: pdfBuffer });
-          return parser.getText();
-        })(),
-        OCR_TIMEOUT
-      );
+      const pdfData = await withTimeout(pdfParse(pdfBuffer), OCR_TIMEOUT);
 
       extractedText = (pdfData && pdfData.text) || '';
-      if (pdfData && Array.isArray(pdfData.pages) && pdfData.pages.length > MAX_PDF_PAGES) {
-        extractedText = pdfData.pages
-          .slice(0, MAX_PDF_PAGES)
-          .map((p) => (p && p.text) || '')
-          .join('\n');
-      }
-
-      const numPages =
-        typeof pdfData.total === 'number'
-          ? pdfData.total
-          : Array.isArray(pdfData.pages)
-            ? pdfData.pages.length
-            : 0;
-      console.log(
-        `PDF: ${numPages} pages, processed first ${Math.min(numPages, MAX_PDF_PAGES)} pages`
-      );
+      const numPages = (pdfData && pdfData.numpages) || 0;
+      console.log(`PDF: ${numPages} pages, extracted ${extractedText.length} characters`);
       
     } else if (fileType?.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(filePath)) {
       // Image OCR extraction with timeout

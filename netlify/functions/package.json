@@ -10,7 +10,7 @@
     "mammoth": "^1.11.0",
     "node-fetch": "^3.3.2",
     "openai": "^4.20.0",
-    "pdf-parse": "^2.4.5",
+    "pdf-parse": "^1.1.1",
     "stripe": "^14.0.0",
     "tesseract.js": "^6.0.1"
   }
