@@ -84,9 +84,6 @@
       box-sizing: border-box;
       width: 100%;
     }
-    #letter-body h3:first-child {
-      margin-top: 0;
-    }
     #attorney-note {
       background: #fffbeb;
       border: 1px solid #fcd34d;
@@ -893,19 +890,67 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;');
       }
+      const monoStyle =
+        'font-family:monospace,ui-monospace,monospace;color:#374151;margin:0 0 0.25rem;line-height:1.45;';
+      const reStyle =
+        'font-weight:600;color:#0f172a;margin:0 0 1.5rem;padding-left:0;line-height:1.6;';
+      const dearStyle = 'color:#374151;line-height:1.7;margin:0 0 1rem;';
+      const bodyStyle = 'color:#374151;line-height:1.7;margin:0 0 1rem;';
+      const sincereOpenStyle = 'color:#374151;line-height:1.7;margin:2rem 0 0.25rem;';
+      const sincereNameStyle = 'color:#374151;line-height:1.7;margin:0 0 1rem;';
+
       const normalized = String(letter || '').replace(/\r\n/g, '\n');
       const blocks = normalized.split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
-      const h3Style =
-        'font-weight:700;color:#0f172a;margin:1.5rem 0 0.5rem;font-size:1rem;text-transform:uppercase;letter-spacing:0.05em;';
-      const pStyle = 'color:#374151;line-height:1.7;margin:0 0 1rem;';
       const parts = [];
-      for (const block of blocks) {
-        if (/^[A-Z\s\/]+$/.test(block)) {
-          parts.push(`<h3 style="${h3Style}">${escapeHtml(block)}</h3>`);
-        } else {
-          parts.push(`<p style="${pStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+      let seenDear = false;
+      let seenSincerely = false;
+      let postSignatureBlockIndex = 0;
+
+      function pushMonoLines(textBlock) {
+        const lines = textBlock.split('\n');
+        for (const line of lines) {
+          const lt = line.trim();
+          if (!lt) continue;
+          parts.push(`<p style="${monoStyle}">${escapeHtml(lt)}</p>`);
         }
       }
+
+      for (const block of blocks) {
+        const trimmed = block.trim();
+        if (!trimmed) continue;
+
+        if (!seenDear) {
+          if (/^Dear\s/i.test(trimmed)) {
+            seenDear = true;
+            parts.push(`<p style="${dearStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+            continue;
+          }
+          if (/^Re:/i.test(trimmed)) {
+            parts.push(`<p style="${reStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+            continue;
+          }
+          pushMonoLines(block);
+          continue;
+        }
+
+        if (!seenSincerely) {
+          if (/^Sincerely/i.test(trimmed)) {
+            seenSincerely = true;
+            parts.push(`<p style="${sincereOpenStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+            continue;
+          }
+          parts.push(`<p style="${bodyStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+          continue;
+        }
+
+        if (postSignatureBlockIndex === 0) {
+          parts.push(`<p style="${sincereNameStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+        } else {
+          parts.push(`<p style="${bodyStyle}">${escapeHtml(block).replace(/\n/g, '<br>')}</p>`);
+        }
+        postSignatureBlockIndex += 1;
+      }
+
       return parts.join('');
     }
 
@@ -934,6 +979,11 @@
             hasEOB: state.hasEOB,
             priorContact: state.priorContact,
             accessToken: state.accessToken,
+            letterDate: new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }),
           }),
         });
         const rawLetterRes = await res.text();

@@ -1,5 +1,5 @@
 /**
- * Medical bill wizard — Step 6 letter generation (plain text, six sections).
+ * Medical bill wizard — Step 6 letter generation (plain text, formal dispute letter).
  */
 
 const OpenAI = require("openai");
@@ -42,6 +42,7 @@ exports.handler = async (event) => {
       hasEOB,
       priorContact,
       accessToken,
+      letterDate,
     } = body;
 
     const auth = await verifyWizardAccess(accessToken);
@@ -98,32 +99,37 @@ exports.handler = async (event) => {
       .map((e) => `- ${e.type}: ${e.description}${e.cptCode ? ` [CPT/HCPCS: ${e.cptCode}]` : ""}${e.amount != null ? ` Amount: ${e.amount}` : ""}`)
       .join("\n");
 
-    const systemPrompt = `You write formal medical billing dispute letters as plain text only.
+    const systemPrompt = `You write formal medical billing dispute letters as plain text only — formatted as real legal correspondence, not an outline or memo with section labels.
 
-OUTPUT RULES:
-- Plain text only. No HTML, no markdown, no bullet characters, no numbered lists in the letter.
-- Exactly six sections in this order, each started with a line containing only the section title in ALL CAPS on its own line, then a blank line, then the section body:
-  BACKGROUND
-  BASIS FOR DISPUTE
-  APPLICABLE BILLING STANDARDS AND REGULATIONS
-  PROVIDER OBLIGATIONS
-  DEMAND
-  RESERVATION OF RIGHTS
-- Use professional business letter tone. No attorney-client language. No "we guarantee" or legal advice.
-- Insert all factual details from the user payload. There must be no remaining bracket placeholders such as [FIELD NAME] or [YOUR NAME].
-- Demand section: include a clear request matching the resolution ask and state that you expect a written response within 10 business days.
-- Reservation of Rights: reference escalation paths consistent ONLY with the regulatory hooks provided (e.g. state insurance department, CMS where applicable, state attorney general). Do not invent agencies or citations not supported by those hooks.
-- Cite only regulatory hooks from the analysis.regulatoryHooks list verbatim (law names and citations as given). Do not add new statutes or case law.
-- Never fabricate CPT/ICD codes; only reference codes that appear in the specific charges or detected errors provided.
+OUTPUT FORMAT (plain text only — no HTML, no markdown, no bullet lists, no numbered lists):
+- Output a formal legal correspondence letter.
+- Do NOT use bold, ALL CAPS section headers, or labels such as BACKGROUND, BASIS FOR DISPUTE, etc. The letter must read as continuous formal prose.
+- The first line of the letter MUST be exactly the letterDate value from the user JSON (field "letterDate"), formatted as provided (Month DD, YYYY). Do not invent a different date.
+- After one blank line, the inside address block: providerName on its own line, then "Billing Department" on the next line.
+- After one blank line, a "Re:" block (use "Re: Formal Dispute — Account #[account number]" with the real account number inserted). On the following lines in the same block, indented with spaces as in a formal letter: Date of Service, Patient name, Disputed Amount with dollar amount — all filled from the payload with real values.
+- After one blank line, the salutation: "Dear Billing Department:"
+- Body: separate paragraphs with a blank line between each. Order and substance:
+  1) Opening: one sentence stating that this letter is a formal dispute of the charges.
+  2) Background: who, what, when, account number, amount billed, service type, insurance/network context from the payload.
+  3) Basis for dispute: specific billing problems and violations; cite statutes and hooks from regulatoryHooks only, verbatim law names and citations as given; assertive direct language (state what the billing practice is and why it violates the cited standard — no "may be" or "may not").
+  4) Applicable regulations: what the cited laws require, using only hooks provided.
+  5) Provider obligations: what the provider IS required to do under those regulations (not "should" or "may need to").
+  6) Demand: use "I demand" followed by the resolution matching resolutionAsk in plain language. In the same paragraph: require a written response within 10 business days; state that failure to comply will result in escalation to the relevant regulatory bodies (name only bodies consistent with the regulatory hooks provided — e.g. state insurance department, CMS where applicable, state attorney general — do not invent agencies).
+  7) Reservation of rights: one short paragraph preserving all rights and remedies.
+- Closing: after a blank line, "Sincerely," then a blank line, then the patient name on its own line (patientName from payload).
+- Final line(s): You may state that the letter is sent via certified mail or email (pick one plausible method). The letter MUST include this exact sentence somewhere in the closing (can be its own short paragraph): This letter constitutes formal written notice of dispute.
 
-TONE AND ASSERTIVENESS:
-- Use direct, assertive language. Do not say "may be" or "may not" — state violations as the basis for dispute, not possibilities.
-- In the Basis for Dispute section, state the specific billing error directly (e.g. "This charge constitutes balance billing prohibited under [statute]"), not "this may constitute balance billing."
-- In Provider Obligations, state what the provider IS required to do under the cited standards, not what they "should" or "may need to" do.
-- In the Demand section, use "I demand" (not "I request"). State the consequence of non-compliance (escalation to regulatory bodies) in the same paragraph, not only in Reservation of Rights.
-- The tone must be firm and professional — someone who knows their rights, not someone asking for a favor.`;
+FACTUAL AND LEGAL CONSTRAINTS:
+- Insert every factual value from the user payload; no remaining bracket placeholders such as [FIELD NAME], [YOUR NAME], or [accountNumber].
+- Cite only regulatory hooks from analysis.regulatoryHooks verbatim; do not add statutes, case law, or agencies not supported by those hooks.
+- Never fabricate CPT/ICD codes; only reference codes from specific charges or detected errors in the payload.
+- No attorney-client language; no "we guarantee"; no legal advice disclaimers inside the letter body.
+
+TONE:
+- Firm, professional, and assertive throughout: "I demand", direct statements of violation, no hedging.`;
 
     const userPayload = {
+      letterDate: letterDate || null,
       strategy,
       patientName,
       accountNumber,
