@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run copy-html",
-    "copy-html": "copyfiles *.html dist/ && copyfiles styles.css dist/",
+    "build": "vite build && node scripts/copy-other-html.mjs",
+    "copy-html": "node scripts/copy-other-html.mjs",
     "preview": "vite preview",
     "prod:check": "node scripts/prod-check.mjs",
     "prod:check:netlify": "node scripts/check-prod-netlify.mjs"

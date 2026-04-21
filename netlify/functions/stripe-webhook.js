@@ -1,123 +1,184 @@
-import Stripe from "stripe";
-import { buffer } from "micro";
-import { getSupabaseAdmin } from "./_supabase.js";
+/**
+ * Revocation / risk signals only. Never grants. Grace by default; hard revoke on full refund or dispute lost.
+ */
+
+const Stripe = require("stripe");
+const { getSupabaseAdmin } = require("./_supabase");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const config = { path: "/.netlify/functions/stripe-webhook" };
+async function stripeCustomerIdFromObject(obj) {
+  if (!obj) return null;
+  if (typeof obj.customer === "string" && obj.customer.startsWith("cus_")) return obj.customer;
+  if (obj.customer && typeof obj.customer === "object" && obj.customer.id) return obj.customer.id;
+  return null;
+}
 
-export async function handler(event) {
+async function resolveCustomerForDispute(dispute) {
+  const chargeId = typeof dispute.charge === "string" ? dispute.charge : dispute.charge?.id;
+  if (!chargeId) return null;
+  try {
+    const charge = await stripe.charges.retrieve(chargeId);
+    return stripeCustomerIdFromObject(charge);
+  } catch (e) {
+    console.error("[stripe-webhook] charge retrieve", e.message);
+    return null;
+  }
+}
+
+async function logPaymentEvent(supabase, row) {
+  const { error } = await supabase.from("payment_events").insert(row);
+  if (error?.code === "23505") return { duplicate: true };
+  if (error) console.error("[stripe-webhook] payment_events", error.message);
+  return { duplicate: false };
+}
+
+async function applyGrace(supabase, stripeCustomerId, evt, entRow) {
+  const nowIso = new Date().toISOString();
+  await supabase
+    .from("user_entitlements")
+    .update({
+      status: "grace",
+      expires_at: nowIso,
+      updated_at: nowIso,
+    })
+    .eq("stripe_customer_id", stripeCustomerId)
+    .in("status", ["active", "grace"]);
+
+  await logPaymentEvent(supabase, {
+    user_id: entRow?.user_id ?? null,
+    session_id: null,
+    event_type: "entitlement_grace",
+    stripe_event_id: evt.id,
+    payload: { stripe_type: evt.type, stripe_customer_id: stripeCustomerId },
+  });
+}
+
+async function applyHardRevoke(supabase, stripeCustomerId, evt, entRow, extraPayload = {}) {
+  const nowIso = new Date().toISOString();
+  await supabase
+    .from("user_entitlements")
+    .update({
+      status: "inactive",
+      expires_at: nowIso,
+      updated_at: nowIso,
+    })
+    .eq("stripe_customer_id", stripeCustomerId);
+
+  const res = await logPaymentEvent(supabase, {
+    user_id: entRow?.user_id ?? null,
+    session_id: null,
+    event_type: "entitlement_revoked",
+    stripe_event_id: evt.id,
+    payload: { stripe_type: evt.type, stripe_customer_id: stripeCustomerId, ...extraPayload },
+  });
+  return res;
+}
+
+exports.handler = async (event) => {
   try {
     const sig = event.headers["stripe-signature"];
-    const rawBody = event.isBase64Encoded ? Buffer.from(event.body, "base64") : Buffer.from(event.body || "");
-    let evt;
+    const rawBody = event.isBase64Encoded
+      ? Buffer.from(event.body, "base64")
+      : Buffer.from(event.body || "");
 
+    let evt;
     try {
       evt = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
       return { statusCode: 400, body: `Webhook Error: ${err.message}` };
     }
 
-    if (evt.type === "checkout.session.completed") {
-      const session = evt.data.object;
-      const recordId = session.metadata?.recordId || null;
-      const customerEmail = session.customer_details?.email || session.customer_email;
+    const supabase = getSupabaseAdmin();
 
-      console.log('Checkout completed:', {
-        sessionId: session.id,
-        recordId,
-        email: customerEmail,
-        paymentStatus: session.payment_status
+    const { data: seen } = await supabase
+      .from("payment_events")
+      .select("id")
+      .eq("stripe_event_id", evt.id)
+      .maybeSingle();
+    if (seen?.id) {
+      return { statusCode: 200, body: "ok" };
+    }
+
+    const handled = new Set([
+      "charge.refunded",
+      "charge.dispute.created",
+      "charge.dispute.closed",
+      "payment_intent.payment_failed",
+    ]);
+
+    if (!handled.has(evt.type)) {
+      console.log("[stripe-webhook] ignored", { type: evt.type, id: evt.id });
+      return { statusCode: 200, body: "ok" };
+    }
+
+    let stripeCustomerId = null;
+    if (evt.type === "charge.refunded") {
+      stripeCustomerId = await stripeCustomerIdFromObject(evt.data.object);
+    } else if (evt.type === "charge.dispute.created" || evt.type === "charge.dispute.closed") {
+      stripeCustomerId = await resolveCustomerForDispute(evt.data.object);
+    } else if (evt.type === "payment_intent.payment_failed") {
+      stripeCustomerId = await stripeCustomerIdFromObject(evt.data.object);
+    }
+
+    if (!stripeCustomerId) {
+      console.warn("[stripe-webhook] no customer", { type: evt.type, id: evt.id });
+      await logPaymentEvent(supabase, {
+        user_id: null,
+        session_id: null,
+        event_type: "entitlement_grace",
+        stripe_event_id: evt.id,
+        payload: { stripe_type: evt.type, note: "no_stripe_customer" },
       });
+      return { statusCode: 200, body: "ok" };
+    }
 
-      const supabase = getSupabaseAdmin();
+    const { data: entRow } = await supabase
+      .from("user_entitlements")
+      .select("user_id, status")
+      .eq("stripe_customer_id", stripeCustomerId)
+      .maybeSingle();
 
-      if (recordId) {
-        // Update specific record
-        const { error } = await supabase
-          .from("claim_letters")
-          .update({
-            stripe_session_id: session.id,
-            stripe_payment_status: session.payment_status,
-            payment_status: 'paid',
-            letter_generated: false, // Explicitly mark as not yet generated
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", recordId);
+    if (evt.type === "charge.dispute.created" || evt.type === "payment_intent.payment_failed") {
+      await applyGrace(supabase, stripeCustomerId, evt, entRow);
+      console.log("[stripe-webhook] entitlement_grace", { type: evt.type, stripeCustomerId });
+      return { statusCode: 200, body: "ok" };
+    }
 
-        if (error) {
-          console.error('Failed to update record:', error);
-          
-          // Check if it's a unique constraint violation (session ID reuse attempt)
-          if (error.code === '23505') {
-            console.error('🚨 SECURITY ALERT: Attempted reuse of Stripe session ID:', session.id);
-          }
-        } else {
-          console.log('✅ Payment verified for record:', recordId);
-        }
-      } else if (customerEmail) {
-        // Create payment record for user
-        const { error } = await supabase
-          .from("claim_letters")
-          .insert({
-            user_email: customerEmail,
-            stripe_session_id: session.id,
-            stripe_payment_status: session.payment_status,
-            payment_status: 'paid',
-            letter_generated: false, // One payment = one letter (not yet used)
-            status: 'payment_completed',
-            file_name: 'pending_upload',
-            file_path: 'pending_upload'
-          });
-
-        if (error) {
-          console.error('Failed to create payment record:', error);
-          
-          // Check if it's a unique constraint violation (session ID reuse attempt)
-          if (error.code === '23505') {
-            console.error('🚨 SECURITY ALERT: Attempted reuse of Stripe session ID:', session.id);
-          }
-        } else {
-          console.log('✅ Payment record created for:', customerEmail);
-        }
+    if (evt.type === "charge.dispute.closed") {
+      const dispute = evt.data.object;
+      const lost = String(dispute.status || "").toLowerCase() === "lost";
+      if (lost) {
+        const r = await applyHardRevoke(supabase, stripeCustomerId, evt, entRow, { dispute_status: dispute.status });
+        if (r?.duplicate) return { statusCode: 200, body: "ok" };
+        console.log("[stripe-webhook] entitlement_revoked dispute lost", { stripeCustomerId });
       }
+      return { statusCode: 200, body: "ok" };
     }
 
-    // Handle subscription events (if using subscriptions)
-    if (evt.type === "customer.subscription.created" || 
-        evt.type === "customer.subscription.updated") {
-      const subscription = evt.data.object;
-      const customerId = subscription.customer;
+    if (evt.type === "charge.refunded") {
+      const charge = evt.data.object;
+      const amount = Number(charge.amount) || 0;
+      const refunded = Number(charge.amount_refunded) || 0;
+      const fullyRefunded = charge.refunded === true || (amount > 0 && refunded >= amount);
 
-      const supabase = getSupabaseAdmin();
-      
-      // Update or create subscription record
-      await supabase
-        .from("subscriptions")
-        .upsert({
-          stripe_customer_id: customerId,
-          stripe_subscription_id: subscription.id,
-          status: subscription.status,
-          plan_type: subscription.metadata?.plan_type || 'STANDARD',
-          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString()
-        }, {
-          onConflict: 'stripe_subscription_id'
+      if (fullyRefunded) {
+        const r = await applyHardRevoke(supabase, stripeCustomerId, evt, entRow, {
+          amount,
+          amount_refunded: refunded,
         });
-    }
-
-    if (evt.type === "customer.subscription.deleted") {
-      const subscription = evt.data.object;
-      
-      const supabase = getSupabaseAdmin();
-      await supabase
-        .from("subscriptions")
-        .update({ status: 'canceled' })
-        .eq("stripe_subscription_id", subscription.id);
+        if (r?.duplicate) return { statusCode: 200, body: "ok" };
+        console.log("[stripe-webhook] entitlement_revoked full refund", { stripeCustomerId });
+      } else {
+        await applyGrace(supabase, stripeCustomerId, evt, entRow);
+        console.log("[stripe-webhook] entitlement_grace partial refund", { stripeCustomerId });
+      }
+      return { statusCode: 200, body: "ok" };
     }
 
     return { statusCode: 200, body: "ok" };
   } catch (e) {
+    console.error("[stripe-webhook]", e);
     return { statusCode: 500, body: e.message };
   }
-}
+};

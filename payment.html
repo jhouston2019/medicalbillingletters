@@ -78,44 +78,24 @@
         </div>
     </footer>
 
-    <script>
-        document.getElementById('payButton').addEventListener('click', async function() {
-            const button = this;
-            const loading = document.getElementById('loading');
-            
-            // Show loading state
-            button.disabled = true;
-            button.textContent = 'Processing...';
-            loading.style.display = 'block';
-            
-            try {
-                // Call Netlify function to create checkout session
-                const response = await fetch('/.netlify/functions/create-checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({})
-                });
-                
-                const data = await response.json();
-                
-                if (data.url) {
-                    // Redirect to Stripe Checkout
-                    window.location.href = data.url;
-                } else {
-                    throw new Error(data.error || 'Failed to create checkout session');
-                }
-            } catch (error) {
-                console.error('Payment error:', error);
-                alert('Payment setup failed. Please try again or contact support.');
-                
-                // Reset button state
-                button.disabled = false;
-                button.textContent = 'Pay & Generate My Claim Response Letter';
-                loading.style.display = 'none';
-            }
-        });
+    <script type="module">
+      import './src/main.js';
+      import { getSession } from './src/components/Auth.js';
+      document.getElementById('payButton').addEventListener('click', async (e) => {
+        const loading = document.getElementById('loading');
+        if (loading) loading.style.display = 'block';
+        try {
+          const session = await getSession();
+          if (!session?.access_token) {
+            alert('Please log in to continue.');
+            window.location.href = '/login.html?redirect=' + encodeURIComponent('/payment.html');
+            return;
+          }
+          await window.startCheckout('single', e);
+        } finally {
+          if (loading) loading.style.display = 'none';
+        }
+      });
     </script>
 
     <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:60px;">

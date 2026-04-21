@@ -4,72 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to Your Account | Medical Bill Dispute Pro</title>
-    <meta name="description" content="Sign in to your Medical Bill Dispute Pro account to access your claim letter analysis and response tools.">
-    <link rel="canonical" href="https://insuranceMedical Bill Dispute Pro.com/login.html">
-    <meta property="og:title" content="Login to Your Account | Medical Bill Dispute Pro">
-    <meta property="og:description" content="Sign in to your Medical Bill Dispute Pro account to access your claim letter analysis and response tools.">
-    <meta property="og:image" content="https://insuranceMedical Bill Dispute Pro.com/images/og-image.jpg">
-    <meta property="og:url" content="https://insuranceMedical Bill Dispute Pro.com/login.html">
-    <meta property="og:type" content="website">
+    <meta name="description" content="Sign in to your Medical Bill Dispute Pro account.">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
     <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
         <div style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
         <div>
-            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Upload</a> |
-            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Dashboard</a> |
-            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Pricing</a> |
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Login</a>
+            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Upload</a> |
+            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Dashboard</a> |
+            <a href="/pricing" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a> |
+            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a>
         </div>
     </nav>
 
     <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
         <div style="max-width:500px; margin:2rem auto; padding:2rem; background:#ffffff; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-            <h2 style="text-align:center; margin-bottom:2rem; color:#2d3748; font-size:1.8rem;">Login to Your Account</h2>
+            <h2 style="text-align:center; margin-bottom:2rem; color:#2d3748; font-size:1.8rem;">Log in</h2>
             <form id="loginForm">
                 <div style="margin-bottom:1.5rem;">
                     <label for="email" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Email</label>
-                    <input type="email" id="email" name="email" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400;">
+                    <input type="email" id="email" name="email" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-size:1rem;">
                 </div>
                 <div style="margin-bottom:1.5rem;">
                     <label for="password" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Password</label>
-                    <input type="password" id="password" name="password" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400;">
+                    <input type="password" id="password" name="password" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-size:1rem;">
                 </div>
-                <button type="submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; width:100%;">Login</button>
+                <button type="submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600; width:100%;">Log in</button>
             </form>
             <p style="text-align: center; margin-top: 1rem; color:#2d3748;">
-                Don't have an account? <a href="/signup.html" style="color:#93c5fd; text-decoration:none;">Sign up here</a>
+                <a href="/signup.html" style="color:#93c5fd; text-decoration:none;">Create account</a>
             </p>
         </div>
     </div>
 
     <script type="module">
         import { signIn } from './src/components/Auth.js';
-        
+
+        const params = new URLSearchParams(window.location.search);
+        const rawRedirect = params.get('redirect');
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
             try {
-                const { data, error } = await signIn(email, password);
-                
+                const { error } = await signIn(email, password);
                 if (error) {
                     alert('Login failed: ' + error.message);
-                } else {
-                    alert('Login successful!');
-                    window.location.href = '/dashboard.html';
+                    return;
                 }
-            } catch (error) {
-                alert('Login failed: ' + error.message);
+                if (rawRedirect) {
+                    try {
+                        const path = decodeURIComponent(rawRedirect);
+                        if (path.startsWith('/') && !path.startsWith('//')) {
+                            window.location.href = path;
+                            return;
+                        }
+                    } catch (_) {}
+                }
+                window.location.href = '/app';
+            } catch (err) {
+                alert('Login failed: ' + err.message);
             }
         });
     </script>
 
     <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:60px;">
         <div style="width:min(1120px, 92%); margin-inline:auto;">
-            <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd; text-decoration:none;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd; text-decoration:none;">Terms</a> | <a href="/disclaimer.html" style="color:#93c5fd; text-decoration:none;">Disclaimer</a> | <a href="/admin-login.html" style="color:#475569; text-decoration:none; font-size:0.75rem;">Admin</a></p>
+            <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd;">Terms</a></p>
         </div>
     </footer>
 </body>

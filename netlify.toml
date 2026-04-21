@@ -6,12 +6,45 @@
   NODE_VERSION = "20.17.0"
 
 [[redirects]]
+  from = "/pricing"
+  to = "/pricing.html"
+  status = 200
+
+[[redirects]]
+  from = "/success"
+  to = "/success.html"
+  status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/recover"
+  to = "/recover.html"
+  status = 200
+
+[[redirects]]
+  from = "/cancel"
+  to = "/cancel.html"
+  status = 200
+
+[[redirects]]
+  from = "/thank-you.html"
+  to = "/success"
+  status = 302
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
 [functions]
   node_bundler = "esbuild"
+
+  [functions."reconcile-stripe"]
+    schedule = "0 * * * *"
 
 [[headers]]
   for = "/*"

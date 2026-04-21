@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
     <title>Your Dashboard | Medical Bill Dispute Pro</title>
     <meta name="description" content="Access your Medical Bill Dispute Pro dashboard to view your claim letter analyses, response letters, and account information.">
     <link rel="canonical" href="https://medicalbillingdisputehelp.ai/dashboard.html">
@@ -25,7 +26,17 @@
     </nav>
 
     <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
-        <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:2rem;">Your Dashboard</h1>
+        <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:1rem;">Your Dashboard</h1>
+
+        <div style="margin-bottom:2rem;">
+            <a href="/upload.html" style="display:inline-block; background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#ffffff; padding:1rem 1.75rem; border-radius:12px; font-size:1.15rem; font-weight:800; text-decoration:none; box-shadow:0 8px 24px rgba(34,197,94,0.35); letter-spacing:0.02em;">Start New Estimate Review</a>
+        </div>
+
+        <div id="billing-panel" style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:2rem; max-width:720px;">
+            <h2 style="margin:0 0 0.75rem; font-size:1.15rem; color:#f8fafc;">Plan &amp; usage</h2>
+            <p id="billing-panel-body" style="margin:0; color:#94a3b8;">Loading billing…</p>
+            <a href="/pricing" style="display:inline-block; margin-top:1rem; color:#93c5fd; font-weight:600; text-decoration:none;">Upgrade or add reviews →</a>
+        </div>
         
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; margin:2rem 0;">
             <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
@@ -54,14 +65,23 @@
     </div>
 
     <script type="module">
-        import { createClient } from '@supabase/supabase-js';
         import { getUserDocuments } from './src/components/UploadForm.js';
         import { getCurrentUser } from './src/components/Auth.js';
 
-        const supabase = createClient(
-            import.meta.env.VITE_SUPABASE_URL,
-            import.meta.env.VITE_SUPABASE_ANON_KEY
-        );
+        function readSupabaseAccessTokenFromStorage() {
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!key || !key.includes('auth-token')) continue;
+                    const raw = localStorage.getItem(key);
+                    if (!raw) continue;
+                    const data = JSON.parse(raw);
+                    const token = data?.access_token ?? data?.currentSession?.access_token;
+                    if (typeof token === 'string' && token.length > 20) return token;
+                }
+            } catch (_) {}
+            return null;
+        }
         
         let currentUser = null;
         
@@ -128,26 +148,47 @@
         
         async function updateAccountStatus() {
             const statusDiv = document.getElementById('accountStatus');
+            const billingEl = document.getElementById('billing-panel-body');
             let planLabel = '\u2014';
-            try {
-                const { data, error } = await supabase
-                    .from('claim_letters')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('payment_status', 'paid')
-                    .limit(1);
-                if (!error && data && data.length > 0) {
-                    planLabel = 'Pro (Active)';
-                } else if (!error) {
-                    planLabel = 'Free';
-                }
-            } catch (_) {
-                planLabel = '\u2014';
+            let renewalText = '\u2014';
+            let usageText = '\u2014';
+
+            const token = readSupabaseAccessTokenFromStorage();
+            if (token) {
+                try {
+                    const res = await fetch('/.netlify/functions/billing-status', {
+                        headers: { Authorization: 'Bearer ' + token },
+                    });
+                    const b = await res.json();
+                    if (res.ok && b && !b.error) {
+                        planLabel = (b.plan_type || '—').toString();
+                        const paid = b.paid === true ? 'Active' : b.paid === false ? 'Not paid' : '—';
+                        renewalText = b.renewal_at
+                            ? new Date(b.renewal_at).toLocaleDateString()
+                            : 'One-time / not set';
+                        const u = b.usage || {};
+                        if (u.limit == null && u.used != null) {
+                            usageText = `${u.used} reviews (unlimited plan)`;
+                        } else if (u.limit != null) {
+                            usageText = `${u.used} of ${u.limit} reviews`;
+                        } else {
+                            usageText = '—';
+                        }
+                        if (billingEl) {
+                            billingEl.innerHTML =
+                                '<strong style="color:#e2e8f0;">Plan:</strong> ' + planLabel +
+                                ' · <strong style="color:#e2e8f0;">Billing:</strong> ' + paid +
+                                '<br><strong style="color:#e2e8f0;">Renewal:</strong> ' + renewalText +
+                                '<br><strong style="color:#e2e8f0;">Usage:</strong> ' + usageText;
+                        }
+                    }
+                } catch (_) {}
             }
+
             statusDiv.innerHTML = `
                 <p style="color:#ffffff;"><strong>Email:</strong> <span style="color:#94a3b8;">${currentUser.email}</span></p>
                 <p style="color:#ffffff;"><strong>Member since:</strong> <span style="color:#94a3b8;">${new Date(currentUser.created_at).toLocaleDateString()}</span></p>
-                <p style="color:#ffffff;"><strong>Plan:</strong> <span style="color:#94a3b8;">${planLabel}</span></p>
+                <p style="color:#ffffff;"><strong>Plan (summary):</strong> <span style="color:#94a3b8;">${planLabel}</span></p>
             `;
         }
     </script>

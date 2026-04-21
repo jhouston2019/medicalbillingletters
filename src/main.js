@@ -3,6 +3,11 @@ import { getCurrentUser, getSession } from './components/Auth.js';
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async () => {
+  const pricingBtn = document.getElementById('pricing-checkout');
+  if (pricingBtn) {
+    pricingBtn.addEventListener('click', (e) => window.startCheckout('single', e));
+  }
+
   // Check if user is logged in
   const user = await getCurrentUser();
   const session = await getSession();
@@ -49,27 +54,32 @@ function updateNavigationForGuest() {
   }
 }
 
-// Global checkout function for pricing buttons
-window.startCheckout = async function(plan) {
+// Global checkout function for pricing buttons (requires logged-in user)
+window.startCheckout = async function(plan, ev) {
+  const clickEv = ev || (typeof globalThis !== 'undefined' && globalThis.event) || null;
+  const button = clickEv?.target;
+  let originalText = '';
   try {
-    // Check if user is logged in
-    const user = await getCurrentUser();
-    if (!user) {
-      alert('Please login to purchase a plan');
-      window.location.href = '/login.html';
+    const session = await getSession();
+    if (!session?.access_token) {
+      alert('Please log in to continue to checkout.');
+      window.location.href = '/login.html?redirect=' + encodeURIComponent('/pricing');
       return;
     }
 
-    // Show loading state
-    const button = event.target;
-    const originalText = button.textContent;
-    button.textContent = 'Processing...';
-    button.disabled = true;
+    if (button) {
+      originalText = button.textContent;
+      button.textContent = 'Processing...';
+      button.disabled = true;
+    }
 
     const response = await fetch('/.netlify/functions/create-checkout-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan: plan })
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + session.access_token,
+      },
+      body: JSON.stringify({ plan: plan || 'single' }),
     });
     
     const data = await response.json();
@@ -78,13 +88,16 @@ window.startCheckout = async function(plan) {
       window.location.href = data.url;
     } else {
       alert('Failed to create checkout session: ' + (data.error || 'Unknown error'));
-      button.textContent = originalText;
-      button.disabled = false;
+      if (button) {
+        button.textContent = originalText;
+        button.disabled = false;
+      }
     }
   } catch (error) {
     alert('Failed to start checkout: ' + error.message);
-    const button = event.target;
-    button.textContent = button.getAttribute('data-original-text') || 'Try Again';
-    button.disabled = false;
+    if (button) {
+      button.textContent = button.getAttribute('data-original-text') || 'Try Again';
+      button.disabled = false;
+    }
   }
 };

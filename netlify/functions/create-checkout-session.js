@@ -1,58 +1,114 @@
-import Stripe from "stripe";
+const Stripe = require("stripe");
+const { requireAuth } = require("./_middleware/auth");
+const { checkRateLimitDistributed, DEFAULT_MAX, WINDOW_SEC } = require("./_rateLimitRedis");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function handler(event) {
+const RATE_ACTION = "create-checkout-session";
+function normalizePlanParam(plan) {
+  const p = String(plan || "single").toLowerCase();
+  if (p === "pro" || p === "standard" || p === "starter") return "premier";
+  if (p === "complex" || p === "proplus") return "enterprise";
+  if (p === "monthly" || p === "annual") return p;
+  if (p === "premier" || p === "enterprise" || p === "single") return p;
+  return "single";
+}
+
+function priceIdForPlan(plan) {
+  const p = normalizePlanParam(plan);
+  const map = {
+    single: process.env.STRIPE_PRICE_SINGLE || process.env.STRIPE_PRICE_RESPONSE,
+    monthly: process.env.STRIPE_PRICE_MONTHLY || process.env.STRIPE_PRICE_PREMIER || process.env.STRIPE_PRICE_RESPONSE,
+    premier: process.env.STRIPE_PRICE_PREMIER || process.env.STRIPE_PRICE_RESPONSE,
+    annual: process.env.STRIPE_PRICE_ANNUAL || process.env.STRIPE_PRICE_ENTERPRISE || process.env.STRIPE_PRICE_RESPONSE,
+    enterprise: process.env.STRIPE_PRICE_ENTERPRISE || process.env.STRIPE_PRICE_RESPONSE,
+  };
+  return map[p] || process.env.STRIPE_PRICE_RESPONSE || "price_19USD_single";
+}
+
+function cors() {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: cors(), body: "" };
+  }
+
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers: cors(),
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
+  }
+
+  const { user, error: authErr } = await requireAuth(event);
+  if (authErr || !user) {
+    return {
+      statusCode: 401,
+      headers: cors(),
+      body: JSON.stringify({ error: "Unauthorized" }),
+    };
+  }
+
+  const rl = await checkRateLimitDistributed(user.id, RATE_ACTION, DEFAULT_MAX, WINDOW_SEC);
+  if (!rl.ok) {
+    return {
+      statusCode: 429,
+      headers: {
+        ...cors(),
+        "Retry-After": String(rl.retryAfterSec ?? 60),
+      },
+      body: JSON.stringify({ error: "Too many requests", retryAfterSec: rl.retryAfterSec }),
+    };
+  }
+
   try {
-    // Debug: Check environment variables
-    console.log('SITE_URL:', process.env.SITE_URL);
-    console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Set' : 'Missing');
-    console.log('STRIPE_PRICE_RESPONSE:', process.env.STRIPE_PRICE_RESPONSE);
-    
-    const { recordId = null } = JSON.parse(event.body || "{}"); // send from client if available
-    const priceId = process.env.STRIPE_PRICE_RESPONSE || "price_19USD_single";
-    
-    // Validate required environment variables
+    const body = JSON.parse(event.body || "{}");
+    const plan = normalizePlanParam(body.plan || body.plan_type || "single");
+    const priceId = priceIdForPlan(plan);
+
     if (!process.env.SITE_URL) {
-      throw new Error('SITE_URL environment variable is not set');
+      throw new Error("SITE_URL environment variable is not set");
     }
     if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
     }
 
+    const site = process.env.SITE_URL.replace(/\/$/, "");
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{ 
-        price: priceId, 
-        quantity: 1 
-      }],
-      mode: 'payment',
-      success_url: `${process.env.SITE_URL}/thank-you.html`,
-      cancel_url: `${process.env.SITE_URL}/pricing.html`,
-      metadata: recordId ? { recordId } : { plan: 'single' }
+      payment_method_types: ["card"],
+      line_items: [{ price: priceId, quantity: 1 }],
+      mode: "payment",
+      customer_creation: "always",
+      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${site}/pricing`,
+      metadata: {
+        user_id: user.id,
+        plan_type: plan,
+      },
     });
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({ url: session.url })
+      headers: cors(),
+      body: JSON.stringify({ url: session.url }),
     };
   } catch (error) {
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ 
-        error: 'Failed to create checkout session',
-        details: error.message 
-      })
+      headers: cors(),
+      body: JSON.stringify({
+        error: "Failed to create checkout session",
+        details: error.message,
+      }),
     };
   }
-}
+};

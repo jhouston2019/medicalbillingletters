@@ -451,10 +451,15 @@
         resolutionAsk: null,
         prefillApplied: false,
         letterRaw: null,
+        usageSessionId: null,
       };
     }
 
     let state = initialState();
+    try {
+      const cid = sessionStorage.getItem('last_checkout_session_id');
+      if (cid) state.usageSessionId = cid;
+    } catch (_) {}
     let currentStep = 1;
     let loadingMsgTimer = null;
     const LOADING_MSGS = [
@@ -669,6 +674,7 @@
             hasEOB: state.hasEOB,
             priorContact: state.priorContact,
             accessToken: state.accessToken,
+            usageSessionId: state.usageSessionId,
           }),
         });
         const raw = await res.text();

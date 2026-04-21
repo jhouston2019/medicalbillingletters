@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recover purchase | Medical Bill Dispute Pro</title>
+</head>
+<body style="background:#0f172a; color:#e2e8f0; font-family:system-ui,sans-serif; margin:0; padding:2rem; line-height:1.5;">
+  <div style="max-width:520px; margin:2rem auto; background:#1e293b; padding:2rem; border-radius:12px; border:1px solid #334155;">
+    <h1 style="margin-top:0;">Recover your access</h1>
+    <p id="recover-msg" style="color:#94a3b8;">Checking your account…</p>
+    <p style="margin-top:1.5rem;">
+      <a href="/pricing" style="color:#93c5fd;">Pricing</a>
+      · <a href="/login.html" style="color:#93c5fd;">Log in</a>
+      · <a href="/app" style="color:#93c5fd;">App</a>
+    </p>
+  </div>
+  <script type="module">
+    function readSupabaseAccessTokenFromStorage() {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.includes("auth-token")) continue;
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          const data = JSON.parse(raw);
+          const token = data?.access_token ?? data?.currentSession?.access_token;
+          if (typeof token === "string" && token.length > 20) return token;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const token = readSupabaseAccessTokenFromStorage();
+    const msg = document.getElementById("recover-msg");
+
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    fetch("/.netlify/functions/recover-payment-state", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ sessionId }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.state === "paid") {
+          msg.textContent = "You're all set. Redirecting…";
+          const next = typeof data.next === "string" ? data.next : "/app";
+          window.location.replace(next.startsWith("http") ? next : next);
+          return;
+        }
+        msg.textContent =
+          "No completed purchase found for this browser. Try Pricing, or paste your checkout session link.";
+      })
+      .catch(() => {
+        msg.textContent = "Could not check status. Try Pricing or log in.";
+      });
+  </script>
+</body>
+</html>

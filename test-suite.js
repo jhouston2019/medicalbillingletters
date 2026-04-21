@@ -62,22 +62,23 @@ test('Required files exist', () => {
     'src/main.js',
     'src/components/Auth.js',
     'src/components/UploadForm.js',
-    'netlify/functions/analyze-letter.js',
-    'netlify/functions/generate-response.js',
-    'netlify/functions/generate-pdf.js',
-    'netlify/functions/generate-docx.js',
     'netlify/functions/create-checkout-session.js',
-    'netlify/functions/extract-text.js',
+    'netlify/functions/extract-text-from-file.js',
     'netlify/functions/stripe-webhook.js',
-    'netlify/functions/create-stripe-customer.js',
-    'netlify/functions/get-user-subscription.js',
-    'netlify/functions/track-usage.js',
+    'netlify/functions/verify-payment.js',
+    'netlify/functions/auth-me.js',
+    'netlify/functions/billing-status.js',
     'netlify/functions/validate-input.js',
     'netlify/functions/security-headers.js',
     'supabase/migrations/20251001_create_users_table.sql',
     'supabase/migrations/20251001_create_documents_table.sql',
     'supabase/migrations/20251001_create_subscriptions_table.sql',
     'supabase/migrations/20251001_setup_rls_policies.sql',
+    'supabase/migrations/20260422_payment_deterministic_rewrite.sql',
+    'supabase/migrations/20260423_payment_hardening.sql',
+    'supabase/migrations/20260424_payment_final_hardening.sql',
+    'netlify/functions/reconcile-stripe.js',
+    'netlify/functions/_rateLimitRedis.js',
     'SETUP.md',
     'netlify.toml'
   ];
@@ -136,21 +137,19 @@ test('HTML files have proper structure', () => {
 // Test 5: Netlify Functions
 test('Netlify functions have proper structure', () => {
   const functionFiles = [
-    'netlify/functions/analyze-letter.js',
-    'netlify/functions/generate-response.js',
-    'netlify/functions/generate-pdf.js',
-    'netlify/functions/generate-docx.js',
     'netlify/functions/create-checkout-session.js',
-    'netlify/functions/extract-text.js',
     'netlify/functions/stripe-webhook.js',
-    'netlify/functions/create-stripe-customer.js',
-    'netlify/functions/get-user-subscription.js',
-    'netlify/functions/track-usage.js'
+    'netlify/functions/verify-payment.js',
+    'netlify/functions/auth-me.js',
+    'netlify/functions/billing-status.js',
   ];
   
   functionFiles.forEach(file => {
     const content = fs.readFileSync(file, 'utf8');
-    if (!content.includes('export async function handler')) {
+    const hasHandler =
+      content.includes('export async function handler') ||
+      content.includes('exports.handler');
+    if (!hasHandler) {
       throw new Error(`${file} missing handler function`);
     }
     if (!content.includes('statusCode')) {
@@ -168,7 +167,10 @@ test('Database migrations have proper SQL', () => {
     'supabase/migrations/20251001_create_users_table.sql',
     'supabase/migrations/20251001_create_documents_table.sql',
     'supabase/migrations/20251001_create_subscriptions_table.sql',
-    'supabase/migrations/20251001_setup_rls_policies.sql'
+    'supabase/migrations/20251001_setup_rls_policies.sql',
+    'supabase/migrations/20260422_payment_deterministic_rewrite.sql',
+    'supabase/migrations/20260423_payment_hardening.sql',
+    'supabase/migrations/20260424_payment_final_hardening.sql',
   ];
   
   migrationFiles.forEach(file => {

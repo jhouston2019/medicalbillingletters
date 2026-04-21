@@ -5,6 +5,8 @@
 const OpenAI = require("openai");
 const pdfParse = require("pdf-parse");
 const { verifyWizardAccess } = require("./_wizardAuth");
+const { getBillingSnapshot } = require("./_billingSnapshot");
+const { getSupabaseAdmin } = require("./_supabase");
 
 const MAX_TEXT = 48000;
 const MIN_EXTRACTED_TEXT = 50;
@@ -250,6 +252,36 @@ function normalizePayload(raw, ctx) {
   };
 }
 
+async function resolveUsageSessionId(supabase, userId, requestedSessionId) {
+  if (requestedSessionId && typeof requestedSessionId === "string") {
+    const { data } = await supabase
+      .from("processed_sessions")
+      .select("session_id")
+      .eq("session_id", requestedSessionId.trim())
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .maybeSingle();
+    if (data?.session_id) return data.session_id;
+    return null;
+  }
+
+  const { data: sessions } = await supabase
+    .from("processed_sessions")
+    .select("session_id, updated_at")
+    .eq("user_id", userId)
+    .eq("status", "completed")
+    .order("updated_at", { ascending: false });
+
+  for (const row of sessions || []) {
+    const { count } = await supabase
+      .from("user_review_usage")
+      .select("id", { count: "exact", head: true })
+      .eq("session_id", row.session_id);
+    if ((count ?? 0) === 0) return row.session_id;
+  }
+  return null;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: corsHeaders(), body: "" };
@@ -273,6 +305,7 @@ exports.handler = async (event) => {
       hasEOB,
       priorContact,
       accessToken,
+      usageSessionId,
     } = body;
 
     const auth = await verifyWizardAccess(accessToken);
@@ -282,6 +315,85 @@ exports.handler = async (event) => {
         headers: corsHeaders(),
         body: JSON.stringify({ success: false, error: auth.error }),
       };
+    }
+
+    const supabase = getSupabaseAdmin();
+    let usageSessionIdToUse = null;
+
+    if (auth.userId && !auth.bypass) {
+      const snap = await getBillingSnapshot(auth.userId);
+      if (snap.paid !== true) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders(),
+          body: JSON.stringify({
+            success: false,
+            error: "Payment required",
+            needsPayment: true,
+          }),
+        };
+      }
+      if (snap.usage.limit != null && snap.usage.used >= snap.usage.limit) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders(),
+          body: JSON.stringify({
+            success: false,
+            error: "Usage limit exceeded for your plan",
+            usage: snap.usage,
+          }),
+        };
+      }
+
+      usageSessionIdToUse = await resolveUsageSessionId(
+        supabase,
+        auth.userId,
+        usageSessionId
+      );
+      if (!usageSessionIdToUse) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders(),
+          body: JSON.stringify({
+            success: false,
+            error:
+              "No completed checkout session available for a new review. Purchase again or pass usageSessionId from a verified payment.",
+          }),
+        };
+      }
+
+      const { data: ownedSession, error: ownErr } = await supabase
+        .from("processed_sessions")
+        .select("*")
+        .eq("session_id", usageSessionIdToUse)
+        .eq("user_id", auth.userId)
+        .eq("status", "completed")
+        .maybeSingle();
+
+      if (ownErr || !ownedSession) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders(),
+          body: JSON.stringify({
+            success: false,
+            error: "Checkout session is not verified for this account.",
+          }),
+        };
+      }
+
+      const { data: existingUsage } = await supabase
+        .from("user_review_usage")
+        .select("analysis_json")
+        .eq("session_id", usageSessionIdToUse)
+        .maybeSingle();
+
+      if (existingUsage?.analysis_json != null) {
+        return {
+          statusCode: 200,
+          headers: corsHeaders(),
+          body: JSON.stringify(existingUsage.analysis_json),
+        };
+      }
     }
 
     if (!fileBase64 || typeof fileBase64 !== "string") {
@@ -412,6 +524,50 @@ exactly 5 strategies required; one must have recommended true.`;
 
     const parsed = JSON.parse(rawText);
     const out = normalizePayload(parsed, body);
+
+    if (auth.userId && !auth.bypass && !out.hardStop && usageSessionIdToUse) {
+      const { data: sessionOk } = await supabase
+        .from("processed_sessions")
+        .select("session_id")
+        .eq("session_id", usageSessionIdToUse)
+        .eq("user_id", auth.userId)
+        .eq("status", "completed")
+        .maybeSingle();
+
+      if (!sessionOk?.session_id) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders(),
+          body: JSON.stringify({
+            success: false,
+            error: "Checkout session is not verified for this account.",
+          }),
+        };
+      }
+
+      const { error: usageErr } = await supabase.from("user_review_usage").insert({
+        user_id: auth.userId,
+        session_id: usageSessionIdToUse,
+        analysis_json: out,
+      });
+      if (usageErr) {
+        if (usageErr.code === "23505") {
+          const { data: row } = await supabase
+            .from("user_review_usage")
+            .select("analysis_json")
+            .eq("session_id", usageSessionIdToUse)
+            .maybeSingle();
+          if (row?.analysis_json != null) {
+            return {
+              statusCode: 200,
+              headers: corsHeaders(),
+              body: JSON.stringify(row.analysis_json),
+            };
+          }
+        }
+        console.warn("[analyze-medical-bill] user_review_usage insert:", usageErr.message);
+      }
+    }
 
     return {
       statusCode: 200,
