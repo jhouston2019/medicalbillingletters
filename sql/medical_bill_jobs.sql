@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS medical_bill_jobs (
   preview_text TEXT NOT NULL,
   paid BOOLEAN NOT NULL DEFAULT FALSE,
   is_unlocked BOOLEAN NOT NULL DEFAULT FALSE,
+  stripe_session_id TEXT,
   stripe_checkout_session_id TEXT UNIQUE,
   hard_stop BOOLEAN NOT NULL DEFAULT FALSE
 );

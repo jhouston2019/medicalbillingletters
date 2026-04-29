@@ -104,6 +104,17 @@ exports.handler = async (event) => {
         ]
       : [{ price: priceId, quantity: 1 }];
 
+    const metadata = jobId
+      ? {
+          job_id: jobId,
+          plan_type: plan,
+          ...(user?.id ? { user_id: user.id } : {}),
+        }
+      : {
+          plan_type: plan,
+          ...(user?.id ? { user_id: user.id } : {}),
+        };
+
     const sessionPayload = {
       payment_method_types: ["card"],
       line_items: appealLineItem,
@@ -111,18 +122,11 @@ exports.handler = async (event) => {
       customer_creation: "always",
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: jobId ? `${site}/preview/${jobId}` : `${site}/pricing`,
-      metadata: {
-        plan_type: plan,
-        ...(jobId ? { job_id: jobId } : {}),
-      },
+      metadata,
     };
 
     if (trimmedEmail) {
       sessionPayload.customer_email = trimmedEmail;
-    }
-
-    if (user?.id) {
-      sessionPayload.metadata.user_id = user.id;
     }
 
     const session = await stripe.checkout.sessions.create(sessionPayload);
