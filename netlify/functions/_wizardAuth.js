@@ -9,34 +9,14 @@ function envTruthy(name) {
 }
 
 /**
- * Analysis endpoint allows anonymous preview funnel without env bypass (guest sends accessToken "bypass").
+ * Analyze wizard: anonymous requests are always allowed at this gate.
+ * Optional JWT handling happens inside analyze-medical-bill.js (never returns 401 from token checks).
  */
-async function verifyWizardAnalyzeAccess(accessToken) {
-  const bypass = envTruthy("WIZARD_ALLOW_BYPASS");
-  if (bypass && (!accessToken || accessToken === "bypass")) {
-    return { ok: true, bypass: true, userId: null, email: null };
-  }
-  if (!accessToken || accessToken === "bypass") {
-    return { ok: true, bypass: true, guestAnalyze: true, userId: null, email: null };
-  }
-
-  const url = process.env.SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY;
-  if (!url || !anon) {
-    return { ok: false, error: "Server configuration error" };
-  }
-
-  const supabase = createClient(url, anon);
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(accessToken);
-
-  if (error || !user) {
-    return { ok: false, error: "Invalid or expired session" };
-  }
-
-  return { ok: true, bypass: false, guestAnalyze: false, userId: user.id, email: user.email };
+async function verifyWizardAnalyzeAccess(_event) {
+  return {
+    user: null,
+    isAnonymousAllowed: true,
+  };
 }
 
 async function verifyWizardAccess(accessToken) {

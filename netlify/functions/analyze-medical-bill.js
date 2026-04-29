@@ -4,6 +4,7 @@
 
 const OpenAI = require("openai");
 const pdfParse = require("pdf-parse");
+const { createClient } = require("@supabase/supabase-js");
 const { verifyWizardAnalyzeAccess } = require("./_wizardAuth");
 const { getBillingSnapshot } = require("./_billingSnapshot");
 const { getSupabaseAdmin } = require("./_supabase");
@@ -24,6 +25,38 @@ function corsHeaders(extra = {}) {
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     ...extra,
   };
+}
+
+/** Never fails auth — invalid/missing JWT falls back to anonymous guest analysis (no 401). */
+async function resolveAnalyzeAuth(event, body) {
+  const accessTokenBody = body?.accessToken;
+  const authHeader = event.headers?.authorization || event.headers?.Authorization;
+  let token =
+    typeof accessTokenBody === "string" && accessTokenBody.trim() ? accessTokenBody.trim() : null;
+  if (!token && typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+    token = authHeader.slice(7).trim();
+  }
+  if (!token || token === "bypass") {
+    return { ok: true, bypass: true, userId: null, email: null, guestAnalyze: true };
+  }
+
+  const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anon) {
+    return { ok: true, bypass: true, userId: null, email: null, guestAnalyze: true };
+  }
+
+  const supabase = createClient(url, anon);
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+
+  if (error || !user) {
+    return { ok: true, bypass: true, userId: null, email: null, guestAnalyze: true };
+  }
+
+  return { ok: true, bypass: false, userId: user.id, email: user.email, guestAnalyze: false };
 }
 
 function detectMime(buf) {
@@ -293,6 +326,11 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || "{}");
+    console.log("ANALYZE RUNNING - ANONYMOUS OK");
+    await verifyWizardAnalyzeAccess(event);
+
+    const auth = await resolveAnalyzeAuth(event, body);
+
     const {
       fileBase64,
       fileType,
@@ -304,18 +342,8 @@ exports.handler = async (event) => {
       serviceType,
       hasEOB,
       priorContact,
-      accessToken,
       usageSessionId,
     } = body;
-
-    const auth = await verifyWizardAnalyzeAccess(accessToken);
-    if (!auth.ok) {
-      return {
-        statusCode: 401,
-        headers: corsHeaders(),
-        body: JSON.stringify({ success: false, error: auth.error }),
-      };
-    }
 
     const supabase = getSupabaseAdmin();
     let usageSessionIdToUse = null;
