@@ -89,9 +89,24 @@ exports.handler = async (event) => {
         ? String(emailFromBody).trim()
         : null;
 
+    const appealLineItem = jobId
+      ? [
+          {
+            price_data: {
+              currency: "usd",
+              unit_amount: 2900,
+              product_data: {
+                name: "Medical bill dispute appeal",
+              },
+            },
+            quantity: 1,
+          },
+        ]
+      : [{ price: priceId, quantity: 1 }];
+
     const sessionPayload = {
       payment_method_types: ["card"],
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: appealLineItem,
       mode: "payment",
       customer_creation: "always",
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,

@@ -59,7 +59,9 @@ async function run() {
     return;
   }
 
-  if (!data.unlocked || !data.letter_full) {
+  console.log("JOB AFTER PAYMENT:", data);
+
+  if (!data.is_unlocked || !data.letter_full) {
     document.getElementById("result-main").style.display = "block";
     document.getElementById("result-locked").style.display = "block";
     const back = document.getElementById("result-back-preview");
@@ -68,6 +70,7 @@ async function run() {
   }
 
   document.getElementById("result-main").style.display = "block";
+  document.getElementById("result-locked").style.display = "none";
   const lb = document.getElementById("letter-body");
   if (lb) lb.textContent = data.letter_full;
 

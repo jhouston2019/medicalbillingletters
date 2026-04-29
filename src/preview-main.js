@@ -28,7 +28,7 @@ async function startCheckoutForJob(jobId) {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = "Get Your Full Appeal — $59";
+      btn.textContent = "Get Your Full Appeal — $29";
     }
   }
 }

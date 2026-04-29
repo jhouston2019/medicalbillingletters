@@ -328,16 +328,19 @@ exports.handler = async (event) => {
         : null;
 
     if (jobIdMeta) {
-      const { error: jobUnlockErr } = await supabase
+      const { data: jobAfterPayment, error: jobUnlockErr } = await supabase
         .from("medical_bill_jobs")
         .update({
           paid: true,
+          is_unlocked: true,
           user_id: userId,
           stripe_checkout_session_id: sessionId,
           updated_at: new Date().toISOString(),
         })
         .eq("id", jobIdMeta)
-        .eq("paid", false);
+        .select("id, paid, is_unlocked, user_id");
+
+      console.log("[create-account-from-payment] JOB AFTER PAYMENT:", jobAfterPayment);
 
       if (jobUnlockErr) {
         console.warn("[create-account-from-payment] medical_bill_jobs unlock", jobUnlockErr.message);

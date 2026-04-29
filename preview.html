@@ -7,8 +7,7 @@
   <style>
     .preview-locked {
       position: relative;
-      max-height: 300px;
-      overflow: hidden;
+      max-height: none;
     }
 
     .preview-locked::after {
@@ -17,13 +16,10 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 120px;
-      background: linear-gradient(to bottom, rgba(10, 20, 40, 0), rgba(10, 20, 40, 1));
-    }
-
-    .preview-locked.blur {
-      filter: blur(4px);
-      pointer-events: none;
+      height: 65%;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      background: linear-gradient(to bottom, rgba(10, 20, 40, 0), rgba(10, 20, 40, 0.95));
     }
   </style>
 </head>
@@ -43,14 +39,14 @@
       <p id="preview-summary" style="color:#cbd5e1; margin-bottom:1.5rem;"></p>
       <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
         <p style="margin:0 0 0.75rem; font-size:0.85rem; color:#94a3b8;">Personalized excerpt</p>
-        <div class="preview-locked blur">
+        <div class="preview-locked">
           <div id="preview-excerpt" style="white-space:pre-wrap; color:#e2e8f0; font-size:0.95rem;"></div>
         </div>
       </div>
       <div id="preview-cta" style="background:#0f172a; border:2px dashed #475569; border-radius:12px; padding:1.5rem; text-align:center; margin-bottom:1.5rem;">
         <p style="margin:0 0 1rem; color:#94a3b8;">The rest of your dispute letter is locked until checkout completes.</p>
         <button type="button" id="preview-checkout" style="padding:14px 28px; border:none; border-radius:10px; background:#22c55e; color:#fff; font-weight:800; font-size:1.1rem; cursor:pointer;">
-          Get Your Full Appeal — $59
+          Get Your Full Appeal — $29
         </button>
         <p style="margin:1rem 0 0; font-size:0.85rem; color:#64748b;">Secure payment via Stripe. One appeal per purchase.</p>
       </div>

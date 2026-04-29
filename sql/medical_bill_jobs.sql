@@ -11,9 +11,14 @@ CREATE TABLE IF NOT EXISTS medical_bill_jobs (
   letter_full TEXT NOT NULL DEFAULT '',
   preview_text TEXT NOT NULL,
   paid BOOLEAN NOT NULL DEFAULT FALSE,
+  is_unlocked BOOLEAN NOT NULL DEFAULT FALSE,
   stripe_checkout_session_id TEXT UNIQUE,
   hard_stop BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+-- Existing databases (run once):
+-- ALTER TABLE medical_bill_jobs ADD COLUMN IF NOT EXISTS is_unlocked BOOLEAN NOT NULL DEFAULT FALSE;
+-- UPDATE medical_bill_jobs SET is_unlocked = true WHERE paid = true AND is_unlocked = false;
 
 CREATE INDEX IF NOT EXISTS idx_medical_bill_jobs_user_id ON medical_bill_jobs (user_id);
 

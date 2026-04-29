@@ -54,7 +54,7 @@ exports.handler = async (event) => {
   const { data: job, error } = await supabase
     .from("medical_bill_jobs")
     .select(
-      "id, created_at, user_id, analysis_json, strategy_json, wizard_json, letter_full, preview_text, paid, hard_stop"
+      "id, created_at, user_id, analysis_json, strategy_json, wizard_json, letter_full, preview_text, paid, is_unlocked, hard_stop"
     )
     .eq("id", jobId)
     .maybeSingle();
@@ -76,7 +76,9 @@ exports.handler = async (event) => {
     };
   }
 
-  const unlocked = job.paid === true;
+  const isUnlocked = job.is_unlocked === true || job.paid === true;
+
+  const unlocked = isUnlocked;
 
   const summaryForUser = job.analysis_json?.summaryForUser || "";
   const out = {
@@ -87,6 +89,8 @@ exports.handler = async (event) => {
     analysis_summary: summaryForUser,
     regulatory_hooks: job.analysis_json?.regulatoryHooks || [],
     preview_text: job.preview_text,
+    paid: job.paid === true,
+    is_unlocked: isUnlocked,
     unlocked,
     locked: !unlocked,
     letter_full: unlocked ? job.letter_full : null,

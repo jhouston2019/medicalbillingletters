@@ -170,6 +170,7 @@ exports.handler = async (event) => {
     letter_full: letterFull,
     preview_text: previewText || "Preview unavailable.",
     paid,
+    is_unlocked: paid,
     hard_stop: hardStop,
   };
 
