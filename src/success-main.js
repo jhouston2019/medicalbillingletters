@@ -5,6 +5,9 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+const AUTO_REDIRECT_SEC = 12;
+let autoRedirectTimerId = null;
+
 function setStatus(msg) {
   const el = document.getElementById("success-status");
   if (el) el.textContent = msg;
@@ -36,11 +39,51 @@ function showFallback(show, sessionId, extraHint) {
 }
 
 function showFailure(message, sessionId) {
+  stopAutoRedirect();
+  const ready = document.getElementById("success-ready");
+  if (ready) ready.style.display = "none";
   setStatus("");
   showError(true);
   showFallback(true, sessionId, "");
   const errEl = document.getElementById("success-error-msg");
   if (errEl) errEl.textContent = message;
+}
+
+function stopAutoRedirect() {
+  if (autoRedirectTimerId != null) {
+    clearInterval(autoRedirectTimerId);
+    autoRedirectTimerId = null;
+  }
+}
+
+function goToWizard() {
+  stopAutoRedirect();
+  window.location.replace("/upload.html");
+}
+
+function showReadyState() {
+  const ready = document.getElementById("success-ready");
+  const heroSub = document.getElementById("success-hero-sub");
+  const autoEl = document.getElementById("success-autoredirect");
+  setStatus("");
+  if (heroSub) {
+    heroSub.textContent = "You're all set. Use the button below when you're ready to start the wizard.";
+  }
+  if (ready) ready.style.display = "block";
+
+  let remaining = AUTO_REDIRECT_SEC;
+  const tick = () => {
+    if (remaining <= 0) {
+      goToWizard();
+      return;
+    }
+    if (autoEl) {
+      autoEl.textContent = `Or we'll open the wizard automatically in ${remaining} second${remaining === 1 ? "" : "s"}…`;
+    }
+    remaining -= 1;
+  };
+  tick();
+  autoRedirectTimerId = setInterval(tick, 1000);
 }
 
 async function run() {
@@ -54,6 +97,12 @@ async function run() {
   setStatus("Verifying payment…");
   showError(false);
   showFallback(false, sessionId, "");
+  const readyEl = document.getElementById("success-ready");
+  if (readyEl) readyEl.style.display = "none";
+  const heroSub = document.getElementById("success-hero-sub");
+  if (heroSub) {
+    heroSub.textContent = "Setting up your account…";
+  }
 
   const verifyRes = await fetch("/.netlify/functions/verify-payment", {
     method: "POST",
@@ -104,12 +153,14 @@ async function run() {
     sessionStorage.setItem("last_checkout_session_id", sessionId);
   } catch (_) {}
 
-  window.location.replace("/upload.html");
+  showReadyState();
 }
 
 document.getElementById("success-retry")?.addEventListener("click", () => {
   window.location.reload();
 });
+
+document.getElementById("success-continue")?.addEventListener("click", () => goToWizard());
 
 run().catch((e) => {
   console.error(e);
