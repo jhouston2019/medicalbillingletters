@@ -66,9 +66,8 @@ async function run() {
 
   const exc = document.getElementById("preview-excerpt");
   if (exc) {
-    const full = data.letter_full || data.letter_preview_first || "";
-    const firstParagraph = full.split(/\n\n/)[0]?.trim() || full;
-    exc.textContent = firstParagraph;
+    const full = data.letter_full || "";
+    exc.textContent = full;
   }
 
   if (data.hard_stop === true) {
