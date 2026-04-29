@@ -80,7 +80,7 @@ async function run() {
 
   const { error: setErr } = await supabase.auth.setSession({
     access_token: accData.access_token,
-    refresh_token: accData.refresh_token ?? "",
+    refresh_token: accData.refresh_token,
   });
 
   if (setErr) {
@@ -89,14 +89,9 @@ async function run() {
     return;
   }
 
-  const job_id = verifyData.job_id || accData.job_id;
-  setHeroProcessing("Redirecting…");
+  await new Promise((r) => setTimeout(r, 500));
 
-  if (job_id) {
-    window.location.href = `/result/${job_id}`;
-  } else {
-    window.location.replace("/upload");
-  }
+  window.location.href = `/dashboard`;
 }
 
 document.getElementById("success-retry")?.addEventListener("click", () => {

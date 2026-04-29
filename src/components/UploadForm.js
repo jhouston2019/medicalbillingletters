@@ -117,6 +117,18 @@ export async function getUserDocuments(userId) {
   return data || [];
 }
 
+/** Dashboard: appeals saved as medical_bill_jobs (linked by user_id after checkout). */
+export async function getUserMedicalBillJobs(userId) {
+  console.log("DASHBOARD USER:", userId);
+  const { data } = await supabase
+    .from("medical_bill_jobs")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  console.log("DASHBOARD DATA:", data);
+  return data || [];
+}
+
 /**
  * Get a specific document by ID
  * @param {string} documentId - The document ID

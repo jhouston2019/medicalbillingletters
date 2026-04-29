@@ -65,7 +65,7 @@
     </div>
 
     <script type="module">
-        import { getUserDocuments } from './src/components/UploadForm.js';
+        import { getUserMedicalBillJobs } from './src/components/UploadForm.js';
         import { getCurrentUser } from './src/components/Auth.js';
 
         function readSupabaseAccessTokenFromStorage() {
@@ -102,7 +102,7 @@
         async function loadUserData() {
             try {
                 // Load user documents
-                const documents = await getUserDocuments(currentUser.id);
+                const documents = await getUserMedicalBillJobs(currentUser.id);
                 displayRecentLetters(documents);
                 
                 // Update account status
@@ -133,14 +133,30 @@
                 row.style.cssText = 'border: 1px solid #334155; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background:#0f172a;';
                 const strong = document.createElement('strong');
                 strong.style.color = '#ffffff';
-                strong.textContent = doc.file_name != null ? String(doc.file_name) : '';
+                const title =
+                  doc.file_name != null && String(doc.file_name).trim()
+                    ? String(doc.file_name)
+                    : doc.preview_text
+                      ? String(doc.preview_text).replace(/\s+/g, ' ').trim().slice(0, 72) +
+                        (String(doc.preview_text).length > 72 ? '…' : '')
+                      : 'Medical bill appeal';
+                strong.textContent = title;
                 const br = document.createElement('br');
                 const small = document.createElement('small');
                 small.style.color = '#94a3b8';
-                small.textContent = 'Uploaded: ' + new Date(doc.created_at).toLocaleDateString();
+                small.textContent = 'Created: ' + new Date(doc.created_at).toLocaleDateString();
                 row.appendChild(strong);
                 row.appendChild(br);
                 row.appendChild(small);
+                if (doc.id) {
+                    const br2 = document.createElement('br');
+                    const link = document.createElement('a');
+                    link.href = '/result/' + encodeURIComponent(doc.id);
+                    link.textContent = 'View appeal →';
+                    link.style.cssText = 'color:#93c5fd; font-weight:600; margin-top:0.35rem; display:inline-block;';
+                    row.appendChild(br2);
+                    row.appendChild(link);
+                }
                 container.appendChild(row);
             });
         }
