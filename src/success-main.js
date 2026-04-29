@@ -15,6 +15,34 @@ function showError(show) {
   if (el) el.style.display = show ? "block" : "none";
 }
 
+function showFallback(show, sessionId, extraHint) {
+  const box = document.getElementById("success-fallback");
+  const hint = document.getElementById("success-fallback-hint");
+  const uploadLink = document.getElementById("success-upload-link");
+  if (!box) return;
+  box.style.display = show ? "block" : "none";
+  if (show && sessionId && uploadLink) {
+    try {
+      sessionStorage.setItem("last_checkout_session_id", sessionId);
+    } catch (_) {}
+    uploadLink.href = "/upload.html";
+  }
+  if (hint) {
+    hint.textContent = show
+      ? extraHint ||
+        "Payment may still be processing, or auto-login hit a configuration issue. Try Retry, or log in with the same email you used at checkout."
+      : "";
+  }
+}
+
+function showFailure(message, sessionId) {
+  setStatus("");
+  showError(true);
+  showFallback(true, sessionId, "");
+  const errEl = document.getElementById("success-error-msg");
+  if (errEl) errEl.textContent = message;
+}
+
 async function run() {
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get("session_id");
@@ -25,6 +53,7 @@ async function run() {
 
   setStatus("Verifying payment…");
   showError(false);
+  showFallback(false, sessionId, "");
 
   const verifyRes = await fetch("/.netlify/functions/verify-payment", {
     method: "POST",
@@ -35,12 +64,9 @@ async function run() {
   const verifyData = await verifyRes.json().catch(() => ({}));
 
   if (!verifyRes.ok || verifyData.success !== true || verifyData.paid !== true || !verifyData.email) {
-    setStatus("");
-    showError(true);
-    const errEl = document.getElementById("success-error-msg");
-    if (errEl) {
-      errEl.textContent = verifyData.error || "Verification failed.";
-    }
+    const msg =
+      [verifyData.error, verifyData.details].filter(Boolean).join(" — ") || "Verification failed.";
+    showFailure(msg, sessionId);
     return;
   }
 
@@ -55,25 +81,22 @@ async function run() {
   const accData = await accRes.json().catch(() => ({}));
 
   if (!accRes.ok || accData.success !== true || !accData.access_token) {
-    setStatus("");
-    showError(true);
-    const errEl = document.getElementById("success-error-msg");
-    if (errEl) {
-      errEl.textContent = accData.error || "Could not complete signup.";
-    }
+    const msg =
+      [accData.error, accData.details].filter(Boolean).join(" — ") || "Could not complete signup.";
+    showFailure(msg, sessionId);
     return;
   }
 
   const { error: setErr } = await supabase.auth.setSession({
     access_token: accData.access_token,
-    refresh_token: accData.refresh_token,
+    refresh_token: accData.refresh_token ?? "",
   });
 
   if (setErr) {
-    setStatus("");
-    showError(true);
-    const errEl = document.getElementById("success-error-msg");
-    if (errEl) errEl.textContent = setErr.message || "Could not save session.";
+    showFailure(
+      [setErr.message, "Browser could not store the session."].filter(Boolean).join(" "),
+      sessionId
+    );
     return;
   }
 
@@ -90,8 +113,7 @@ document.getElementById("success-retry")?.addEventListener("click", () => {
 
 run().catch((e) => {
   console.error(e);
-  setStatus("");
-  showError(true);
-  const errEl = document.getElementById("success-error-msg");
-  if (errEl) errEl.textContent = e.message || "Something went wrong.";
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get("session_id");
+  showFailure(e.message || "Something went wrong.", sessionId || undefined);
 });

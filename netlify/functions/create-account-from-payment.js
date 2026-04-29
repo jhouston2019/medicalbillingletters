@@ -96,15 +96,49 @@ async function findAuthUserByEmail(supabaseAdmin, email) {
   }
 }
 
-async function issueSessionTokens(email, password) {
+async function issueSessionTokens(supabaseAdmin, email, password) {
   const anon = getSupabaseAnon();
-  const { data, error } = await anon.auth.signInWithPassword({ email, password });
-  if (error || !data?.session) {
-    throw new Error(error?.message || "Could not create session");
+  const signIn = await anon.auth.signInWithPassword({ email, password });
+  if (!signIn.error && signIn.data?.session) {
+    return {
+      access_token: signIn.data.session.access_token,
+      refresh_token: signIn.data.session.refresh_token,
+    };
   }
+
+  console.warn("[create-account-from-payment] signInWithPassword:", signIn.error?.message);
+
+  const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+  });
+
+  const tokenHash = linkData?.properties?.hashed_token;
+  if (linkErr || !tokenHash) {
+    const msg = [
+      signIn.error?.message,
+      linkErr?.message,
+      !tokenHash ? "generateLink missing hashed_token" : null,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+    throw new Error(msg || "Could not create session");
+  }
+
+  const otp = await anon.auth.verifyOtp({
+    type: "email",
+    token_hash: tokenHash,
+  });
+
+  if (otp.error || !otp.data?.session) {
+    throw new Error(
+      [otp.error?.message, signIn.error?.message].filter(Boolean).join(" | ") || "Could not create session"
+    );
+  }
+
   return {
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
+    access_token: otp.data.session.access_token,
+    refresh_token: otp.data.session.refresh_token,
   };
 }
 
@@ -191,7 +225,10 @@ exports.handler = async (event) => {
 
     if (existingUser?.id) {
       userId = existingUser.id;
-      const { error: updErr } = await supabase.auth.admin.updateUserById(userId, { password });
+      const { error: updErr } = await supabase.auth.admin.updateUserById(userId, {
+        password,
+        email_confirm: true,
+      });
       if (updErr) {
         console.error("[create-account-from-payment] updateUserById", updErr);
         return {
@@ -212,7 +249,10 @@ exports.handler = async (event) => {
         const again = await findAuthUserByEmail(supabase, email);
         if (again?.id) {
           userId = again.id;
-          const { error: updErr } = await supabase.auth.admin.updateUserById(userId, { password });
+          const { error: updErr } = await supabase.auth.admin.updateUserById(userId, {
+            password,
+            email_confirm: true,
+          });
           if (updErr) {
             console.error("[create-account-from-payment] update after race", updErr);
             return {
@@ -317,13 +357,18 @@ exports.handler = async (event) => {
 
     let tokens;
     try {
-      tokens = await issueSessionTokens(email, password);
+      tokens = await issueSessionTokens(supabase, email, password);
     } catch (e) {
       console.error("[create-account-from-payment] signIn", e);
+      const msg = e instanceof Error ? e.message : String(e);
       return {
         statusCode: 500,
         headers: cors(),
-        body: JSON.stringify({ success: false, error: "Could not establish session" }),
+        body: JSON.stringify({
+          success: false,
+          error: "Could not establish session",
+          details: msg,
+        }),
       };
     }
 
