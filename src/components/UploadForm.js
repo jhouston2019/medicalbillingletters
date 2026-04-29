@@ -117,15 +117,20 @@ export async function getUserDocuments(userId) {
   return data || [];
 }
 
-/** Dashboard: appeals saved as medical_bill_jobs (linked by user_id after checkout). */
+/** Dashboard: unlocked appeals linked by user_id (after checkout). */
 export async function getUserMedicalBillJobs(userId) {
-  console.log("DASHBOARD USER:", userId);
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("medical_bill_jobs")
-    .select("*")
+    .select("id, created_at, letter_full")
     .eq("user_id", userId)
+    .eq("is_unlocked", true)
     .order("created_at", { ascending: false });
-  console.log("DASHBOARD DATA:", data);
+
+  if (error) {
+    console.error("Failed to fetch medical bill appeals:", error);
+    throw new Error(`Failed to fetch appeals: ${error.message}`);
+  }
+
   return data || [];
 }
 

@@ -33,16 +33,16 @@
         </div>
 
         <div id="billing-panel" style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:2rem; max-width:720px;">
-            <h2 style="margin:0 0 0.75rem; font-size:1.15rem; color:#f8fafc;">Plan &amp; usage</h2>
+            <h2 style="margin:0 0 0.75rem; font-size:1.15rem; color:#f8fafc;">Plan</h2>
             <p id="billing-panel-body" style="margin:0; color:#94a3b8;">Loading billing…</p>
-            <a href="/pricing" style="display:inline-block; margin-top:1rem; color:#93c5fd; font-weight:600; text-decoration:none;">Upgrade or add reviews →</a>
+            <a href="/pricing" style="display:inline-block; margin-top:1rem; color:#93c5fd; font-weight:600; text-decoration:none;">Upgrade plan →</a>
         </div>
         
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; margin:2rem 0;">
             <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
-                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Recent Letters</h3>
+                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Your appeals</h3>
                 <div id="recentLetters">
-                    <p style="color:#94a3b8;">Loading your letters...</p>
+                    <p style="color:#94a3b8;">Loading appeals…</p>
                 </div>
                 <a href="/upload" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; margin-top:1rem; border:1px solid #475569;">New dispute wizard</a>
             </div>
@@ -96,62 +96,58 @@
             // Payment verification happens server-side on API calls
             // No client-side checks - all enforcement in backend
             
-            await loadUserData();
+                await loadUserData(currentUser);
         });
         
-        async function loadUserData() {
+        async function loadUserData(user) {
             try {
-                // Load user documents
-                const documents = await getUserMedicalBillJobs(currentUser.id);
-                displayRecentLetters(documents);
-                
-                // Update account status
-                await updateAccountStatus();
-                
+                const appeals = await getUserMedicalBillJobs(user.id);
+                displayRecentAppeals(appeals);
+                await updateAccountStatus(appeals.length);
             } catch (error) {
                 console.error('Failed to load user data:', error);
-                document.getElementById('recentLetters').innerHTML = '<p style="color:#94a3b8;">Failed to load letters</p>';
+                document.getElementById('recentLetters').innerHTML = '<p style="color:#94a3b8;">Failed to load appeals</p>';
             }
         }
-        
-        function displayRecentLetters(documents) {
+
+        function letterPreviewSnippet(letterFull) {
+            if (!letterFull || typeof letterFull !== 'string') return 'Medical bill appeal';
+            const t = letterFull.replace(/\s+/g, ' ').trim();
+            if (!t) return 'Medical bill appeal';
+            return t.length > 96 ? t.slice(0, 96) + '…' : t;
+        }
+
+        function displayRecentAppeals(appeals) {
             const container = document.getElementById('recentLetters');
-            
-            if (documents.length === 0) {
+
+            if (!appeals || appeals.length === 0) {
                 container.innerHTML = `
                 <div style="text-align:center; padding:2rem;">
                   <div style="font-size:3rem; margin-bottom:1rem;" aria-hidden="true">&#128196;</div>
                   <p style="color:#94a3b8; margin-bottom:1.5rem;">No dispute letters yet.</p>
-                  <a href="/upload" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">Start Your Appeal</a>
+                  <a href="/upload" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">Start your appeal</a>
                 </div>`;
                 return;
             }
-            
+
             container.replaceChildren();
-            documents.slice(0, 5).forEach((doc) => {
+            appeals.slice(0, 5).forEach((rowData) => {
                 const row = document.createElement('div');
                 row.style.cssText = 'border: 1px solid #334155; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background:#0f172a;';
                 const strong = document.createElement('strong');
                 strong.style.color = '#ffffff';
-                const title =
-                  doc.file_name != null && String(doc.file_name).trim()
-                    ? String(doc.file_name)
-                    : doc.preview_text
-                      ? String(doc.preview_text).replace(/\s+/g, ' ').trim().slice(0, 72) +
-                        (String(doc.preview_text).length > 72 ? '…' : '')
-                      : 'Medical bill appeal';
-                strong.textContent = title;
+                strong.textContent = letterPreviewSnippet(rowData.letter_full);
                 const br = document.createElement('br');
                 const small = document.createElement('small');
                 small.style.color = '#94a3b8';
-                small.textContent = 'Created: ' + new Date(doc.created_at).toLocaleDateString();
+                small.textContent = 'Created: ' + new Date(rowData.created_at).toLocaleDateString();
                 row.appendChild(strong);
                 row.appendChild(br);
                 row.appendChild(small);
-                if (doc.id) {
+                if (rowData.id) {
                     const br2 = document.createElement('br');
                     const link = document.createElement('a');
-                    link.href = '/result/' + encodeURIComponent(doc.id);
+                    link.href = '/result/' + encodeURIComponent(rowData.id);
                     link.textContent = 'View appeal →';
                     link.style.cssText = 'color:#93c5fd; font-weight:600; margin-top:0.35rem; display:inline-block;';
                     row.appendChild(br2);
@@ -161,12 +157,12 @@
             });
         }
         
-        async function updateAccountStatus() {
+        async function updateAccountStatus(appealsCreatedCount) {
             const statusDiv = document.getElementById('accountStatus');
             const billingEl = document.getElementById('billing-panel-body');
             let planLabel = '\u2014';
-            let renewalText = '\u2014';
-            let usageText = '\u2014';
+
+            let billingFilled = false;
 
             const token = readSupabaseAccessTokenFromStorage();
             if (token) {
@@ -178,26 +174,26 @@
                     if (res.ok && b && !b.error) {
                         planLabel = (b.plan_type || '—').toString();
                         const paid = b.paid === true ? 'Active' : b.paid === false ? 'Not paid' : '—';
-                        renewalText = b.renewal_at
+                        const renewalText = b.renewal_at
                             ? new Date(b.renewal_at).toLocaleDateString()
                             : 'One-time / not set';
-                        const u = b.usage || {};
-                        if (u.limit == null && u.used != null) {
-                            usageText = `${u.used} reviews (unlimited plan)`;
-                        } else if (u.limit != null) {
-                            usageText = `${u.used} of ${u.limit} reviews`;
-                        } else {
-                            usageText = '—';
-                        }
                         if (billingEl) {
                             billingEl.innerHTML =
                                 '<strong style="color:#e2e8f0;">Plan:</strong> ' + planLabel +
                                 ' · <strong style="color:#e2e8f0;">Billing:</strong> ' + paid +
                                 '<br><strong style="color:#e2e8f0;">Renewal:</strong> ' + renewalText +
-                                '<br><strong style="color:#e2e8f0;">Usage:</strong> ' + usageText;
+                                '<br><strong style="color:#e2e8f0;">Appeals created:</strong> ' +
+                                (typeof appealsCreatedCount === 'number' ? appealsCreatedCount : '—');
+                            billingFilled = true;
                         }
                     }
                 } catch (_) {}
+            }
+
+            if (billingEl && !billingFilled) {
+                billingEl.innerHTML =
+                    '<strong style="color:#e2e8f0;">Appeals created:</strong> ' +
+                    (typeof appealsCreatedCount === 'number' ? appealsCreatedCount : '—');
             }
 
             statusDiv.innerHTML = `
