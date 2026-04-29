@@ -344,8 +344,9 @@ exports.handler = async (event) => {
         .update({
           paid: true,
           is_unlocked: true,
+          user_id: userId,
         })
-        .eq("id", job_id);
+        .eq("id", String(job_id).trim());
     }
 
     if (fin?.already !== true) {
