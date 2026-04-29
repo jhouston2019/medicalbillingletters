@@ -67,7 +67,7 @@ function showReadyState() {
   const autoEl = document.getElementById("success-autoredirect");
   setStatus("");
   if (heroSub) {
-    heroSub.textContent = "You're all set. Use the button below when you're ready to start the wizard.";
+    heroSub.textContent = "You're signed in. Continue below to open the wizard.";
   }
   if (ready) ready.style.display = "block";
 
