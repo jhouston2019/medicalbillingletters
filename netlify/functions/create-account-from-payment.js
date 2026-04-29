@@ -157,9 +157,9 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || "{}");
-    const sessionIdRaw = body.sessionId || body.session_id;
+    const session_id = String(body.session_id ?? body.sessionId ?? "").trim();
     const emailRaw = body.email;
-    if (!sessionIdRaw || typeof sessionIdRaw !== "string") {
+    if (!session_id) {
       return {
         statusCode: 400,
         headers: cors(),
@@ -173,12 +173,11 @@ exports.handler = async (event) => {
         body: JSON.stringify({ success: false, error: "email required" }),
       };
     }
-    const sessionId = sessionIdRaw.trim();
     const email = normalizeEmail(emailRaw);
 
     let session;
     try {
-      session = await stripe.checkout.sessions.retrieve(sessionId, {
+      session = await stripe.checkout.sessions.retrieve(session_id, {
         expand: ["customer", "subscription", "line_items.data.price"],
       });
     } catch (e) {
@@ -281,7 +280,7 @@ exports.handler = async (event) => {
     const currency = session.currency != null ? String(session.currency) : null;
 
     const { data: fin, error: finErr } = await supabase.rpc("finalize_verified_checkout", {
-      p_session_id: sessionId,
+      p_session_id: session_id,
       p_user_id: userId,
       p_stripe_customer_id: stripeCustomerId,
       p_plan_type: planType,
@@ -322,8 +321,6 @@ exports.handler = async (event) => {
       };
     }
 
-    const session_id = sessionId;
-
     let refreshed = session;
     try {
       refreshed = await stripe.checkout.sessions.retrieve(session_id);
@@ -341,6 +338,8 @@ exports.handler = async (event) => {
       );
     } else {
       const jobUuid = String(job_id).trim();
+
+      console.log("UNLOCKING JOB:", job_id);
 
       const { data, error } = await supabase
         .from("medical_bill_jobs")
@@ -376,7 +375,7 @@ exports.handler = async (event) => {
 
       const { error: logErr } = await supabase.from("payment_events").insert({
         user_id: userId,
-        session_id: sessionId,
+        session_id: session_id,
         event_type: "payment_verified",
         stripe_event_id: null,
         risk_flag: riskFlag,

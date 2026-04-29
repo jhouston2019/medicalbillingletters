@@ -34,8 +34,8 @@ function showFailure(message) {
 
 async function run() {
   const params = new URLSearchParams(window.location.search);
-  const sessionId = params.get("session_id");
-  if (!sessionId) {
+  const session_id = params.get("session_id");
+  if (!session_id) {
     window.location.replace("/upload");
     return;
   }
@@ -47,7 +47,7 @@ async function run() {
   const verifyRes = await fetch("/.netlify/functions/verify-payment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId }),
+    body: JSON.stringify({ session_id }),
   });
 
   const verifyData = await verifyRes.json().catch(() => ({}));
@@ -65,7 +65,7 @@ async function run() {
   const accRes = await fetch("/.netlify/functions/create-account-from-payment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: verifyData.email, sessionId }),
+    body: JSON.stringify({ session_id, email: verifyData.email }),
   });
 
   const accData = await accRes.json().catch(() => ({}));
@@ -89,11 +89,11 @@ async function run() {
     return;
   }
 
-  const jobId = verifyData.job_id || accData.job_id;
+  const job_id = verifyData.job_id || accData.job_id;
   setHeroProcessing("Redirecting…");
 
-  if (jobId) {
-    window.location.replace(`/result/${jobId}`);
+  if (job_id) {
+    window.location.href = `/result/${job_id}`;
   } else {
     window.location.replace("/upload");
   }
