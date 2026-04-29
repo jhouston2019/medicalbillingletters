@@ -337,28 +337,15 @@ exports.handler = async (event) => {
         "[create-account-from-payment] No job_id on Stripe session.metadata — appeal stays locked."
       );
     } else {
-      const jobUuid = String(job_id).trim();
-
       console.log("UNLOCKING JOB:", job_id);
 
-      const { data, error } = await supabase
+      await supabase
         .from("medical_bill_jobs")
         .update({
           paid: true,
           is_unlocked: true,
-          stripe_session_id: session_id,
-          stripe_checkout_session_id: session_id,
-          user_id: userId,
-          updated_at: new Date().toISOString(),
         })
-        .eq("id", jobUuid)
-        .select("id, paid, is_unlocked");
-
-      console.log("UPDATE RESULT:", { data, error });
-
-      if (error) {
-        console.warn("[create-account-from-payment] medical_bill_jobs unlock", error.message);
-      }
+        .eq("id", job_id);
     }
 
     if (fin?.already !== true) {
