@@ -77,8 +77,10 @@ exports.handler = async (event) => {
   }
 
   const isUnlocked = job.is_unlocked === true || job.paid === true;
-
   const unlocked = isUnlocked;
+
+  const rawLetter = typeof job.letter_full === "string" ? job.letter_full : "";
+  const letterFirstParagraph = rawLetter.split(/\n\n+/)[0]?.trim() || "";
 
   const summaryForUser = job.analysis_json?.summaryForUser || "";
   const out = {
@@ -94,6 +96,7 @@ exports.handler = async (event) => {
     unlocked,
     locked: !unlocked,
     letter_full: unlocked ? job.letter_full : null,
+    letter_preview_first: unlocked ? null : letterFirstParagraph,
   };
 
   return {

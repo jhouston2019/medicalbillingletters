@@ -65,7 +65,11 @@ async function run() {
   if (sumEl) sumEl.textContent = data.analysis_summary || "";
 
   const exc = document.getElementById("preview-excerpt");
-  if (exc) exc.textContent = data.preview_text || "";
+  if (exc) {
+    const full = data.letter_full || data.letter_preview_first || "";
+    const firstParagraph = full.split(/\n\n/)[0]?.trim() || full;
+    exc.textContent = firstParagraph;
+  }
 
   if (data.hard_stop === true) {
     document.getElementById("preview-cta").style.display = "none";

@@ -322,12 +322,17 @@ exports.handler = async (event) => {
       };
     }
 
-    const jobIdMeta =
+    const job_id =
       session.metadata?.job_id != null && String(session.metadata.job_id).trim() !== ""
         ? String(session.metadata.job_id).trim()
-        : null;
+        : undefined;
 
-    if (jobIdMeta) {
+    if (!job_id) {
+      console.warn(
+        "[create-account-from-payment] No job_id on Stripe session.metadata — appeal stays locked. metadata:",
+        session.metadata || {}
+      );
+    } else {
       const { data: jobAfterPayment, error: jobUnlockErr } = await supabase
         .from("medical_bill_jobs")
         .update({
@@ -337,7 +342,7 @@ exports.handler = async (event) => {
           stripe_checkout_session_id: sessionId,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", jobIdMeta)
+        .eq("id", job_id)
         .select("id, paid, is_unlocked, user_id");
 
       console.log("[create-account-from-payment] JOB AFTER PAYMENT:", jobAfterPayment);
