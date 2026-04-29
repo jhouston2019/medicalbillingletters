@@ -68,7 +68,7 @@ async function run() {
   if (exc) exc.textContent = data.preview_text || "";
 
   if (data.hard_stop === true) {
-    document.getElementById("preview-locked").style.display = "none";
+    document.getElementById("preview-cta").style.display = "none";
     const hs = document.getElementById("preview-hardstop");
     hs.style.display = "block";
     document.getElementById("preview-hardstop-msg").textContent =
