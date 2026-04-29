@@ -322,33 +322,35 @@ exports.handler = async (event) => {
       };
     }
 
-    const job_id =
-      session.metadata?.job_id != null && String(session.metadata.job_id).trim() !== ""
-        ? String(session.metadata.job_id).trim()
-        : undefined;
+    // Checkout session loaded above via:
+    // const session = await stripe.checkout.sessions.retrieve(session_id, { expand: [...] });
+    const session_id = sessionId;
 
-    if (!job_id) {
+    const job_id = session.metadata?.job_id;
+
+    if (!job_id || String(job_id).trim() === "") {
       console.warn(
         "[create-account-from-payment] No job_id on Stripe session.metadata — appeal stays locked. metadata:",
         session.metadata || {}
       );
     } else {
-      const { data: jobAfterPayment, error: jobUnlockErr } = await supabase
+      console.log("UNLOCKING JOB:", { job_id, session_id });
+
+      const { data, error } = await supabase
         .from("medical_bill_jobs")
         .update({
           paid: true,
           is_unlocked: true,
+          stripe_checkout_session_id: session_id,
           user_id: userId,
-          stripe_checkout_session_id: sessionId,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", job_id)
-        .select("id, paid, is_unlocked, user_id");
+        .eq("id", String(job_id).trim());
 
-      console.log("[create-account-from-payment] JOB AFTER PAYMENT:", jobAfterPayment);
+      console.log("UPDATE RESULT:", { data, error });
 
-      if (jobUnlockErr) {
-        console.warn("[create-account-from-payment] medical_bill_jobs unlock", jobUnlockErr.message);
+      if (error) {
+        console.warn("[create-account-from-payment] medical_bill_jobs unlock", error.message);
       }
     }
 
