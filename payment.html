@@ -80,17 +80,10 @@
 
     <script type="module">
       import './src/main.js';
-      import { getSession } from './src/components/Auth.js';
       document.getElementById('payButton').addEventListener('click', async (e) => {
         const loading = document.getElementById('loading');
         if (loading) loading.style.display = 'block';
         try {
-          const session = await getSession();
-          if (!session?.access_token) {
-            alert('Please log in to continue.');
-            window.location.href = '/login.html?redirect=' + encodeURIComponent('/payment.html');
-            return;
-          }
           await window.startCheckout('single', e);
         } finally {
           if (loading) loading.style.display = 'none';

@@ -1,17 +1,16 @@
 /**
- * Authenticated: finalizes entitlements (JWT + session_id). Guest (no JWT): Stripe-only check; returns paid + email for post-checkout account creation.
+ * After Stripe Checkout: verify payment, create or resolve Supabase user, finalize entitlements, return session tokens.
+ * Does not send email; email_confirm is set server-side. Body email must match Stripe checkout session email.
  */
 
+const crypto = require("crypto");
 const Stripe = require("stripe");
+const { createClient } = require("@supabase/supabase-js");
 const { getSupabaseAdmin } = require("./_supabase");
-const { optionalAuth } = require("./_middleware/auth");
 const { normalizePlan } = require("./_billingSnapshot");
 const { expiresAtForPlan } = require("./_planExpiry");
-const { checkRateLimitDistributed, DEFAULT_MAX, WINDOW_SEC } = require("./_rateLimitRedis");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-const RATE_ACTION = "verify-payment";
 
 function cors(extra = {}) {
   return {
@@ -67,6 +66,48 @@ function stripePeriodEndIso(session) {
   return new Date(sec * 1000).toISOString();
 }
 
+function randomPassword() {
+  return crypto.randomBytes(24).toString("base64url");
+}
+
+function getSupabaseAnon() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error("SUPABASE_ANON_KEY is not configured");
+  }
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+async function findAuthUserByEmail(supabaseAdmin, email) {
+  const target = normalizeEmail(email);
+  let page = 1;
+  const perPage = 200;
+  for (;;) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+    const users = data?.users ?? [];
+    const u = users.find((x) => normalizeEmail(x.email) === target);
+    if (u) return u;
+    if (users.length < perPage) return null;
+    page += 1;
+  }
+}
+
+async function issueSessionTokens(email, password) {
+  const anon = getSupabaseAnon();
+  const { data, error } = await anon.auth.signInWithPassword({ email, password });
+  if (error || !data?.session) {
+    throw new Error(error?.message || "Could not create session");
+  }
+  return {
+    access_token: data.session.access_token,
+    refresh_token: data.session.refresh_token,
+  };
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: cors(), body: "" };
@@ -80,91 +121,26 @@ exports.handler = async (event) => {
     };
   }
 
-  const user = await optionalAuth(event);
-
   try {
     const body = JSON.parse(event.body || "{}");
     const sessionIdRaw = body.sessionId || body.session_id;
+    const emailRaw = body.email;
     if (!sessionIdRaw || typeof sessionIdRaw !== "string") {
       return {
-        statusCode: 403,
+        statusCode: 400,
         headers: cors(),
         body: JSON.stringify({ success: false, error: "session_id required" }),
       };
     }
+    if (!emailRaw || typeof emailRaw !== "string" || !normalizeEmail(emailRaw)) {
+      return {
+        statusCode: 400,
+        headers: cors(),
+        body: JSON.stringify({ success: false, error: "email required" }),
+      };
+    }
     const sessionId = sessionIdRaw.trim();
-
-    if (!user) {
-      let session;
-      try {
-        session = await stripe.checkout.sessions.retrieve(sessionId, {
-          expand: ["customer"],
-        });
-      } catch (e) {
-        return {
-          statusCode: 403,
-          headers: cors(),
-          body: JSON.stringify({ success: false, error: "Invalid Stripe session" }),
-        };
-      }
-
-      if (session.payment_status !== "paid") {
-        return {
-          statusCode: 403,
-          headers: cors(),
-          body: JSON.stringify({ success: false, error: "Payment not completed" }),
-        };
-      }
-
-      const email = checkoutEmailFromStripe(session);
-      if (!email) {
-        return {
-          statusCode: 403,
-          headers: cors(),
-          body: JSON.stringify({ success: false, error: "No email on checkout session" }),
-        };
-      }
-
-      return {
-        statusCode: 200,
-        headers: cors(),
-        body: JSON.stringify({ success: true, paid: true, email }),
-      };
-    }
-
-    const rl = await checkRateLimitDistributed(user.id, RATE_ACTION, DEFAULT_MAX, WINDOW_SEC);
-    if (!rl.ok) {
-      return {
-        statusCode: 429,
-        headers: cors({ "Retry-After": String(rl.retryAfterSec ?? 60) }),
-        body: JSON.stringify({ success: false, error: "Too many requests", retryAfterSec: rl.retryAfterSec }),
-      };
-    }
-
-    const supabase = getSupabaseAdmin();
-
-    const { data: fastDone, error: fastErr } = await supabase.rpc("session_verify_fast_path", {
-      p_session_id: sessionId,
-      p_user_id: user.id,
-    });
-
-    if (fastErr) {
-      console.error("[verify-payment] session_verify_fast_path", fastErr);
-      return {
-        statusCode: 403,
-        headers: cors(),
-        body: JSON.stringify({ success: false, error: "Verification failed" }),
-      };
-    }
-
-    if (fastDone === true) {
-      console.log("VERIFY_PAYMENT fast completed (no Stripe)", { sessionId, userId: user.id });
-      return {
-        statusCode: 200,
-        headers: cors(),
-        body: JSON.stringify({ success: true, paid: true }),
-      };
-    }
+    const email = normalizeEmail(emailRaw);
 
     let session;
     try {
@@ -187,12 +163,12 @@ exports.handler = async (event) => {
       };
     }
 
-    const metaUserId = session.metadata?.user_id;
-    if (!metaUserId || String(metaUserId) !== String(user.id)) {
+    const stripeEmail = checkoutEmailFromStripe(session);
+    if (!stripeEmail || stripeEmail !== email) {
       return {
         statusCode: 403,
         headers: cors(),
-        body: JSON.stringify({ success: false, error: "Session user mismatch" }),
+        body: JSON.stringify({ success: false, error: "Email does not match checkout session" }),
       };
     }
 
@@ -207,6 +183,55 @@ exports.handler = async (event) => {
       };
     }
 
+    const supabase = getSupabaseAdmin();
+    const password = randomPassword();
+
+    let userId;
+    const existingUser = await findAuthUserByEmail(supabase, email);
+
+    if (existingUser?.id) {
+      userId = existingUser.id;
+      const { error: updErr } = await supabase.auth.admin.updateUserById(userId, { password });
+      if (updErr) {
+        console.error("[create-account-from-payment] updateUserById", updErr);
+        return {
+          statusCode: 500,
+          headers: cors(),
+          body: JSON.stringify({ success: false, error: "Could not prepare account" }),
+        };
+      }
+    } else {
+      const { data: created, error: createErr } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+      if (!createErr && created?.user?.id) {
+        userId = created.user.id;
+      } else {
+        const again = await findAuthUserByEmail(supabase, email);
+        if (again?.id) {
+          userId = again.id;
+          const { error: updErr } = await supabase.auth.admin.updateUserById(userId, { password });
+          if (updErr) {
+            console.error("[create-account-from-payment] update after race", updErr);
+            return {
+              statusCode: 500,
+              headers: cors(),
+              body: JSON.stringify({ success: false, error: "Could not prepare account" }),
+            };
+          }
+        } else {
+          console.error("[create-account-from-payment] createUser", createErr);
+          return {
+            statusCode: 500,
+            headers: cors(),
+            body: JSON.stringify({ success: false, error: "Could not create account" }),
+          };
+        }
+      }
+    }
+
     const planType = planFromStripeSession(session);
     const periodEndIso = stripePeriodEndIso(session);
     const expiresAt = periodEndIso || expiresAtForPlan(planType);
@@ -217,7 +242,7 @@ exports.handler = async (event) => {
 
     const { data: fin, error: finErr } = await supabase.rpc("finalize_verified_checkout", {
       p_session_id: sessionId,
-      p_user_id: user.id,
+      p_user_id: userId,
       p_stripe_customer_id: stripeCustomerId,
       p_plan_type: planType,
       p_expires_at: expiresAt,
@@ -225,7 +250,7 @@ exports.handler = async (event) => {
     });
 
     if (finErr) {
-      console.error("[verify-payment] finalize_verified_checkout", finErr);
+      console.error("[create-account-from-payment] finalize_verified_checkout", finErr);
       return {
         statusCode: 403,
         headers: cors(),
@@ -245,7 +270,7 @@ exports.handler = async (event) => {
       return {
         statusCode: 403,
         headers: cors(),
-        body: JSON.stringify({ success: false, error: "Session does not belong to this user" }),
+        body: JSON.stringify({ success: false, error: "Session is tied to another account" }),
       };
     }
 
@@ -262,7 +287,7 @@ exports.handler = async (event) => {
       const { count: priorVerified } = await supabase
         .from("payment_events")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("event_type", "payment_verified")
         .gte("created_at", tenMinAgo);
 
@@ -270,7 +295,7 @@ exports.handler = async (event) => {
       const riskReason = riskFlag ? "rapid_checkout_pattern" : null;
 
       const { error: logErr } = await supabase.from("payment_events").insert({
-        user_id: user.id,
+        user_id: userId,
         session_id: sessionId,
         event_type: "payment_verified",
         stripe_event_id: null,
@@ -286,23 +311,37 @@ exports.handler = async (event) => {
         },
       });
       if (logErr) {
-        console.error("[verify-payment] payment_events insert", logErr);
+        console.error("[create-account-from-payment] payment_events insert", logErr);
       }
     }
 
-    console.log("VERIFY_PAYMENT finalized", { sessionId, userId: user.id, planType, already: fin?.already });
+    let tokens;
+    try {
+      tokens = await issueSessionTokens(email, password);
+    } catch (e) {
+      console.error("[create-account-from-payment] signIn", e);
+      return {
+        statusCode: 500,
+        headers: cors(),
+        body: JSON.stringify({ success: false, error: "Could not establish session" }),
+      };
+    }
 
     return {
       statusCode: 200,
       headers: cors(),
-      body: JSON.stringify({ success: true, paid: true }),
+      body: JSON.stringify({
+        success: true,
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+      }),
     };
-  } catch (error) {
-    console.error("verify-payment", error);
+  } catch (err) {
+    console.error("create-account-from-payment", err);
     return {
-      statusCode: 403,
+      statusCode: 500,
       headers: cors(),
-      body: JSON.stringify({ success: false, error: error.message || "Verification failed" }),
+      body: JSON.stringify({ success: false, error: err.message || "Failed" }),
     };
   }
 };

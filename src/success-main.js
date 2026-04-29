@@ -23,53 +23,65 @@ async function run() {
     return;
   }
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser(session?.access_token);
-
-  if (!session?.access_token) {
-    const redirect = encodeURIComponent(`${window.location.pathname}?session_id=${encodeURIComponent(sessionId)}`);
-    window.location.replace(`/login.html?redirect=${redirect}`);
-    return;
-  }
-
-  if (!user) {
-    const redirect = encodeURIComponent(`${window.location.pathname}?session_id=${encodeURIComponent(sessionId)}`);
-    window.location.replace(`/login.html?redirect=${redirect}`);
-    return;
-  }
-
   setStatus("Verifying payment…");
   showError(false);
 
-  const res = await fetch("/.netlify/functions/verify-payment", {
+  const verifyRes = await fetch("/.netlify/functions/verify-payment", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sessionId }),
   });
 
-  const data = await res.json().catch(() => ({}));
+  const verifyData = await verifyRes.json().catch(() => ({}));
 
-  if (res.ok && data.success === true && data.paid === true) {
-    try {
-      sessionStorage.setItem("last_checkout_session_id", sessionId);
-    } catch (_) {}
-    window.location.replace("/app");
+  if (!verifyRes.ok || verifyData.success !== true || verifyData.paid !== true || !verifyData.email) {
+    setStatus("");
+    showError(true);
+    const errEl = document.getElementById("success-error-msg");
+    if (errEl) {
+      errEl.textContent = verifyData.error || "Verification failed.";
+    }
     return;
   }
 
-  setStatus("");
-  showError(true);
-  const errEl = document.getElementById("success-error-msg");
-  if (errEl) {
-    errEl.textContent = data.error || "Verification failed.";
+  setStatus("Creating your account…");
+
+  const accRes = await fetch("/.netlify/functions/create-account-from-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: verifyData.email, sessionId }),
+  });
+
+  const accData = await accRes.json().catch(() => ({}));
+
+  if (!accRes.ok || accData.success !== true || !accData.access_token) {
+    setStatus("");
+    showError(true);
+    const errEl = document.getElementById("success-error-msg");
+    if (errEl) {
+      errEl.textContent = accData.error || "Could not complete signup.";
+    }
+    return;
   }
+
+  const { error: setErr } = await supabase.auth.setSession({
+    access_token: accData.access_token,
+    refresh_token: accData.refresh_token,
+  });
+
+  if (setErr) {
+    setStatus("");
+    showError(true);
+    const errEl = document.getElementById("success-error-msg");
+    if (errEl) errEl.textContent = setErr.message || "Could not save session.";
+    return;
+  }
+
+  try {
+    sessionStorage.setItem("last_checkout_session_id", sessionId);
+  } catch (_) {}
+
+  window.location.replace("/upload.html");
 }
 
 document.getElementById("success-retry")?.addEventListener("click", () => {

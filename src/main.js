@@ -54,17 +54,16 @@ function updateNavigationForGuest() {
   }
 }
 
-// Global checkout function for pricing buttons (requires logged-in user)
+// Global checkout — no login required; optional email when already signed in (Stripe may still collect email).
 window.startCheckout = async function(plan, ev) {
   const clickEv = ev || (typeof globalThis !== 'undefined' && globalThis.event) || null;
   const button = clickEv?.target;
   let originalText = '';
   try {
-    const session = await getSession();
-    if (!session?.access_token) {
-      alert('Please log in to continue to checkout.');
-      window.location.href = '/login.html?redirect=' + encodeURIComponent('/pricing');
-      return;
+    const user = await getCurrentUser();
+    const body = { plan: plan || 'single' };
+    if (user?.email) {
+      body.customer_email = user.email;
     }
 
     if (button) {
@@ -73,13 +72,16 @@ window.startCheckout = async function(plan, ev) {
       button.disabled = true;
     }
 
+    const headers = { 'Content-Type': 'application/json' };
+    const session = await getSession();
+    if (session?.access_token) {
+      headers.Authorization = 'Bearer ' + session.access_token;
+    }
+
     const response = await fetch('/.netlify/functions/create-checkout-session', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + session.access_token,
-      },
-      body: JSON.stringify({ plan: plan || 'single' }),
+      headers,
+      body: JSON.stringify(body),
     });
     
     const data = await response.json();
