@@ -31,6 +31,36 @@
   status = 200
 
 [[redirects]]
+  from = "/upload"
+  to = "/upload.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/preview/*"
+  to = "/preview.html"
+  status = 200
+
+[[redirects]]
+  from = "/result/*"
+  to = "/result.html"
+  status = 200
+
+[[redirects]]
+  from = "/api/create-checkout-session"
+  to = "/.netlify/functions/create-checkout-session"
+  status = 200
+
+[[redirects]]
   from = "/thank-you.html"
   to = "/success"
   status = 302

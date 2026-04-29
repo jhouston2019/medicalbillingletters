@@ -22,6 +22,8 @@ export default defineConfig({
         login: resolve(__dirname, 'login.html'),
         signup: resolve(__dirname, 'signup.html'),
         examples: resolve(__dirname, 'examples.html'),
+        preview: resolve(__dirname, 'preview.html'),
+        result: resolve(__dirname, 'result.html'),
       },
     },
   },

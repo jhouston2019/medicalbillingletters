@@ -4,7 +4,7 @@
 
 const OpenAI = require("openai");
 const pdfParse = require("pdf-parse");
-const { verifyWizardAccess } = require("./_wizardAuth");
+const { verifyWizardAnalyzeAccess } = require("./_wizardAuth");
 const { getBillingSnapshot } = require("./_billingSnapshot");
 const { getSupabaseAdmin } = require("./_supabase");
 
@@ -308,7 +308,7 @@ exports.handler = async (event) => {
       usageSessionId,
     } = body;
 
-    const auth = await verifyWizardAccess(accessToken);
+    const auth = await verifyWizardAnalyzeAccess(accessToken);
     if (!auth.ok) {
       return {
         statusCode: 401,

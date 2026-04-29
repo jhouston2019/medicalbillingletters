@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Dispute Letter — Medical Bill Dispute Pro</title>
+</head>
+<body style="background:#0f172a; color:#f8fafc; font-family:'Inter',sans-serif; margin:0; line-height:1.5;">
+  <nav style="background:#1e293b; padding:1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
+    <strong>Medical Bill Dispute Pro</strong>
+    <div>
+      <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a> |
+      <a href="/dashboard" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Dashboard</a>
+    </div>
+  </nav>
+
+  <main style="width:min(900px,92%); margin:0 auto; padding:2rem 0 3rem;">
+    <div id="result-loading" style="text-align:center; padding:3rem; color:#94a3b8;">Loading your letter…</div>
+    <div id="result-main" style="display:none;">
+      <h1 style="margin:0 0 1rem;">Your dispute letter</h1>
+      <div id="result-locked" style="display:none; padding:1.25rem; background:#422006; border:1px solid #ca8a04; border-radius:12px; color:#fef3c7; margin-bottom:1rem;">
+        This appeal is still locked. <a id="result-back-preview" href="#" style="color:#fde047;">Return to preview</a> to complete payment.
+      </div>
+      <div id="letter-body" style="min-height:200px; padding:1rem; background:#f8fafc; color:#0f172a; border-radius:8px; white-space:pre-wrap; font-size:0.95rem;"></div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1rem;">
+        <button type="button" id="btn-copy" style="padding:10px 16px; border:none; border-radius:8px; background:#3b82f6; color:#fff; font-weight:600; cursor:pointer;">Copy letter</button>
+        <button type="button" id="btn-pdf" style="padding:10px 16px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:600; cursor:pointer;">Download PDF</button>
+        <button type="button" id="btn-docx" style="padding:10px 16px; border:none; border-radius:8px; background:#64748b; color:#fff; font-weight:600; cursor:pointer;">Download DOCX</button>
+      </div>
+      <p style="margin-top:2rem; font-size:0.95rem;">
+        <a href="/dashboard" style="color:#93c5fd;">Open dashboard</a> for history (optional).
+      </p>
+    </div>
+    <div id="result-error" style="display:none; padding:1rem; background:#450a0a; border-radius:8px; color:#fecaca;"></div>
+  </main>
+
+  <footer style="padding:28px; background:#0b1220; color:#64748b; text-align:center;">
+    <p>&copy; 2026 Medical Bill Dispute Pro.</p>
+  </footer>
+
+  <script type="module" src="/src/result-main.js"></script>
+</body>
+</html>

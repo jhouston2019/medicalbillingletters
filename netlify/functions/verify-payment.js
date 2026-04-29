@@ -125,10 +125,20 @@ exports.handler = async (event) => {
         };
       }
 
+      const jobIdMeta =
+        session.metadata?.job_id != null && String(session.metadata.job_id).trim() !== ""
+          ? String(session.metadata.job_id).trim()
+          : null;
+
       return {
         statusCode: 200,
         headers: cors(),
-        body: JSON.stringify({ success: true, paid: true, email }),
+        body: JSON.stringify({
+          success: true,
+          paid: true,
+          email,
+          ...(jobIdMeta ? { job_id: jobIdMeta } : {}),
+        }),
       };
     }
 

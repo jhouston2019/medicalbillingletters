@@ -322,6 +322,28 @@ exports.handler = async (event) => {
       };
     }
 
+    const jobIdMeta =
+      session.metadata?.job_id != null && String(session.metadata.job_id).trim() !== ""
+        ? String(session.metadata.job_id).trim()
+        : null;
+
+    if (jobIdMeta) {
+      const { error: jobUnlockErr } = await supabase
+        .from("medical_bill_jobs")
+        .update({
+          paid: true,
+          user_id: userId,
+          stripe_checkout_session_id: sessionId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", jobIdMeta)
+        .eq("paid", false);
+
+      if (jobUnlockErr) {
+        console.warn("[create-account-from-payment] medical_bill_jobs unlock", jobUnlockErr.message);
+      }
+    }
+
     if (fin?.already !== true) {
       const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
       const { count: priorVerified } = await supabase

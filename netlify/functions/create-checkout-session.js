@@ -69,6 +69,10 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const plan = normalizePlanParam(body.plan || body.plan_type || "single");
     const priceId = priceIdForPlan(plan);
+    const jobIdRaw = body.job_id != null ? String(body.job_id).trim() : "";
+    const jobId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(jobIdRaw)
+      ? jobIdRaw
+      : "";
 
     if (!process.env.SITE_URL) {
       throw new Error("SITE_URL environment variable is not set");
@@ -91,9 +95,10 @@ exports.handler = async (event) => {
       mode: "payment",
       customer_creation: "always",
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${site}/pricing`,
+      cancel_url: jobId ? `${site}/preview/${jobId}` : `${site}/pricing`,
       metadata: {
         plan_type: plan,
+        ...(jobId ? { job_id: jobId } : {}),
       },
     };
 

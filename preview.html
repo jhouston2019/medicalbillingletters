@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview Your Appeal — Medical Bill Dispute Pro</title>
+</head>
+<body style="background:#0f172a; color:#f8fafc; font-family:'Inter',sans-serif; margin:0; line-height:1.5;">
+  <nav style="background:#1e293b; padding:1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
+    <strong>Medical Bill Dispute Pro</strong>
+    <div>
+      <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a> |
+      <a href="/upload" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Upload</a>
+    </div>
+  </nav>
+
+  <main style="width:min(900px,92%); margin:0 auto; padding:2rem 0 3rem;">
+    <div id="preview-loading" style="text-align:center; padding:3rem; color:#94a3b8;">Loading preview…</div>
+    <div id="preview-main" style="display:none;">
+      <h1 style="margin:0 0 1rem; font-size:1.75rem;">Your appeal preview</h1>
+      <p id="preview-summary" style="color:#cbd5e1; margin-bottom:1.5rem;"></p>
+      <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+        <p style="margin:0 0 0.75rem; font-size:0.85rem; color:#94a3b8;">Personalized excerpt</p>
+        <div id="preview-excerpt" style="white-space:pre-wrap; color:#e2e8f0; font-size:0.95rem;"></div>
+      </div>
+      <div id="preview-locked" style="background:#0f172a; border:2px dashed #475569; border-radius:12px; padding:1.5rem; text-align:center; margin-bottom:1.5rem;">
+        <p style="margin:0 0 1rem; color:#94a3b8;">The rest of your dispute letter is locked until checkout completes.</p>
+        <button type="button" id="preview-checkout" style="padding:14px 28px; border:none; border-radius:10px; background:#22c55e; color:#fff; font-weight:800; font-size:1.1rem; cursor:pointer;">
+          Get Your Full Appeal — $59
+        </button>
+        <p style="margin:1rem 0 0; font-size:0.85rem; color:#64748b;">Secure payment via Stripe. One appeal per purchase.</p>
+      </div>
+      <div id="preview-hardstop" style="display:none; padding:1.25rem; background:#450a0a; border:1px solid #991b1b; border-radius:12px; color:#fecaca;">
+        <p id="preview-hardstop-msg" style="margin:0;"></p>
+      </div>
+    </div>
+    <div id="preview-error" style="display:none; padding:1rem; background:#450a0a; border-radius:8px; color:#fecaca;"></div>
+  </main>
+
+  <footer style="padding:28px; background:#0b1220; color:#64748b; text-align:center;">
+    <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd;">Privacy</a></p>
+  </footer>
+
+  <script type="module" src="/src/preview-main.js"></script>
+</body>
+</html>

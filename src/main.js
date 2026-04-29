@@ -25,8 +25,8 @@ function updateNavigationForLoggedInUser(user) {
   const nav = document.querySelector('nav div:last-child');
   if (nav) {
     nav.innerHTML = `
-      <a href="/payment.html">Upload</a> |
-      <a href="/dashboard.html">Dashboard</a> |
+      <a href="/upload">Upload</a> |
+      <a href="/dashboard">Dashboard</a> |
       <a href="/pricing.html">Pricing</a> |
       <span>Welcome, ${user.email}</span> |
       <a href="#" id="logout">Logout</a>
@@ -46,16 +46,16 @@ function updateNavigationForGuest() {
   const nav = document.querySelector('nav div:last-child');
   if (nav) {
     nav.innerHTML = `
-      <a href="/payment.html">Upload</a> |
-      <a href="/dashboard.html">Dashboard</a> |
+      <a href="/upload">Upload</a> |
+      <a href="/dashboard">Dashboard</a> |
       <a href="/pricing.html">Pricing</a> |
-      <a href="/login.html">Login</a>
+      <a href="/login">Login</a>
     `;
   }
 }
 
-// Global checkout — no login required; optional email when already signed in (Stripe may still collect email).
-window.startCheckout = async function(plan, ev) {
+// Global checkout — optional job_id for preview funnel (Stripe metadata).
+window.startCheckout = async function (plan, ev, jobId) {
   const clickEv = ev || (typeof globalThis !== 'undefined' && globalThis.event) || null;
   const button = clickEv?.target;
   let originalText = '';
@@ -64,6 +64,9 @@ window.startCheckout = async function(plan, ev) {
     const body = { plan: plan || 'single' };
     if (user?.email) {
       body.customer_email = user.email;
+    }
+    if (jobId) {
+      body.job_id = jobId;
     }
 
     if (button) {

@@ -17,6 +17,8 @@ const skip = new Set([
   "login.html",
   "signup.html",
   "examples.html",
+  "preview.html",
+  "result.html",
 ]);
 
 if (!fs.existsSync(dist)) {

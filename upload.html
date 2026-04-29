@@ -111,7 +111,7 @@
       <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a> |
       <a href="/examples.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Examples</a> |
       <a href="/pricing.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Pricing</a> |
-      <a href="/login.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a> |
+      <a href="/login" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a> |
       <a href="/terms.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Terms</a>
     </div>
   </nav>
@@ -377,7 +377,7 @@
       <div id="step5-error" style="display:none; margin-top:1rem; padding:0.75rem;"></div>
       <div style="display:flex; gap:1rem; margin-top:1.25rem;">
         <button type="button" id="step5-back" style="flex:1; padding:12px; border-radius:8px; cursor:pointer;">Back</button>
-        <button type="button" id="step5-next" style="flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">Generate My Letter</button>
+        <button type="button" id="step5-next" style="flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">Continue to preview</button>
       </div>
     </div>
 
@@ -424,6 +424,56 @@
     async function syncWizardAccessToken(state) {
       const token = readSupabaseAccessTokenFromStorage();
       state.accessToken = token ?? 'bypass';
+    }
+
+    async function submitWizardJob() {
+      await syncWizardAccessToken(state);
+      const headers = { 'Content-Type': 'application/json' };
+      const tok = state.accessToken;
+      if (tok && tok !== 'bypass') {
+        headers.Authorization = 'Bearer ' + tok;
+      }
+      const letterDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      const res = await fetch('/.netlify/functions/medical-bill-job-save', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          analysis: state.analysis,
+          strategy: state.strategy,
+          patientName: state.patientName,
+          accountNumber: state.accountNumber,
+          dateOfService: state.dateOfService,
+          providerName: state.providerName,
+          disputedAmount: state.disputedAmount,
+          specificCharges: state.specificCharges,
+          resolutionAsk: state.resolutionAsk,
+          billDate: state.billDate,
+          networkStatus: state.networkStatus,
+          serviceType: state.serviceType,
+          hasEOB: state.hasEOB,
+          priorContact: state.priorContact,
+          letterDate,
+          usageSessionId: state.usageSessionId,
+        }),
+      });
+      const raw = await res.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error('Invalid server response');
+      }
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Could not save your appeal');
+      }
+      const dest =
+        data.redirect_url ||
+        (data.skip_payment ? '/result/' + data.job_id : '/preview/' + data.job_id);
+      window.location.href = dest;
     }
 
     function initialState() {
@@ -1411,7 +1461,7 @@
     });
 
     document.getElementById('step5-back').addEventListener('click', () => showStep(4));
-    document.getElementById('step5-next').addEventListener('click', () => {
+    document.getElementById('step5-next').addEventListener('click', async () => {
       setError('step5-error', '');
       const pn = document.getElementById('patient-name').value.trim();
       const pr = document.getElementById('provider-name').value.trim();
@@ -1445,8 +1495,22 @@
       state.disputedAmount = da;
       state.specificCharges = parseSpecificChargesTextarea();
       state.resolutionAsk = ra;
-      showStep(6);
-      runLetterGeneration();
+      const btn = document.getElementById('step5-next');
+      const prevText = btn ? btn.textContent : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+      }
+      try {
+        await submitWizardJob();
+      } catch (e) {
+        setError('step5-error', e.message || 'Could not continue.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = prevText || 'Continue to preview';
+        }
+      }
     });
 
     document.getElementById('btn-copy').addEventListener('click', async () => {
