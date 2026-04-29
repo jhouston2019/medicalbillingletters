@@ -84,6 +84,7 @@ exports.handler = async (event) => {
     const site = process.env.SITE_URL.replace(/\/$/, "");
 
     const session = await stripe.checkout.sessions.create({
+      customer_email: user.email,
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "payment",

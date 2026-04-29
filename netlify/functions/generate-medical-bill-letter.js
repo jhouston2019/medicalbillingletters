@@ -4,6 +4,7 @@
 
 const OpenAI = require("openai");
 const { verifyWizardAccess } = require("./_wizardAuth");
+const { getBillingSnapshot } = require("./_billingSnapshot");
 
 function corsHeaders(extra = {}) {
   return {
@@ -52,6 +53,21 @@ exports.handler = async (event) => {
         headers: corsHeaders(),
         body: JSON.stringify({ error: auth.error }),
       };
+    }
+
+    if (auth.userId && !auth.bypass) {
+      const snap = await getBillingSnapshot(auth.userId);
+      if (snap.paid !== true) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders(),
+          body: JSON.stringify({
+            success: false,
+            error: "Payment required",
+            needsPayment: true,
+          }),
+        };
+      }
     }
 
     if (!analysis || !strategy) {

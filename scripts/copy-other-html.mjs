@@ -5,7 +5,19 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const dist = path.join(root, "dist");
-const skip = new Set(["success.html", "app.html"]);
+/** Vite builds these entry HTML files with hashed /assets/* refs; do not overwrite with dev paths (/src/...). */
+const skip = new Set([
+  "index.html",
+  "success.html",
+  "app.html",
+  "pricing.html",
+  "cancel.html",
+  "payment.html",
+  "dashboard.html",
+  "login.html",
+  "signup.html",
+  "examples.html",
+]);
 
 if (!fs.existsSync(dist)) {
   fs.mkdirSync(dist, { recursive: true });
@@ -21,4 +33,4 @@ if (fs.existsSync(styles)) {
   fs.copyFileSync(styles, path.join(dist, "styles.css"));
 }
 
-console.log("Copied HTML (except success/app) and styles.css to dist/");
+console.log("Copied HTML (except Vite entry pages) and styles.css to dist/");

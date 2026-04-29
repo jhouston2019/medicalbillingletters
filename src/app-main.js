@@ -14,8 +14,17 @@ async function run() {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(session?.access_token);
 
   if (!session?.access_token) {
+    const next = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+    window.location.replace(`/login.html?redirect=${next}`);
+    return;
+  }
+
+  if (!user) {
     const next = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
     window.location.replace(`/login.html?redirect=${next}`);
     return;
