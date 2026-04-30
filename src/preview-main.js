@@ -6,7 +6,7 @@ function jobIdFromPath() {
 }
 
 async function startCheckoutForJob(jobId) {
-  const btn = document.getElementById("preview-checkout");
+  const btn = document.getElementById("checkout-button");
   if (btn) {
     btn.disabled = true;
     btn.textContent = "Redirecting…";
@@ -78,7 +78,7 @@ async function run() {
       "This case requires professional representation. We cannot complete a paid appeal letter here.";
   }
 
-  document.getElementById("preview-checkout")?.addEventListener("click", () => startCheckoutForJob(jobId));
+  document.getElementById("checkout-button")?.addEventListener("click", () => startCheckoutForJob(jobId));
 }
 
 run().catch((e) => {

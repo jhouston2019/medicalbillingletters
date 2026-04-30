@@ -117,13 +117,12 @@ export async function getUserDocuments(userId) {
   return data || [];
 }
 
-/** Dashboard: unlocked appeals linked by user_id (after checkout). */
+/** Dashboard: medical bill jobs for current user (RLS + user_id must match session). */
 export async function getUserMedicalBillJobs(userId) {
   const { data, error } = await supabase
     .from("medical_bill_jobs")
-    .select("id, created_at, letter_full")
+    .select("id, created_at, letter_full, paid, is_unlocked")
     .eq("user_id", userId)
-    .eq("is_unlocked", true)
     .order("created_at", { ascending: false });
 
   if (error) {
