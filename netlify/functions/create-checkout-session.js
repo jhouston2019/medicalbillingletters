@@ -89,20 +89,7 @@ exports.handler = async (event) => {
         ? String(emailFromBody).trim()
         : null;
 
-    const appealLineItem = jobId
-      ? [
-          {
-            price_data: {
-              currency: "usd",
-              unit_amount: 2900,
-              product_data: {
-                name: "Medical bill dispute appeal",
-              },
-            },
-            quantity: 1,
-          },
-        ]
-      : [{ price: priceId, quantity: 1 }];
+    const appealLineItem = [{ price: priceId, quantity: 1 }];
 
     const metadata = jobId
       ? {
