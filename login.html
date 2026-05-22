@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to Your Account | Medical Bill Dispute Pro</title>
     <meta name="description" content="Sign in to your Medical Bill Dispute Pro account.">
-    <link rel="stylesheet" href="/styles.css">
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
     <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
@@ -32,6 +31,7 @@
                 </div>
                 <button type="submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600; width:100%;">Log in</button>
             </form>
+            <p id="login-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#fee2e2; color:#991b1b; border-radius:8px; text-align:center;"></p>
             <p style="text-align: center; margin-top: 1rem; color:#2d3748;">
                 <a href="/signup.html" style="color:#93c5fd; text-decoration:none;">Create account</a>
             </p>
@@ -39,19 +39,39 @@
     </div>
 
     <script type="module">
-        import { signIn } from './src/components/Auth.js';
+        import { createClient } from '@supabase/supabase-js';
+
+        const supabase = createClient(
+            import.meta.env.VITE_SUPABASE_URL,
+            import.meta.env.VITE_SUPABASE_ANON_KEY
+        );
 
         const params = new URLSearchParams(window.location.search);
         const rawRedirect = params.get('redirect');
 
+        function showError(message) {
+            const el = document.getElementById('login-error');
+            if (!el) return;
+            el.textContent = message;
+            el.style.display = message ? 'block' : 'none';
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            showError('');
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!email || !password) {
+                showError('Email and password are required.');
+                return;
+            }
+
             try {
-                const { error } = await signIn(email, password);
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
                 if (error) {
-                    alert('Login failed: ' + error.message);
+                    showError('Login failed: ' + error.message);
                     return;
                 }
                 if (rawRedirect) {
@@ -65,7 +85,7 @@
                 }
                 window.location.href = '/upload.html';
             } catch (err) {
-                alert('Login failed: ' + err.message);
+                showError('Login failed: ' + err.message);
             }
         });
     </script>

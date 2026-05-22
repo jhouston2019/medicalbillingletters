@@ -92,34 +92,43 @@ async function generateMedicalBillLetterFromWizard(body) {
           .join(" ")
       : patientName;
 
-  const systemPrompt = `You write formal medical billing dispute letters as plain text only — formatted as real legal correspondence, not an outline or memo with section labels.
+  const systemPrompt = `You are a medical billing attorney drafting a formal dispute letter. Use ONLY the information provided — never add citations, codes, or facts not present in the analysis.
 
-OUTPUT FORMAT (plain text only — no HTML, no markdown, no bullet lists, no numbered lists):
-- Output a formal legal correspondence letter.
-- Do NOT use bold, ALL CAPS section headers, or labels such as BACKGROUND, BASIS FOR DISPUTE, etc. The letter must read as continuous formal prose.
-- The first line of the letter MUST be exactly the letterDate value from the user JSON (field "letterDate"), formatted as provided (Month DD, YYYY). Do not invent a different date.
-- Format dateOfService everywhere in the letter (including the Re: block and body) as Month DD, YYYY (e.g. "April 15, 2026") — never ISO format (YYYY-MM-DD).
-- After one blank line, the inside address block: providerName on its own line, then "Billing Department" on the next line.
-- After one blank line, a "Re:" block (use "Re: Formal Dispute — Account #[account number]" with the real account number inserted). On the following lines in the same block, indented with spaces as in a formal letter: Date of Service (use the formatted date only), Patient: (label exactly "Patient:" followed by the name), Disputed Amount with dollar amount — all filled from the payload with real values.
-- After one blank line, the salutation: "Dear Billing Department:"
-- Body: separate paragraphs with a blank line between each. Order and substance:
-  1) Opening: one sentence stating that this letter is a formal dispute of the charges.
-  2) Background: who, what, when, account number, amount billed, service type, insurance/network context from the payload.
-  3) Basis for dispute: specific billing problems and violations; cite statutes and hooks from regulatoryHooks only, verbatim law names and citations as given; assertive direct language (state what the billing practice is and why it violates the cited standard — no "may be" or "may not").
-  4) Applicable regulations: what the cited laws require, using only hooks provided.
-  5) Provider obligations: what the provider IS required to do under those regulations (not "should" or "may need to").
-  6) Demand: use "I demand" followed by the resolution matching resolutionAsk in plain language. In the same paragraph: require a written response within 10 business days; state that failure to comply will result in escalation to the relevant regulatory bodies (name only bodies consistent with the regulatory hooks provided — e.g. state insurance department, CMS where applicable, state attorney general — do not invent agencies).
-  7) Reservation of rights: one short paragraph preserving all rights and remedies.
-- Closing: after a blank line, "Sincerely," then a blank line, then the patient name on its own line (use patientName from the JSON payload exactly as given). Nothing may follow the patient name — no certified mail line, no "formal written notice" line, and no other closing lines.
+Write a formal dispute letter with exactly these 6 sections in order:
 
-FACTUAL AND LEGAL CONSTRAINTS:
-- Insert every factual value from the user payload; no remaining bracket placeholders such as [FIELD NAME], [YOUR NAME], or [accountNumber].
-- Cite only regulatory hooks from analysis.regulatoryHooks verbatim; do not add statutes, case law, or agencies not supported by those hooks.
-- Never fabricate CPT/ICD codes; only reference codes from specific charges or detected errors in the payload.
-- No attorney-client language; no "we guarantee"; no legal advice disclaimers inside the letter body.
+1. BACKGROUND
+   Full header block: date, provider name and department, Re: line with account number, date of service, patient name, disputed amount. Then 2-3 sentences establishing the factual record.
 
-TONE:
-- Firm, professional, and assertive throughout: "I demand", direct statements of violation, no hedging.`;
+2. BASIS FOR DISPUTE
+   List EVERY specific error found in the analysis. For each:
+   - Name the CPT code if present
+   - State the billed amount
+   - State specifically what is wrong (duplicate, upcoded, unbundled, balance billing, etc.)
+   - If no CPT codes were found, base this section on the metadata provided and state that an itemized bill has not been received.
+
+3. APPLICABLE BILLING STANDARDS AND REGULATIONS
+   Cite ONLY the regulatory hooks returned in the analysis object. Do not add any not present. Include the full citation (e.g. "No Surprises Act, Public Law 116-260, 42 U.S.C. § 300gg-111") and one sentence on why it applies.
+
+4. PROVIDER OBLIGATIONS
+   State what the provider is specifically required to do under each cited regulation. Be concrete — not generic.
+
+5. DEMAND
+   State the specific resolution requested (use resolutionAsk from the request). Require written response within 10 business days. State that failure to respond will result in escalation to: state insurance commissioner, CMS, and state attorney general (include only escalation paths relevant to the regulatory hooks cited).
+
+6. RESERVATION OF RIGHTS
+   One paragraph. Reserve all rights including right to escalate, right to involve counsel, right to report to credit bureaus if collections are attempted during active dispute.
+
+Close with Sincerely, then patient name on the next line.
+
+RULES:
+- Plain text only — no HTML, no markdown, no bullet points inside the letter
+- Never use placeholder brackets — all values must be filled from the data provided
+- Minimum 400 words — a letter under 400 words is not acceptable
+- Never include attorney advice language in the letter body
+- The letter must read as written by the patient personally, in first person
+- The first line MUST be letterDate from the payload (Month DD, YYYY)
+- Format dateOfService as Month DD, YYYY everywhere in the letter
+- Never fabricate CPT/ICD codes; only reference codes from detectedErrors or specificCharges in the payload`;
 
   const userPayload = {
     letterDate: letterDate || null,

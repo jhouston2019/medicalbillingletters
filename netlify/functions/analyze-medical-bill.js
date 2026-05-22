@@ -265,7 +265,7 @@ function defaultStrategies(recommendedId) {
   }));
 }
 
-function normalizePayload(raw, ctx) {
+function normalizePayload(raw, ctx, textExtractionFailed = false) {
   const rec = raw.recommendedStrategy || (raw.availableStrategies || []).find((s) => s.recommended)?.id || "request_detailed_bill";
   let strategies = Array.isArray(raw.availableStrategies) ? raw.availableStrategies : [];
   if (strategies.length !== 7) {
@@ -279,6 +279,9 @@ function normalizePayload(raw, ctx) {
 
   const hooks = Array.isArray(raw.regulatoryHooks) ? raw.regulatoryHooks : [];
   const errors = Array.isArray(raw.detectedErrors) ? raw.detectedErrors : [];
+
+  const extractionSummary =
+    "We couldn't extract text from your bill — it may be a scanned image. Your letter will be based on the information you provided. For best results, upload a text-based PDF.";
 
   return {
     success: true,
@@ -298,9 +301,12 @@ function normalizePayload(raw, ctx) {
     })),
     availableStrategies: strategies,
     recommendedStrategy: String(rec),
-    summaryForUser: String(raw.summaryForUser || "").slice(0, 2000),
+    summaryForUser: textExtractionFailed
+      ? extractionSummary
+      : String(raw.summaryForUser || "").slice(0, 2000),
     hardStop: raw.hardStop === true,
     hardStopReason: raw.hardStopReason != null ? String(raw.hardStopReason) : null,
+    textExtractionFailed: textExtractionFailed === true,
   };
 }
 
@@ -451,8 +457,8 @@ exports.handler = async (event) => {
       };
     }
 
-    const buf = Buffer.from(fileBase64, "base64");
-    if (buf.length > 10 * 1024 * 1024) {
+    const fileBuffer = Buffer.from(fileBase64, "base64");
+    if (fileBuffer.length > 10 * 1024 * 1024) {
       return {
         statusCode: 400,
         headers: corsHeaders(),
@@ -460,7 +466,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const mime = resolveMime(buf, fileType);
+    const mime = resolveMime(fileBuffer, fileType);
     if (!["application/pdf", "image/jpeg", "image/png"].includes(mime)) {
       return {
         statusCode: 400,
@@ -479,13 +485,36 @@ exports.handler = async (event) => {
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    let billText = await extractBillText(openai, buf, mime, fileBase64, {
-      providerType,
-      totalBilled,
-      insuranceStatus,
-      networkStatus,
-      serviceType,
-    });
+    // Decode base64 and extract text from bill content before analysis
+    let billText = "";
+    if (mime === "application/pdf") {
+      try {
+        const pdfData = await pdfParse(fileBuffer);
+        billText = String(pdfData?.text || "")
+          .trim()
+          .slice(0, 12000);
+      } catch (e) {
+        console.warn("[analyze-medical-bill] pdf-parse extraction failed:", e.message);
+      }
+    }
+
+    if (billText.length < MIN_EXTRACTED_TEXT) {
+      const extracted = await extractBillText(openai, fileBuffer, mime, fileBase64, {
+        providerType,
+        totalBilled,
+        insuranceStatus,
+        networkStatus,
+        serviceType,
+      });
+      billText = String(extracted || "")
+        .trim()
+        .slice(0, 12000);
+    }
+
+    const textExtractionFailed =
+      billText.length < MIN_EXTRACTED_TEXT ||
+      billText.startsWith("[Bill text could not be extracted");
+
     if (billText.length > MAX_TEXT) {
       billText = billText.slice(0, MAX_TEXT) + "\n[TRUNCATED]";
     }
@@ -514,48 +543,62 @@ exports.handler = async (event) => {
       };
     }
 
-    const systemPrompt = `You are a medical billing dispute analyst. Output a single JSON object only (no markdown, no prose outside JSON).
+    const systemPrompt = `You are a medical billing expert. Analyze the following medical bill text and metadata.
+
+BILL TEXT:
+${billText || "[No bill text extracted]"}
+
+METADATA:
+- Provider type: ${providerType}
+- Total billed: ${totalBilled}
+- Bill date: ${billDate}
+- Insurance status: ${insuranceStatus}
+- Network status: ${networkStatus}
+- Service type: ${serviceType}
+- Has EOB: ${hasEOB}
+- Prior contact: ${priorContact}
+
+Extract ALL of the following from the bill text:
+1. Every CPT code present — list each with its description and billed amount
+2. Every ICD-10 code present
+3. Duplicate line items (same CPT code billed more than once)
+4. Unbundled charges (component codes that should be billed as a single bundled code)
+5. Upcoded charges (CPT code billed at higher complexity than documented)
+6. Any balance billing above in-network rates
+7. Any surprise bill charges covered by the No Surprises Act (Public Law 116-260, 42 USC § 300gg-111)
+8. Any line items lacking medical necessity documentation
 
 CRITICAL RULES:
-- Never fabricate CPT, HCPCS, ICD-10, or ICD-9 codes. Only include codes that literally appear in the BILL TEXT or state null if unknown.
-- Never invent statute numbers, case names, or regulatory citations. For No Surprises Act use only: "No Surprises Act (Public Law 116-260)" with citation "42 U.S.C. § 300gg-111" when applicable. For ERISA civil enforcement reference use only: "29 U.S.C. § 1132" when ERISA applies.
-- Identify patterns consistent with: duplicate charges, upcoding, unbundling, balance billing, surprise bills (when facts fit), not-medically-necessary denials — only when supported by the bill text.
-- If serviceType is "emergency" OR networkStatus is "out_of_network", evaluate No Surprises Act applicability using only the bill text; if unsupported by text, do not claim a violation.
-- If insuranceStatus is "insured", you may note ERISA plan-related enforcement paths only as a regulatory hook when employer-sponsored plan context is plausible from user context (not from fabricated facts).
-- If the bill text includes fraud investigations, EUO, recorded statement demands, or litigation/lawsuit language, set hardStop true with a clear hardStopReason.
+- Never fabricate CPT or ICD-10 codes — only cite codes present in the bill text above
+- If no CPT codes are found in the bill text, say so explicitly and base the dispute on the available metadata
+- Always return the full JSON response shape — do not truncate
+- riskLevel must reflect actual findings: if errors are found, use 'medium' or 'high', not 'low'
+- summaryForUser must be specific to what was found — never generic
+- Never invent statute numbers beyond No Surprises Act (Public Law 116-260, 42 U.S.C. § 300gg-111) and ERISA (29 U.S.C. § 1132) when applicable
+- If the bill text includes fraud investigations, EUO, recorded statement demands, or litigation/lawsuit language, set hardStop true with a clear hardStopReason
+
+Output a single JSON object only (no markdown, no prose outside JSON).
 
 Return JSON with keys:
 success (boolean true),
 riskLevel ("low"|"medium"|"high"),
 errorTypes (array of strings from: duplicate_charge, upcoding, balance_billing, unbundling, not_medically_necessary, surprise_bill),
 detectedErrors (array of {type, description, cptCode, amount, confidence}),
-regulatoryHooks (array of {law, citation, applicability} — only hooks grounded in analysis; use exact NSA/ERISA citations above when those laws apply),
+regulatoryHooks (array of {law, citation, applicability}),
 availableStrategies (exactly 7 objects: {id, name, description, aggressiveness, bestFor, recommended}),
 recommendedStrategy (id string),
-summaryForUser (2-3 sentences, plain language),
+summaryForUser (2-3 sentences, plain language, specific to findings),
 hardStop (boolean),
 hardStopReason (string or null)
 
-Exactly 7 strategies required; one must have recommended true. Use these exact strategy names (personalize descriptions and bestFor to the bill):
+Exactly 7 strategies required; one must have recommended true. Use these exact strategy names:
 1. Verify Insurance Coverage (conservative)
 2. Request Detailed Bill (moderate)
 3. Formal Written Dispute (moderate)
 4. Consult with a Billing Advocate (moderate)
 5. File an Appeal with Insurance (aggressive)
-6. File Regulatory Complaint (aggressive) — best for No Surprises Act / balance billing violations when supported by facts
+6. File Regulatory Complaint (aggressive)
 7. Seek Legal Advice (aggressive)`;
-
-    const userBlob = {
-      billDate,
-      providerType,
-      totalBilled,
-      insuranceStatus,
-      networkStatus,
-      serviceType,
-      hasEOB,
-      priorContact,
-      billText,
-    };
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -566,7 +609,7 @@ Exactly 7 strategies required; one must have recommended true. Use these exact s
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Analyze this medical bill and user context. Context JSON:\n${JSON.stringify(userBlob)}`,
+          content: "Analyze this medical bill and return the JSON object.",
         },
       ],
     });
@@ -577,7 +620,7 @@ Exactly 7 strategies required; one must have recommended true. Use these exact s
     }
 
     const parsed = JSON.parse(rawText);
-    const out = normalizePayload(parsed, body);
+    const out = normalizePayload(parsed, body, textExtractionFailed);
 
     if (auth.userId && !auth.bypass && !out.hardStop && usageSessionIdToUse) {
       const { data: sessionOk } = await supabase
