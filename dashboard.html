@@ -91,11 +91,11 @@
 
         function summarySnippet(row) {
             const analysis = analysisFromJob(row);
-            const text = analysis?.summaryForUser;
-            if (!text || typeof text !== 'string') return '—';
-            const t = text.trim();
+            const raw = analysis?.summaryForUser || '—';
+            if (typeof raw !== 'string') return '—';
+            const t = raw.trim();
             if (!t) return '—';
-            return t.length > 100 ? t.slice(0, 100) + '…' : t;
+            return t.length > 200 ? t.slice(0, 200) + '...' : t;
         }
 
         function truncateProvider(name) {
