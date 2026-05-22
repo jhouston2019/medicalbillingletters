@@ -6,6 +6,7 @@
   <title>Medical Bill Dispute Pro — Dispute Wizard</title>
   <meta name="description" content="Upload your medical bill and generate a professional dispute letter." />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/mobile-nav.css" />
   <style>
     #protocol-warning code { font-size: 0.85em; }
     #step1-error, #step2-error, #step3-error, #step4-error, #step5-error, #step6-error {
@@ -109,13 +110,14 @@
   <div id="protocol-warning" style="display:none; background:#fef3c7; color:#92400e; padding:12px 24px; text-align:center; font-size:0.9rem; font-weight:500; border-bottom:1px solid #fcd34d;">
     ⚠️ You are opening this file directly from disk. API calls will fail. Run via <code>netlify dev</code> or visit the deployed URL to test the full wizard.
   </div>
-  <nav style="background:#1e293b; padding:1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
-    <strong style="color:#ffffff;">Medical Bill Dispute Pro</strong>
-    <div>
-      <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a> |
-      <a href="/examples.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Examples</a> |
-      <a href="/pricing.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Pricing</a> |
-      <a href="/login" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a> |
+  <nav class="site-nav" style="background:#1e293b; padding:1rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
+    <div class="site-nav-brand"><strong style="color:#ffffff;">Medical Bill Dispute Pro</strong></div>
+    <button type="button" class="site-nav-toggle" aria-expanded="false" aria-controls="site-nav-menu" aria-label="Toggle navigation">☰</button>
+    <div id="site-nav-menu" class="site-nav-links">
+      <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a>
+      <a href="/examples.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Examples</a>
+      <a href="/pricing.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Pricing</a>
+      <a href="/login" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a>
       <a href="/terms.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Terms</a>
     </div>
   </nav>
@@ -1660,5 +1662,6 @@
       bootOnDomReady();
     }
   </script>
+  <script type="module" src="/src/mobile-nav.js"></script>
 </body>
 </html>

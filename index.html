@@ -15,12 +15,6 @@
   <meta property="og:url" content="https://medicalbillingdisputehelp.ai">
   <meta property="og:type" content="website">
 
-  <!-- TODO: Replace AdSense ca-pub-XXXXXXXXXXXXXXXX with your real publisher ID before production deploy. -->
-  <!-- AdSense Script (STEP 2) -->
-  <script async
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-    crossorigin="anonymous"></script>
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -56,6 +50,7 @@
   
   <!-- Ads CSS -->
   <link rel="stylesheet" href="/src/ads.css">
+  <link rel="stylesheet" href="/mobile-nav.css">
   <style>
     .evidence-platform-section .evidence-screenshot-wrap,
     .evidence-platform-section .evidence-dashboard-visual {
@@ -77,14 +72,15 @@
 </head>
 
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
-  <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155; align-items:center;">
-    <div style="color:#f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
-    <div>
-      <a href="/" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Home</a> |
-      <a href="/examples.html" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Examples</a> |
-      <a href="/upload" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Upload</a> |
-      <a href="/pricing" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Pricing</a> |
-      <a href="/login" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Login</a> |
+  <nav class="site-nav" style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155; align-items:center;">
+    <div class="site-nav-brand" style="color:#f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
+    <button type="button" class="site-nav-toggle" aria-expanded="false" aria-controls="site-nav-menu" aria-label="Toggle navigation">☰</button>
+    <div id="site-nav-menu" class="site-nav-links">
+      <a href="/" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Home</a>
+      <a href="/examples.html" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Examples</a>
+      <a href="/upload" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Upload</a>
+      <a href="/pricing" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Pricing</a>
+      <a href="/login" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Login</a>
       <a href="/terms.html" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Terms</a>
     </div>
   </nav>
@@ -515,6 +511,7 @@
   </footer>
 
   <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/mobile-nav.js"></script>
   <script type="module" src="/src/ads.js"></script>
 </body>
 </html>

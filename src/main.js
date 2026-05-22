@@ -22,13 +22,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function updateNavigationForLoggedInUser(user) {
-  const nav = document.querySelector('nav div:last-child');
+  const nav = document.querySelector('.site-nav-links') || document.querySelector('nav div:last-child');
   if (nav) {
     nav.innerHTML = `
-      <a href="/upload">Upload</a> |
-      <a href="/dashboard">Dashboard</a> |
-      <a href="/pricing.html">Pricing</a> |
-      <span>Welcome, ${user.email}</span> |
+      <a href="/upload">Upload</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/pricing.html">Pricing</a>
+      <span>Welcome, ${user.email}</span>
       <a href="#" id="logout">Logout</a>
     `;
     
@@ -43,12 +43,12 @@ function updateNavigationForLoggedInUser(user) {
 }
 
 function updateNavigationForGuest() {
-  const nav = document.querySelector('nav div:last-child');
+  const nav = document.querySelector('.site-nav-links') || document.querySelector('nav div:last-child');
   if (nav) {
     nav.innerHTML = `
-      <a href="/upload">Upload</a> |
-      <a href="/dashboard">Dashboard</a> |
-      <a href="/pricing.html">Pricing</a> |
+      <a href="/upload">Upload</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/pricing.html">Pricing</a>
       <a href="/login">Login</a>
     `;
   }

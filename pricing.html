@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/mobile-nav.css">
     <title>Pricing – Medical Bill Dispute Pro $29</title>
     <meta name="description" content="$29 one-time for professional Medical Bill Dispute Pro with verified CPT/ICD-10 codes. Challenge billing errors and surprise bills.">
     <link rel="canonical" href="https://medicalbillingdisputehelp.ai/pricing.html">
@@ -14,13 +15,14 @@
     <meta property="og:type" content="product">
 </head>
 <body style="background:#f9fafb; color:#111827; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
-    <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
-        <div style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
-        <div>
-            <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a> |
-            <a href="/pricing" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a> |
-            <a href="/examples.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Examples</a> |
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a> |
+    <nav class="site-nav" style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155; align-items:center;">
+        <div class="site-nav-brand" style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
+        <button type="button" class="site-nav-toggle" aria-expanded="false" aria-controls="site-nav-menu" aria-label="Toggle navigation">☰</button>
+        <div id="site-nav-menu" class="site-nav-links">
+            <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a>
+            <a href="/pricing" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a>
+            <a href="/examples.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Examples</a>
+            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a>
             <a href="/terms.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Terms</a>
         </div>
     </nav>
@@ -76,5 +78,6 @@
     </footer>
 
     <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/mobile-nav.js"></script>
 </body>
 </html>

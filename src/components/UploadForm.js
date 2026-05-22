@@ -121,7 +121,7 @@ export async function getUserDocuments(userId) {
 export async function getUserMedicalBillJobs(userId) {
   const { data, error } = await supabase
     .from("medical_bill_jobs")
-    .select("id, created_at, letter_full, paid, is_unlocked")
+    .select("id, created_at, letter_full, wizard_json, paid, is_unlocked")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 

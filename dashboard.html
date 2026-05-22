@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/mobile-nav.css">
     <title>Your Dashboard | Medical Bill Dispute Pro</title>
     <meta name="description" content="Access your Medical Bill Dispute Pro dashboard to view your dispute letters and account information.">
     <link rel="canonical" href="https://medicalbillingdisputehelp.ai/dashboard.html">
@@ -14,11 +15,12 @@
     <meta property="og:type" content="website">
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
-    <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
-        <div style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
-        <div>
-            <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a> |
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a> |
+    <nav class="site-nav" style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155; align-items:center;">
+        <div class="site-nav-brand" style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
+        <button type="button" class="site-nav-toggle" aria-expanded="false" aria-controls="site-nav-menu" aria-label="Toggle navigation">☰</button>
+        <div id="site-nav-menu" class="site-nav-links">
+            <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a>
+            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a>
             <a href="/terms.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Terms</a>
         </div>
     </nav>
@@ -59,19 +61,25 @@
             setTimeout(() => el.remove(), 6000);
         }
 
+        function truncateProvider(name) {
+            const t = String(name || '').trim();
+            if (!t) return 'Medical provider';
+            return t.length > 40 ? t.slice(0, 40) + '…' : t;
+        }
+
         function providerFromJob(row) {
+            const wizard = row.wizard_json;
+            if (wizard && typeof wizard === 'object' && wizard.providerName) {
+                return truncateProvider(wizard.providerName);
+            }
             const letter = row.letter_full || '';
             const reMatch = letter.match(/^Re:\s*(.+)$/im);
             if (reMatch && reMatch[1].trim()) {
-                return reMatch[1].trim().slice(0, 80);
-            }
-            const dearMatch = letter.match(/^Dear\s+(.+?)[,\n]/im);
-            if (dearMatch && dearMatch[1].trim()) {
-                return dearMatch[1].trim().slice(0, 80);
+                return truncateProvider(reMatch[1]);
             }
             const firstLine = letter.split('\n').map((l) => l.trim()).find(Boolean);
             if (firstLine && firstLine.length > 3) {
-                return firstLine.slice(0, 80);
+                return truncateProvider(firstLine);
             }
             return 'Medical provider';
         }
@@ -118,7 +126,7 @@
             if (!appeals || appeals.length === 0) {
                 container.innerHTML = `
                 <div style="text-align:center; padding:2rem;">
-                  <div style="font-size:3rem; margin-bottom:1rem;" aria-hidden="true">&#128196;</div>
+                  <div style="font-size:3rem; margin-bottom:1rem;" aria-hidden="true">📄</div>
                   <p style="color:#94a3b8; margin-bottom:1.5rem;">No dispute letters yet.</p>
                   <a href="/upload.html" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">Dispute Your First Bill</a>
                 </div>`;
@@ -147,6 +155,7 @@
             });
         }
     </script>
+    <script type="module" src="/src/mobile-nav.js"></script>
 
     <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:60px;">
         <div style="width:min(1120px, 92%); margin-inline:auto;">
