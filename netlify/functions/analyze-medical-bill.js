@@ -93,10 +93,28 @@ function hardStopFromBillText(text) {
   return null;
 }
 
+/** True when extracted text likely contains bill line items, not just headers/footers. */
+function billTextLooksUsable(text) {
+  if (!text || typeof text !== "string") return false;
+  const trimmed = text.trim();
+  if (trimmed.length < MIN_EXTRACTED_TEXT) return false;
+  if (trimmed.startsWith("[Bill text could not be extracted")) return false;
+
+  const hasCpt = /\b\d{5}\b/.test(trimmed);
+  const hasAmount =
+    /\$\s?\d[\d,]*(\.\d{2})?/.test(trimmed) || /\b\d{1,3}(?:,\d{3})*\.\d{2}\b/.test(trimmed);
+  const hasIcd = /\b[A-TV-Z][0-9][A-Z0-9](?:\.[A-Z0-9]{1,4})?\b/i.test(trimmed);
+
+  if (trimmed.length >= 500 && (hasCpt || hasAmount)) return true;
+  if (trimmed.length >= 200 && hasCpt && hasAmount) return true;
+  if (hasCpt || hasIcd || hasAmount) return trimmed.length >= 120;
+  return trimmed.length >= 400;
+}
+
 async function visionExtractBillText(openai, fileBase64, mediaType) {
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
-    max_tokens: 4000,
+    max_tokens: 8000,
     messages: [
       {
         role: "user",
@@ -152,13 +170,13 @@ async function extractBillText(openai, buffer, mime, fileBase64, ctx) {
   if (mime === "image/jpeg" || mime === "image/png") {
     try {
       const t = await visionExtractBillText(openai, b64, mime);
-      if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+      if (billTextLooksUsable(t)) return t.trim();
     } catch (e) {
       console.warn("[analyze-medical-bill] vision (image) failed:", e.message);
     }
     try {
       const t = await visionExtractBillText(openai, b64, "image/jpeg");
-      if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+      if (billTextLooksUsable(t)) return t.trim();
     } catch (e) {
       console.warn("[analyze-medical-bill] vision (image as jpeg mime) failed:", e.message);
     }
@@ -171,23 +189,23 @@ async function extractBillText(openai, buffer, mime, fileBase64, ctx) {
 
   // METHOD 1 — pdf-parse default
   let text = await tryPdfParse("attempt1", undefined);
-  if (text.length > MIN_EXTRACTED_TEXT) return text;
+  if (billTextLooksUsable(text)) return text;
 
   // METHOD 2 — pdf-parse explicit lenient options (same defaults; second pass after partial failure / short text)
   const text2 = await tryPdfParse("attempt2", { max: 0 });
-  if (text2.length > MIN_EXTRACTED_TEXT) return text2;
+  if (billTextLooksUsable(text2)) return text2;
   if (text2.length > text.length) text = text2;
 
   // METHOD 3 — Vision: PDF as base64 (then jpeg media-type fallback per API quirks)
   try {
     const t = await visionExtractBillText(openai, b64, "application/pdf");
-    if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+    if (billTextLooksUsable(t)) return t.trim();
   } catch (e) {
     console.warn("[analyze-medical-bill] vision (application/pdf) failed:", e.message);
   }
   try {
     const t = await visionExtractBillText(openai, b64, "image/jpeg");
-    if (t && t.trim().length > MIN_EXTRACTED_TEXT) return t.trim();
+    if (billTextLooksUsable(t)) return t.trim();
   } catch (e) {
     console.warn("[analyze-medical-bill] vision (image/jpeg mime fallback) failed:", e.message);
   }
@@ -283,6 +301,16 @@ function normalizePayload(raw, ctx, textExtractionFailed = false) {
   const extractionSummary =
     "We couldn't extract text from your bill — it may be a scanned image. Your letter will be based on the information you provided. For best results, upload a text-based PDF.";
 
+  const aiSummary = String(raw.summaryForUser || "").slice(0, 2000);
+  let summaryForUser = aiSummary;
+  if (textExtractionFailed) {
+    if (aiSummary && !aiSummary.startsWith(extractionSummary)) {
+      summaryForUser = `${extractionSummary} ${aiSummary}`.slice(0, 2000);
+    } else if (!aiSummary) {
+      summaryForUser = extractionSummary;
+    }
+  }
+
   return {
     success: true,
     riskLevel: ["low", "medium", "high"].includes(raw.riskLevel) ? raw.riskLevel : "medium",
@@ -301,9 +329,7 @@ function normalizePayload(raw, ctx, textExtractionFailed = false) {
     })),
     availableStrategies: strategies,
     recommendedStrategy: String(rec),
-    summaryForUser: textExtractionFailed
-      ? extractionSummary
-      : String(raw.summaryForUser || "").slice(0, 2000),
+    summaryForUser,
     hardStop: raw.hardStop === true,
     hardStopReason: raw.hardStopReason != null ? String(raw.hardStopReason) : null,
     textExtractionFailed: textExtractionFailed === true,
@@ -485,35 +511,38 @@ exports.handler = async (event) => {
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // Decode base64 and extract text from bill content before analysis
+    const extractCtx = {
+      providerType,
+      totalBilled,
+      insuranceStatus,
+      networkStatus,
+      serviceType,
+    };
+
+    // Extract bill text — prefer vision when pdf-parse returns junk headers only
     let billText = "";
     if (mime === "application/pdf") {
       try {
         const pdfData = await pdfParse(fileBuffer);
-        billText = String(pdfData?.text || "")
-          .trim()
-          .slice(0, 12000);
+        billText = String(pdfData?.text || "").trim();
       } catch (e) {
         console.warn("[analyze-medical-bill] pdf-parse extraction failed:", e.message);
       }
     }
 
-    if (billText.length < MIN_EXTRACTED_TEXT) {
-      const extracted = await extractBillText(openai, fileBuffer, mime, fileBase64, {
-        providerType,
-        totalBilled,
-        insuranceStatus,
-        networkStatus,
-        serviceType,
-      });
-      billText = String(extracted || "")
-        .trim()
-        .slice(0, 12000);
+    if (!billTextLooksUsable(billText)) {
+      const extracted = await extractBillText(openai, fileBuffer, mime, fileBase64, extractCtx);
+      const extractedText = String(extracted || "").trim();
+      if (
+        extractedText &&
+        (extractedText.length > billText.length || !billTextLooksUsable(billText))
+      ) {
+        billText = extractedText;
+      }
     }
 
     const textExtractionFailed =
-      billText.length < MIN_EXTRACTED_TEXT ||
-      billText.startsWith("[Bill text could not be extracted");
+      !billTextLooksUsable(billText) || billText.startsWith("[Bill text could not be extracted");
 
     if (billText.length > MAX_TEXT) {
       billText = billText.slice(0, MAX_TEXT) + "\n[TRUNCATED]";
@@ -604,7 +633,7 @@ Exactly 7 strategies required; one must have recommended true. Use these exact s
       model: "gpt-4o",
       response_format: { type: "json_object" },
       temperature: 0.2,
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [
         { role: "system", content: systemPrompt },
         {
@@ -614,12 +643,22 @@ Exactly 7 strategies required; one must have recommended true. Use these exact s
       ],
     });
 
-    const rawText = completion.choices?.[0]?.message?.content;
+    const choice = completion.choices?.[0];
+    const rawText = choice?.message?.content;
     if (!rawText) {
       throw new Error("Empty model response");
     }
+    if (choice?.finish_reason === "length") {
+      console.warn("[analyze-medical-bill] Model response truncated at max_tokens");
+    }
 
-    const parsed = JSON.parse(rawText);
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.error("[analyze-medical-bill] JSON parse failed:", parseErr.message);
+      throw new Error("Analysis response was incomplete — please try again");
+    }
     const out = normalizePayload(parsed, body, textExtractionFailed);
 
     if (auth.userId && !auth.bypass && !out.hardStop && usageSessionIdToUse) {

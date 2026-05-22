@@ -34,17 +34,16 @@
             <p id="login-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#fee2e2; color:#991b1b; border-radius:8px; text-align:center;"></p>
             <p style="text-align: center; margin-top: 1rem; color:#2d3748;">
                 <a href="/signup.html" style="color:#93c5fd; text-decoration:none;">Create account</a>
+                · <a href="#" id="forgot-password-link" style="color:#93c5fd; text-decoration:none;">Forgot password?</a>
+            </p>
+            <p style="text-align: center; margin-top: 0.75rem; font-size: 0.9rem; color:#64748b;">
+                Paid at checkout? Use the email from Stripe and choose Forgot password to set one.
             </p>
         </div>
     </div>
 
     <script type="module">
-        import { createClient } from '@supabase/supabase-js';
-
-        const supabase = createClient(
-            import.meta.env.VITE_SUPABASE_URL,
-            import.meta.env.VITE_SUPABASE_ANON_KEY
-        );
+        import { signIn, resetPassword, isAuthConfigured } from './src/components/Auth.js';
 
         const params = new URLSearchParams(window.location.search);
         const rawRedirect = params.get('redirect');
@@ -56,20 +55,49 @@
             el.style.display = message ? 'block' : 'none';
         }
 
+        if (!isAuthConfigured()) {
+            showError('Login is misconfigured (missing Supabase keys). Contact support.');
+        }
+
+        document.getElementById('forgot-password-link')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            showError('');
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showError('Enter your email above, then click Forgot password.');
+                return;
+            }
+            try {
+                const { error } = await resetPassword(email);
+                if (error) {
+                    showError('Could not send reset email: ' + error.message);
+                    return;
+                }
+                showError('Password reset email sent — check your inbox.');
+            } catch (err) {
+                showError('Could not send reset email: ' + err.message);
+            }
+        });
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             showError('');
 
             const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const password = document.getElementById('password').value;
 
             if (!email || !password) {
                 showError('Email and password are required.');
                 return;
             }
 
+            if (!isAuthConfigured()) {
+                showError('Login is misconfigured (missing Supabase keys). Contact support.');
+                return;
+            }
+
             try {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                const { error } = await signIn(email, password);
                 if (error) {
                     showError('Login failed: ' + error.message);
                     return;
