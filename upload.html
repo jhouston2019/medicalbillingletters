@@ -117,7 +117,9 @@
       <a href="/" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Home</a>
       <a href="/examples.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Examples</a>
       <a href="/pricing.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Pricing</a>
-      <a href="/login" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a>
+      <span id="nav-welcome" style="color:#94a3b8; margin:0 8px;"></span>
+      <a href="/login" id="nav-login" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Login</a>
+      <a href="#" id="nav-logout" style="display:none; color:#94a3b8; text-decoration:none; margin:0 8px;">Logout</a>
       <a href="/terms.html" style="color:#94a3b8; text-decoration:none; margin:0 8px;">Terms</a>
     </div>
   </nav>
@@ -1662,6 +1664,7 @@
       bootOnDomReady();
     }
   </script>
+  <script type="module" src="/src/nav-auth.js"></script>
   <script type="module" src="/src/mobile-nav.js"></script>
 </body>
 </html>

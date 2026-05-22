@@ -20,7 +20,9 @@
         <button type="button" class="site-nav-toggle" aria-expanded="false" aria-controls="site-nav-menu" aria-label="Toggle navigation">☰</button>
         <div id="site-nav-menu" class="site-nav-links">
             <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a>
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a>
+            <span id="nav-welcome" style="color: #f5f5f5; margin: 0 10px; padding: 8px 16px; border-radius: 4px;"></span>
+            <a href="/login.html" id="nav-login" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a>
+            <a href="#" id="nav-logout" style="display:none; color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Logout</a>
             <a href="/terms.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Terms</a>
         </div>
     </nav>
@@ -220,6 +222,7 @@
             });
         }
     </script>
+    <script type="module" src="/src/nav-auth.js"></script>
     <script type="module" src="/src/mobile-nav.js"></script>
 
     <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:60px;">
