@@ -4,7 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to Your Account | Medical Bill Dispute Pro</title>
-    <meta name="description" content="Sign in to your Medical Bill Dispute Pro account with a secure login link.">
+    <meta name="description" content="Sign in or create your Medical Bill Dispute Pro account.">
+    <style>
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; }
+        .auth-tab { flex: 1; padding: 0.75rem 1rem; border: none; background: transparent; color: #64748b; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .auth-tab.active { color: #2d3748; border-bottom-color: #334155; }
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+        .field { margin-bottom: 1.25rem; }
+        .field label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d3748; }
+        .pw-wrap { position: relative; }
+        .pw-wrap input { width: 100%; padding: 14px 44px 14px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.85rem; padding: 4px; }
+        .text-input { width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        .btn-primary { background: #334155; color: white; padding: 14px 28px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; width: 100%; }
+        .link-btn { background: none; border: none; color: #2563eb; cursor: pointer; font-size: 0.9rem; padding: 0; text-decoration: underline; }
+    </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
     <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
@@ -18,28 +33,62 @@
 
     <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
         <div style="max-width:500px; margin:2rem auto; padding:2rem; background:#ffffff; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-            <h2 style="text-align:center; margin-bottom:0.5rem; color:#2d3748; font-size:1.8rem;">Log in to Medical Bill Dispute Pro</h2>
-            <p style="text-align:center; color:#64748b; margin:0 0 2rem; font-size:0.95rem;">Check your email for a login link. It expires in 10 minutes.</p>
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-tab="login">Log In</button>
+                <button type="button" class="auth-tab" data-tab="signup">Create Account</button>
+            </div>
 
-            <form id="login-form">
-                <div style="margin-bottom:1.5rem;">
-                    <label for="email" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Email address</label>
-                    <input type="email" id="email" name="email" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-size:1rem; box-sizing:border-box;">
-                </div>
-                <button type="submit" id="login-submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600; width:100%;">Send login link</button>
-            </form>
+            <div id="panel-login" class="auth-panel active">
+                <form id="login-form">
+                    <div class="field">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" class="text-input" required autocomplete="email">
+                    </div>
+                    <div class="field">
+                        <label for="login-password">Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="login-password" required autocomplete="current-password">
+                            <button type="button" class="pw-toggle" data-target="login-password" aria-label="Show password">Show</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Log In</button>
+                </form>
+                <p style="margin-top:1rem; text-align:center;">
+                    <button type="button" id="forgot-password-btn" class="link-btn">Forgot password?</button>
+                </p>
+            </div>
 
-            <p id="login-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#fee2e2; color:#991b1b; border-radius:8px; text-align:center;"></p>
-            <p id="login-success" style="display:none; margin-top:1rem; padding:0.75rem; background:#dcfce7; color:#166534; border-radius:8px; text-align:center;"></p>
+            <div id="panel-signup" class="auth-panel">
+                <form id="signup-form">
+                    <div class="field">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" class="text-input" required autocomplete="email">
+                    </div>
+                    <div class="field">
+                        <label for="signup-password">Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="signup-password" required autocomplete="new-password" minlength="8">
+                            <button type="button" class="pw-toggle" data-target="signup-password" aria-label="Show password">Show</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="signup-confirm" required autocomplete="new-password" minlength="8">
+                            <button type="button" class="pw-toggle" data-target="signup-confirm" aria-label="Show password">Show</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </form>
+            </div>
 
-            <p style="text-align:center; margin-top:1.25rem; font-size:0.85rem; color:#64748b;">
-                New here? Just enter your email — we'll create your account automatically.
-            </p>
+            <p id="auth-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#fee2e2; color:#991b1b; border-radius:8px; text-align:center;"></p>
+            <p id="auth-success" style="display:none; margin-top:1rem; padding:0.75rem; background:#dcfce7; color:#166534; border-radius:8px; text-align:center;"></p>
         </div>
     </div>
 
     <script type="module">
-        import { signInWithMagicLink, isAuthConfigured } from './src/components/Auth.js';
+        import { signIn, signUp, resetPassword, isAuthConfigured } from './src/components/Auth.js';
 
         function nextParam() {
             const params = new URLSearchParams(window.location.search);
@@ -53,8 +102,8 @@
         }
 
         function showError(message) {
-            const el = document.getElementById('login-error');
-            const ok = document.getElementById('login-success');
+            const el = document.getElementById('auth-error');
+            const ok = document.getElementById('auth-success');
             if (ok) ok.style.display = 'none';
             if (!el) return;
             el.textContent = message;
@@ -62,12 +111,41 @@
         }
 
         function showSuccess(message) {
-            const el = document.getElementById('login-success');
-            const err = document.getElementById('login-error');
+            const el = document.getElementById('auth-success');
+            const err = document.getElementById('auth-error');
             if (err) err.style.display = 'none';
             if (!el) return;
             el.textContent = message;
             el.style.display = message ? 'block' : 'none';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+            document.getElementById('panel-signup').classList.toggle('active', tab === 'signup');
+            showError('');
+            showSuccess('');
+        }
+
+        document.querySelectorAll('.auth-tab').forEach((btn) => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        document.querySelectorAll('.pw-toggle').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                if (!input) return;
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.textContent = show ? 'Hide' : 'Show';
+            });
+        });
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('tab') === 'signup') {
+            switchTab('signup');
         }
 
         if (!isAuthConfigured()) {
@@ -79,9 +157,11 @@
             showError('');
             showSuccess('');
 
-            const email = document.getElementById('email').value.trim();
-            if (!email) {
-                showError('Please enter your email.');
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showError('Email and password are required.');
                 return;
             }
 
@@ -90,18 +170,76 @@
                 return;
             }
 
-            const redirectTo = window.location.origin + (nextParam() || '/dashboard');
-
             try {
-                const { error } = await signInWithMagicLink(email, redirectTo);
+                const { error } = await signIn(email, password);
                 if (error) {
                     showError(error.message);
                     return;
                 }
-                showSuccess('Check your email for a login link.');
-                document.getElementById('login-form').style.display = 'none';
+                window.location.href = nextParam() || '/dashboard';
             } catch (err) {
-                showError(err.message || 'Could not send login link.');
+                showError(err.message || 'Login failed.');
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showError('');
+            showSuccess('');
+
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm').value;
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match.');
+                return;
+            }
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters.');
+                return;
+            }
+
+            if (!isAuthConfigured()) {
+                showError('Login is misconfigured (missing Supabase keys). Contact support.');
+                return;
+            }
+
+            try {
+                const { data, error } = await signUp(email, password);
+                if (error) {
+                    showError(error.message);
+                    return;
+                }
+                if (data.user && !data.session) {
+                    showSuccess('Check your email to confirm your account, then log in.');
+                } else {
+                    window.location.href = nextParam() || '/dashboard';
+                }
+            } catch (err) {
+                showError(err.message || 'Sign up failed.');
+            }
+        });
+
+        document.getElementById('forgot-password-btn').addEventListener('click', async () => {
+            showError('');
+            showSuccess('');
+
+            const email = document.getElementById('login-email').value.trim();
+            if (!email) {
+                showError('Enter your email above, then click Forgot password.');
+                return;
+            }
+
+            try {
+                const { error } = await resetPassword(email);
+                if (error) {
+                    showError(error.message);
+                    return;
+                }
+                showSuccess('Password reset email sent. Check your inbox.');
+            } catch (err) {
+                showError(err.message || 'Could not send reset email.');
             }
         });
     </script>

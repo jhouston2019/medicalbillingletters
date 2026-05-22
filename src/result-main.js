@@ -1,4 +1,4 @@
-import { getSession, signInWithMagicLink } from "./components/Auth.js";
+import { getCurrentUser, signUp } from "./components/Auth.js";
 
 function jobIdFromPath() {
   const parts = window.location.pathname.split("/").filter(Boolean);
@@ -114,51 +114,83 @@ async function setupSaveAccountPrompt() {
   const prompt = document.getElementById("save-account-prompt");
   if (!prompt) return;
 
-  const session = await getSession();
-  if (session?.user) {
+  const user = await getCurrentUser();
+  if (user) {
     prompt.style.display = "none";
     return;
   }
 
   prompt.style.display = "block";
 
-  const btn = document.getElementById("save-account-btn");
-  if (!btn || btn.dataset.bound === "1") return;
-  btn.dataset.bound = "1";
+  const emailInput = document.getElementById("save-email");
+  if (emailInput) {
+    try {
+      const checkoutEmail = sessionStorage.getItem("checkout_email");
+      if (checkoutEmail && !emailInput.value) {
+        emailInput.value = checkoutEmail;
+      }
+    } catch (_) {}
+  }
 
-  btn.addEventListener("click", async () => {
+  const form = document.getElementById("save-account-form");
+  if (!form || form.dataset.bound === "1") return;
+  form.dataset.bound = "1";
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
     const email = document.getElementById("save-email")?.value.trim();
+    const password = document.getElementById("save-password")?.value || "";
+    const confirm = document.getElementById("save-confirm")?.value || "";
     const msgEl = document.getElementById("save-account-msg");
-    if (!email) {
-      if (msgEl) {
-        msgEl.textContent = "Please enter your email address.";
-        msgEl.style.display = "block";
-        msgEl.style.color = "#fca5a5";
-      }
-      return;
-    }
+    const btn = document.getElementById("save-account-btn");
 
-    const { error } = await signInWithMagicLink(
-      email,
-      window.location.origin + "/dashboard"
-    );
-
-    if (error) {
-      if (msgEl) {
-        msgEl.textContent = error.message;
-        msgEl.style.display = "block";
-        msgEl.style.color = "#fca5a5";
-      }
-      return;
-    }
-
-    if (msgEl) {
-      msgEl.textContent =
-        "Check your email — click the link to save your letter and access your dashboard.";
+    const showMsg = (text, ok) => {
+      if (!msgEl) return;
+      msgEl.textContent = text;
       msgEl.style.display = "block";
-      msgEl.style.color = "#86efac";
+      msgEl.style.color = ok ? "#86efac" : "#fca5a5";
+    };
+
+    if (!email) {
+      showMsg("Please enter your email address.", false);
+      return;
     }
-    btn.style.display = "none";
+    if (password !== confirm) {
+      showMsg("Passwords do not match.", false);
+      return;
+    }
+    if (password.length < 8) {
+      showMsg("Password must be at least 8 characters.", false);
+      return;
+    }
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Creating…";
+    }
+
+    try {
+      const { error } = await signUp(email, password);
+      if (error) {
+        showMsg(error.message, false);
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Create Account";
+        }
+        return;
+      }
+      showMsg("Account created. Redirecting to your dashboard...", true);
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1500);
+    } catch (err) {
+      showMsg(err.message || "Could not create account.", false);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Create Account";
+      }
+    }
   });
 }
 

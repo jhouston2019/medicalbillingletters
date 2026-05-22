@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 function setHeroProcessing(msg) {
   const heroSub = document.getElementById("success-hero-sub");
   if (heroSub) heroSub.textContent = msg || "";
@@ -110,6 +108,10 @@ async function run() {
     showFailure(msg);
     return;
   }
+
+  try {
+    sessionStorage.setItem("checkout_email", verifyData.email);
+  } catch (_) {}
 
   await new Promise((r) => setTimeout(r, 500));
 

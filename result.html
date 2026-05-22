@@ -29,12 +29,27 @@
       </div>
 
       <div id="save-account-prompt" style="display:none; margin-top:2rem; padding:1.5rem; background:#1e293b; border:1px solid #334155; border-radius:12px;">
-        <h3 style="margin:0 0 0.75rem; color:#f8fafc;">Save your letter to your account</h3>
-        <p style="margin:0 0 1rem; color:#94a3b8;">Create a free account to access this letter anytime from your dashboard.</p>
-        <input type="email" id="save-email" placeholder="Your email address" style="width:100%; max-width:360px; padding:12px 14px; border:1px solid #475569; border-radius:8px; background:#0f172a; color:#f8fafc; font-size:1rem; box-sizing:border-box; margin-bottom:0.75rem;" />
-        <br />
-        <button type="button" id="save-account-btn" style="padding:12px 20px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:600; cursor:pointer;">Send me a save link</button>
-        <p id="save-account-msg" style="display:none; margin:1rem 0 0; color:#86efac;"></p>
+        <h3 style="margin:0 0 0.75rem; color:#f8fafc;">Your letter is saved.</h3>
+        <p style="margin:0 0 1rem; color:#94a3b8;">Create a free account to access it anytime.</p>
+        <form id="save-account-form">
+          <div style="margin-bottom:0.75rem;">
+            <label for="save-email" style="display:block; color:#cbd5e1; font-size:0.9rem; margin-bottom:0.35rem;">Email</label>
+            <input type="email" id="save-email" required style="width:100%; max-width:400px; padding:12px 14px; border:1px solid #475569; border-radius:8px; background:#0f172a; color:#f8fafc; font-size:1rem; box-sizing:border-box;" />
+          </div>
+          <div style="margin-bottom:0.75rem;">
+            <label for="save-password" style="display:block; color:#cbd5e1; font-size:0.9rem; margin-bottom:0.35rem;">Password</label>
+            <input type="password" id="save-password" required minlength="8" style="width:100%; max-width:400px; padding:12px 14px; border:1px solid #475569; border-radius:8px; background:#0f172a; color:#f8fafc; font-size:1rem; box-sizing:border-box;" />
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="save-confirm" style="display:block; color:#cbd5e1; font-size:0.9rem; margin-bottom:0.35rem;">Confirm</label>
+            <input type="password" id="save-confirm" required minlength="8" style="width:100%; max-width:400px; padding:12px 14px; border:1px solid #475569; border-radius:8px; background:#0f172a; color:#f8fafc; font-size:1rem; box-sizing:border-box;" />
+          </div>
+          <button type="submit" id="save-account-btn" style="padding:12px 20px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:600; cursor:pointer;">Create Account</button>
+        </form>
+        <p id="save-account-msg" style="display:none; margin:1rem 0 0;"></p>
+        <p style="margin:1rem 0 0; font-size:0.9rem; color:#94a3b8;">
+          Already have an account? <a href="/login.html" style="color:#93c5fd;">Log in</a>
+        </p>
       </div>
 
       <p style="margin-top:2rem; font-size:0.95rem;">
