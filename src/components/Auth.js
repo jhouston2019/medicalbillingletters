@@ -1,12 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase, isSupabaseConfigured } from "../lib/supabaseClient.js";
 
 export function isAuthConfigured() {
-  return Boolean(supabaseUrl && supabaseAnonKey);
+  return isSupabaseConfigured();
 }
 
 export async function signIn(email, password) {
@@ -33,9 +28,14 @@ export async function updatePassword(newPassword) {
 
 export async function getCurrentUser() {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+  if (error) {
+    console.error("Failed to read auth session:", error);
+    return null;
+  }
+  return session?.user ?? null;
 }
 
 export async function getAccessToken() {

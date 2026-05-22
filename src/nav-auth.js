@@ -1,15 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "./lib/supabaseClient.js";
 import { signOut } from "./components/Auth.js";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL || "",
-  import.meta.env.VITE_SUPABASE_ANON_KEY || ""
-);
-
-async function updateNav() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+function updateNavFromSession(session) {
   const user = session?.user;
   const loginLink = document.getElementById("nav-login");
   const logoutLink = document.getElementById("nav-logout");
@@ -37,9 +29,16 @@ function bindLogout() {
   });
 }
 
+async function updateNav() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  updateNavFromSession(session);
+}
+
 export function initNavAuth() {
   updateNav();
-  supabase.auth.onAuthStateChange(() => updateNav());
+  supabase.auth.onAuthStateChange((_event, session) => updateNavFromSession(session));
   bindLogout();
 }
 
