@@ -32,6 +32,44 @@ function showFailure(message) {
   if (errEl) errEl.textContent = message;
 }
 
+function showToast(message) {
+  const el = document.createElement("div");
+  el.textContent = message;
+  el.setAttribute("role", "status");
+  el.style.cssText =
+    "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;font-size:0.95rem;max-width:min(92vw,480px);text-align:center;";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+function redirectToDashboardWithToast() {
+  try {
+    sessionStorage.setItem("dashboard_toast", "Your letter is ready — find it in Recent Letters below.");
+  } catch (_) {}
+  window.location.href = "/dashboard";
+}
+
+async function lookupJobId(session_id, initialJobId) {
+  if (initialJobId) return initialJobId;
+
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch("/.netlify/functions/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success === true && data.job_id) {
+        return String(data.job_id).trim();
+      }
+    } catch (_) {}
+    await new Promise((r) => setTimeout(r, 400));
+  }
+  return null;
+}
+
 async function run() {
   const params = new URLSearchParams(window.location.search);
   const session_id = params.get("session_id");
@@ -91,7 +129,13 @@ async function run() {
 
   await new Promise((r) => setTimeout(r, 500));
 
-  window.location.href = `/dashboard`;
+  const jobId = await lookupJobId(session_id, verifyData.job_id);
+  if (jobId) {
+    window.location.href = `/preview/${encodeURIComponent(jobId)}`;
+    return;
+  }
+
+  redirectToDashboardWithToast();
 }
 
 document.getElementById("success-retry")?.addEventListener("click", () => {

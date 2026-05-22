@@ -199,47 +199,66 @@ async function extractBillText(openai, buffer, mime, fileBase64, ctx) {
 function defaultStrategies(recommendedId) {
   const base = [
     {
-      id: "itemized_review",
-      name: "Itemized bill & code verification",
-      description: "Request a detailed itemized bill and verify each line item against documented services.",
+      id: "verify_insurance_coverage",
+      name: "Verify Insurance Coverage",
+      description: "Confirm what your insurer paid and what you owe before disputing specific charges.",
       aggressiveness: "conservative",
-      bestFor: "Unclear charges or bundled services",
+      bestFor: "Unclear EOB vs. bill differences or coverage questions",
       recommended: false,
     },
     {
-      id: "coding_correction",
-      name: "Coding and charge correction",
-      description: "Dispute specific CPT/HCPCS or ICD-10 entries that do not match documented care.",
+      id: "request_detailed_bill",
+      name: "Request Detailed Bill",
+      description: "Request an itemized statement with CPT/HCPCS codes, dates, and units for each charge.",
       aggressiveness: "moderate",
-      bestFor: "Upcoding, duplicate lines, or unbundling patterns",
+      bestFor: "Bundled or vague line items without supporting detail",
       recommended: false,
     },
     {
-      id: "balance_surprise",
-      name: "Balance / surprise billing protections",
-      description: "Invoke applicable federal or state balance billing protections where the facts support it.",
+      id: "formal_written_dispute",
+      name: "Formal Written Dispute",
+      description: "Send a structured written dispute citing factual errors and requesting correction in writing.",
       aggressiveness: "moderate",
-      bestFor: "Out-of-network or emergency context",
+      bestFor: "Documented billing errors with clear supporting facts",
       recommended: false,
     },
     {
-      id: "payer_coordination",
-      name: "Insurance coordination letter",
-      description: "Align provider billing with insurer EOB and plan terms; request corrected claim submission.",
-      aggressiveness: "conservative",
-      bestFor: "Insured patients with EOB or plan documents",
+      id: "consult_billing_advocate",
+      name: "Consult with a Billing Advocate",
+      description: "Engage a patient billing advocate to review charges and negotiate on your behalf.",
+      aggressiveness: "moderate",
+      bestFor: "Complex bills or when you want expert negotiation support",
       recommended: false,
     },
     {
-      id: "firm_deadline",
-      name: "Structured demand with deadline",
-      description: "Formal dispute with clear factual basis, regulatory hooks from analysis only, and response deadline.",
+      id: "file_insurance_appeal",
+      name: "File an Appeal with Insurance",
+      description: "Submit a formal internal appeal to your insurer with supporting documentation.",
       aggressiveness: "aggressive",
-      bestFor: "Clear errors with strong documentation",
+      bestFor: "Denied or underpaid claims with insurer documentation",
+      recommended: false,
+    },
+    {
+      id: "file_regulatory_complaint",
+      name: "File Regulatory Complaint",
+      description: "File a complaint with state or federal regulators for billing violations, including No Surprises Act / balance billing issues when supported by the facts.",
+      aggressiveness: "aggressive",
+      bestFor: "No Surprises Act / balance billing violations",
+      recommended: false,
+    },
+    {
+      id: "seek_legal_advice",
+      name: "Seek Legal Advice",
+      description: "Consult a qualified healthcare attorney when disputes involve significant amounts or legal complexity.",
+      aggressiveness: "aggressive",
+      bestFor: "High-dollar disputes, collections threats, or legal notices",
       recommended: false,
     },
   ];
-  const rid = recommendedId && base.some((s) => s.id === recommendedId) ? recommendedId : "coding_correction";
+  const rid =
+    recommendedId && base.some((s) => s.id === recommendedId)
+      ? recommendedId
+      : "request_detailed_bill";
   return base.map((s) => ({
     ...s,
     recommended: s.id === rid,
@@ -247,9 +266,9 @@ function defaultStrategies(recommendedId) {
 }
 
 function normalizePayload(raw, ctx) {
-  const rec = raw.recommendedStrategy || (raw.availableStrategies || []).find((s) => s.recommended)?.id || "coding_correction";
+  const rec = raw.recommendedStrategy || (raw.availableStrategies || []).find((s) => s.recommended)?.id || "request_detailed_bill";
   let strategies = Array.isArray(raw.availableStrategies) ? raw.availableStrategies : [];
-  if (strategies.length !== 5) {
+  if (strategies.length !== 7) {
     strategies = defaultStrategies(rec);
   } else {
     let hasRec = strategies.some((s) => s.recommended);
@@ -485,8 +504,8 @@ exports.handler = async (event) => {
               errorTypes: [],
               detectedErrors: [],
               regulatoryHooks: [],
-              availableStrategies: defaultStrategies("itemized_review"),
-              recommendedStrategy: "itemized_review",
+              availableStrategies: defaultStrategies("verify_insurance_coverage"),
+              recommendedStrategy: "verify_insurance_coverage",
               summaryForUser: preStop,
             },
             body
@@ -511,13 +530,20 @@ riskLevel ("low"|"medium"|"high"),
 errorTypes (array of strings from: duplicate_charge, upcoding, balance_billing, unbundling, not_medically_necessary, surprise_bill),
 detectedErrors (array of {type, description, cptCode, amount, confidence}),
 regulatoryHooks (array of {law, citation, applicability} — only hooks grounded in analysis; use exact NSA/ERISA citations above when those laws apply),
-availableStrategies (exactly 5 objects: {id, name, description, aggressiveness, bestFor, recommended}),
+availableStrategies (exactly 7 objects: {id, name, description, aggressiveness, bestFor, recommended}),
 recommendedStrategy (id string),
 summaryForUser (2-3 sentences, plain language),
 hardStop (boolean),
 hardStopReason (string or null)
 
-exactly 5 strategies required; one must have recommended true.`;
+Exactly 7 strategies required; one must have recommended true. Use these exact strategy names (personalize descriptions and bestFor to the bill):
+1. Verify Insurance Coverage (conservative)
+2. Request Detailed Bill (moderate)
+3. Formal Written Dispute (moderate)
+4. Consult with a Billing Advocate (moderate)
+5. File an Appeal with Insurance (aggressive)
+6. File Regulatory Complaint (aggressive) — best for No Surprises Act / balance billing violations when supported by facts
+7. Seek Legal Advice (aggressive)`;
 
     const userBlob = {
       billDate,

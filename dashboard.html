@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <title>Your Dashboard | Medical Bill Dispute Pro</title>
-    <meta name="description" content="Access your Medical Bill Dispute Pro dashboard to view your claim letter analyses, response letters, and account information.">
+    <meta name="description" content="Access your Medical Bill Dispute Pro dashboard to view your dispute letters and account information.">
     <link rel="canonical" href="https://medicalbillingdisputehelp.ai/dashboard.html">
     <meta property="og:title" content="Your Dashboard | Medical Bill Dispute Pro">
-    <meta property="og:description" content="Access your Medical Bill Dispute Pro dashboard to view your claim letter analyses, response letters, and account information.">
+    <meta property="og:description" content="Access your Medical Bill Dispute Pro dashboard to view your dispute letters and account information.">
     <meta property="og:image" content="https://medicalbillingdisputehelp.ai/images/og-image.jpg">
     <meta property="og:url" content="https://medicalbillingdisputehelp.ai/dashboard.html">
     <meta property="og:type" content="website">
@@ -18,48 +18,30 @@
         <div style="color: #f5f5f5;"><strong>Medical Bill Dispute Pro</strong></div>
         <div>
             <a href="/" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Home</a> |
-            <a href="/examples.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Examples</a> |
-            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a> |
             <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a> |
             <a href="/terms.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Terms</a>
         </div>
     </nav>
 
     <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
-        <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:1rem;">Your Dashboard</h1>
-
-        <div style="margin-bottom:2rem;">
-            <a href="/upload" style="display:inline-block; background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#ffffff; padding:1rem 1.75rem; border-radius:12px; font-size:1.15rem; font-weight:800; text-decoration:none; box-shadow:0 8px 24px rgba(34,197,94,0.35); letter-spacing:0.02em;">Upload wizard</a>
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:2rem;">
+            <h1 style="color:#ffffff; font-size:2.5rem; margin:0;">Your Dashboard</h1>
+            <a href="/upload.html" style="display:inline-block; background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#ffffff; padding:0.85rem 1.5rem; border-radius:10px; font-size:1rem; font-weight:700; text-decoration:none; box-shadow:0 8px 24px rgba(34,197,94,0.35);">Dispute Another Bill →</a>
         </div>
 
-        <div id="billing-panel" style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:2rem; max-width:720px;">
-            <h2 style="margin:0 0 0.75rem; font-size:1.15rem; color:#f8fafc;">Plan</h2>
-            <p id="billing-panel-body" style="margin:0; color:#94a3b8;">Loading billing…</p>
-            <a href="/pricing" style="display:inline-block; margin-top:1rem; color:#93c5fd; font-weight:600; text-decoration:none;">Upgrade plan →</a>
+        <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:2rem; margin-bottom:2rem;">
+            <h2 style="color:#ffffff; font-size:1.5rem; margin:0 0 1.25rem;">Your Letters</h2>
+            <div id="recentLetters">
+                <p style="color:#94a3b8;">Loading letters…</p>
+            </div>
         </div>
-        
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; margin:2rem 0;">
-            <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
-                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Recent Letters</h3>
-                <div id="recentLetters">
-                    <p style="color:#94a3b8;">Loading appeals…</p>
-                </div>
-                <a href="/upload" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; margin-top:1rem; border:1px solid #475569;">New dispute wizard</a>
-            </div>
-            
-            <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
-                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Quick Actions</h3>
-                <div style="display:flex; flex-direction:column; gap:1rem;">
-                    <a href="/upload" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; text-align:center; border:1px solid #475569;">Open wizard</a>
-                    <a href="/pricing.html" style="background:#475569; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; text-align:center;">Pricing</a>
-                </div>
-            </div>
-            
-            <div style="background:#1e293b; padding:2rem; border-radius:12px; color:#ffffff; border:1px solid #334155;">
-                <h3 style="color:#ffffff; font-size:1.5rem; margin-bottom:1rem;">Account Status</h3>
-                <div id="accountStatus">
-                    <p style="color:#94a3b8;">Loading account information...</p>
-                </div>
+
+        <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:2rem;">
+            <h2 style="color:#ffffff; font-size:1.5rem; margin:0 0 1.25rem;">Account</h2>
+            <div id="accountStatus" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem 2rem;">
+                <p style="color:#ffffff; margin:0;"><strong>Email:</strong><br><span id="account-email" style="color:#94a3b8;">—</span></p>
+                <p style="color:#ffffff; margin:0;"><strong>Member since:</strong><br><span id="account-member-since" style="color:#94a3b8;">—</span></p>
+                <p style="color:#ffffff; margin:0;"><strong>Letters created:</strong><br><span id="account-letters-count" style="color:#94a3b8;">—</span></p>
             </div>
         </div>
     </div>
@@ -68,53 +50,66 @@
         import { getUserMedicalBillJobs } from './src/components/UploadForm.js';
         import { getCurrentUser } from './src/components/Auth.js';
 
-        function readSupabaseAccessTokenFromStorage() {
+        function showToast(message) {
+            const el = document.createElement('div');
+            el.textContent = message;
+            el.setAttribute('role', 'status');
+            el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;font-size:0.95rem;max-width:min(92vw,480px);text-align:center;';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 6000);
+        }
+
+        function providerFromJob(row) {
+            const letter = row.letter_full || '';
+            const reMatch = letter.match(/^Re:\s*(.+)$/im);
+            if (reMatch && reMatch[1].trim()) {
+                return reMatch[1].trim().slice(0, 80);
+            }
+            const dearMatch = letter.match(/^Dear\s+(.+?)[,\n]/im);
+            if (dearMatch && dearMatch[1].trim()) {
+                return dearMatch[1].trim().slice(0, 80);
+            }
+            const firstLine = letter.split('\n').map((l) => l.trim()).find(Boolean);
+            if (firstLine && firstLine.length > 3) {
+                return firstLine.slice(0, 80);
+            }
+            return 'Medical provider';
+        }
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (!key || !key.includes('auth-token')) continue;
-                    const raw = localStorage.getItem(key);
-                    if (!raw) continue;
-                    const data = JSON.parse(raw);
-                    const token = data?.access_token ?? data?.currentSession?.access_token;
-                    if (typeof token === 'string' && token.length > 20) return token;
+                const toast = sessionStorage.getItem('dashboard_toast');
+                if (toast) {
+                    sessionStorage.removeItem('dashboard_toast');
+                    showToast(toast);
                 }
             } catch (_) {}
-            return null;
-        }
-        
-        let currentUser = null;
-        
-        document.addEventListener('DOMContentLoaded', async () => {
+
             currentUser = await getCurrentUser();
-            
+
             if (!currentUser) {
                 window.location.href = '/login?redirect=' + encodeURIComponent('/dashboard');
                 return;
             }
-            
-            // Payment verification happens server-side on API calls
-            // No client-side checks - all enforcement in backend
-            
-                await loadUserData(currentUser);
+
+            document.getElementById('account-email').textContent = currentUser.email || '—';
+            document.getElementById('account-member-since').textContent =
+                currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString() : '—';
+
+            await loadUserData(currentUser);
         });
-        
+
         async function loadUserData(user) {
             try {
                 const appeals = await getUserMedicalBillJobs(user.id);
+                document.getElementById('account-letters-count').textContent = String(appeals.length);
                 displayRecentAppeals(appeals);
-                await updateAccountStatus(appeals.length);
             } catch (error) {
                 console.error('Failed to load user data:', error);
-                document.getElementById('recentLetters').innerHTML = '<p style="color:#94a3b8;">Failed to load appeals</p>';
+                document.getElementById('recentLetters').innerHTML = '<p style="color:#94a3b8;">Failed to load letters</p>';
             }
-        }
-
-        function letterPreviewSnippet(letterFull) {
-            if (!letterFull || typeof letterFull !== 'string') return 'Medical bill appeal';
-            const t = letterFull.replace(/\s+/g, ' ').trim();
-            if (!t) return 'Medical bill appeal';
-            return t.length > 96 ? t.slice(0, 96) + '…' : t;
         }
 
         function displayRecentAppeals(appeals) {
@@ -125,88 +120,37 @@
                 <div style="text-align:center; padding:2rem;">
                   <div style="font-size:3rem; margin-bottom:1rem;" aria-hidden="true">&#128196;</div>
                   <p style="color:#94a3b8; margin-bottom:1.5rem;">No dispute letters yet.</p>
-                  <a href="/upload" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">Start your appeal</a>
+                  <a href="/upload.html" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">Dispute Your First Bill</a>
                 </div>`;
                 return;
             }
 
             container.replaceChildren();
-            appeals.slice(0, 5).forEach((rowData) => {
+            appeals.forEach((rowData) => {
                 const row = document.createElement('div');
-                row.style.cssText = 'border: 1px solid #334155; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background:#0f172a;';
-                const strong = document.createElement('strong');
-                strong.style.color = '#ffffff';
-                strong.textContent = letterPreviewSnippet(rowData.letter_full);
-                const br = document.createElement('br');
-                const small = document.createElement('small');
-                small.style.color = '#94a3b8';
-                small.textContent = 'Created: ' + new Date(rowData.created_at).toLocaleDateString();
-                row.appendChild(strong);
-                row.appendChild(br);
-                row.appendChild(small);
-                if (rowData.id) {
-                    const br2 = document.createElement('br');
-                    const link = document.createElement('a');
-                    link.href = '/result/' + encodeURIComponent(rowData.id);
-                    link.textContent = 'View appeal →';
-                    link.style.cssText = 'color:#93c5fd; font-weight:600; margin-top:0.35rem; display:inline-block;';
-                    row.appendChild(br2);
-                    row.appendChild(link);
-                }
+                row.style.cssText = 'display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.75rem; border:1px solid #334155; padding:1rem 1.25rem; margin:0.5rem 0; border-radius:8px; background:#0f172a;';
+
+                const meta = document.createElement('div');
+                meta.style.color = '#ffffff';
+                const dateStr = rowData.created_at ? new Date(rowData.created_at).toLocaleDateString() : '—';
+                const provider = providerFromJob(rowData);
+                meta.textContent = dateStr + '  |  ' + provider;
+
+                const link = document.createElement('a');
+                link.href = '/preview/' + encodeURIComponent(rowData.id);
+                link.textContent = 'View Letter →';
+                link.style.cssText = 'color:#22c55e; font-weight:600; text-decoration:none; white-space:nowrap;';
+
+                row.appendChild(meta);
+                row.appendChild(link);
                 container.appendChild(row);
             });
-        }
-        
-        async function updateAccountStatus(appealsCreatedCount) {
-            const statusDiv = document.getElementById('accountStatus');
-            const billingEl = document.getElementById('billing-panel-body');
-            let planLabel = '\u2014';
-
-            let billingFilled = false;
-
-            const token = readSupabaseAccessTokenFromStorage();
-            if (token) {
-                try {
-                    const res = await fetch('/.netlify/functions/billing-status', {
-                        headers: { Authorization: 'Bearer ' + token },
-                    });
-                    const b = await res.json();
-                    if (res.ok && b && !b.error) {
-                        planLabel = (b.plan_type || '—').toString();
-                        const paid = b.paid === true ? 'Active' : b.paid === false ? 'Not paid' : '—';
-                        const renewalText = b.renewal_at
-                            ? new Date(b.renewal_at).toLocaleDateString()
-                            : 'One-time / not set';
-                        if (billingEl) {
-                            billingEl.innerHTML =
-                                '<strong style="color:#e2e8f0;">Plan:</strong> ' + planLabel +
-                                ' · <strong style="color:#e2e8f0;">Billing:</strong> ' + paid +
-                                '<br><strong style="color:#e2e8f0;">Renewal:</strong> ' + renewalText +
-                                '<br><strong style="color:#e2e8f0;">Appeals created:</strong> ' +
-                                (typeof appealsCreatedCount === 'number' ? appealsCreatedCount : '—');
-                            billingFilled = true;
-                        }
-                    }
-                } catch (_) {}
-            }
-
-            if (billingEl && !billingFilled) {
-                billingEl.innerHTML =
-                    '<strong style="color:#e2e8f0;">Appeals created:</strong> ' +
-                    (typeof appealsCreatedCount === 'number' ? appealsCreatedCount : '—');
-            }
-
-            statusDiv.innerHTML = `
-                <p style="color:#ffffff;"><strong>Email:</strong> <span style="color:#94a3b8;">${currentUser.email}</span></p>
-                <p style="color:#ffffff;"><strong>Member since:</strong> <span style="color:#94a3b8;">${new Date(currentUser.created_at).toLocaleDateString()}</span></p>
-                <p style="color:#ffffff;"><strong>Plan (summary):</strong> <span style="color:#94a3b8;">${planLabel}</span></p>
-            `;
         }
     </script>
 
     <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:60px;">
         <div style="width:min(1120px, 92%); margin-inline:auto;">
-            <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd; text-decoration:none;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd; text-decoration:none;">Terms</a> | <a href="/disclaimer.html" style="color:#93c5fd; text-decoration:none;">Disclaimer</a> | <a href="/admin-login.html" style="color:#475569; text-decoration:none; font-size:0.75rem;">Admin</a></p>
+            <p>&copy; 2026 Medical Bill Dispute Pro. <a href="/privacy.html" style="color:#93c5fd; text-decoration:none;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd; text-decoration:none;">Terms</a> | <a href="/disclaimer.html" style="color:#93c5fd; text-decoration:none;">Disclaimer</a></p>
         </div>
     </footer>
 </body>

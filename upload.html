@@ -49,7 +49,8 @@
       background: #22c55e;
       color: #ffffff;
     }
-    #step3-next:disabled {
+    #step3-next:disabled,
+    #step4-next:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
@@ -75,11 +76,14 @@
     #step6-loading { color: #64748b; }
     #letter-body {
       min-height: 280px;
-      padding: 1rem;
       background: #ffffff;
-      border: 1px solid #cbd5e1;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
-      color: #0f172a;
+      padding: 2rem;
+      font-family: 'Georgia', serif;
+      font-size: 0.95rem;
+      line-height: 1.7;
       white-space: normal;
       box-sizing: border-box;
       width: 100%;
@@ -882,6 +886,36 @@
       return String(id || 'strategy').replace(/[^a-zA-Z0-9_-]/g, '-');
     }
 
+    function updateStep4NextButton() {
+      const btn = document.getElementById('step4-next');
+      if (!btn) return;
+      if (!state.strategy) {
+        btn.disabled = true;
+        return;
+      }
+      if (state.strategy.id === 'custom') {
+        const text = document.getElementById('custom-strategy-text')?.value.trim() || '';
+        btn.disabled = !text;
+        if (text) {
+          state.strategy = {
+            id: 'custom',
+            name: 'Custom',
+            description: text,
+            aggressiveness: 'moderate',
+          };
+        }
+        return;
+      }
+      btn.disabled = false;
+    }
+
+    function clearStrategyCardHighlights() {
+      document.querySelectorAll('[data-strategy-card]').forEach((cel) => {
+        cel.style.border = '1px solid #cbd5e1';
+        cel.style.background = '#ffffff';
+      });
+    }
+
     function renderStrategyCards() {
       const host = document.getElementById('strategy-cards');
       if (!host) return;
@@ -896,6 +930,7 @@
         card.id = 'strategy-card-' + sid;
         card.style.cssText = 'padding:1rem; border-radius:12px; border:1px solid #cbd5e1; background:#ffffff; cursor:pointer; color:#0f172a;';
         card.dataset.strategyId = s.id;
+        card.dataset.strategyCard = '1';
         const title = document.createElement('div');
         title.style.fontWeight = '700';
         title.style.color = '#0f172a';
@@ -924,18 +959,12 @@
         card.appendChild(best);
 
         function selectCard() {
-          strategies.forEach((x) => {
-            const xid = safeStrategyDomId(x.id);
-            const cel = document.getElementById('strategy-card-' + xid);
-            if (cel) {
-              cel.style.border = '1px solid #cbd5e1';
-              cel.style.background = '#ffffff';
-            }
-          });
+          clearStrategyCardHighlights();
           card.style.border = '2px solid #22c55e';
           card.style.background = '#f0fdf4';
           state.strategy = s;
           document.getElementById('selected-strategy-display').textContent = 'Selected: ' + (s.name || s.id);
+          updateStep4NextButton();
         }
 
         card.addEventListener('click', selectCard);
@@ -944,6 +973,67 @@
           selectCard();
         }
       });
+
+      const customCard = document.createElement('div');
+      customCard.id = 'strategy-card-custom';
+      customCard.dataset.strategyCard = '1';
+      customCard.style.cssText = 'padding:1rem; border-radius:12px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a;';
+      const customTitle = document.createElement('div');
+      customTitle.style.fontWeight = '700';
+      customTitle.style.color = '#0f172a';
+      customTitle.textContent = 'Other / Describe My Situation';
+      const customTextarea = document.createElement('textarea');
+      customTextarea.id = 'custom-strategy-text';
+      customTextarea.rows = 4;
+      customTextarea.placeholder = 'Describe your specific situation or goal for this dispute letter...';
+      customTextarea.style.cssText = 'width:100%; box-sizing:border-box; margin-top:0.75rem; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:8px; padding:10px 12px; font-family:inherit; font-size:0.95rem; resize:vertical;';
+      customTextarea.addEventListener('click', (e) => e.stopPropagation());
+      customTextarea.addEventListener('input', () => {
+        if (state.strategy?.id === 'custom') {
+          const text = customTextarea.value.trim();
+          state.strategy = {
+            id: 'custom',
+            name: 'Custom',
+            description: text,
+            aggressiveness: 'moderate',
+          };
+          document.getElementById('selected-strategy-display').textContent = text
+            ? 'Selected: Custom'
+            : 'Selected: Custom (describe your situation below)';
+          updateStep4NextButton();
+        }
+      });
+      customCard.appendChild(customTitle);
+      customCard.appendChild(customTextarea);
+
+      function selectCustomCard() {
+        clearStrategyCardHighlights();
+        customCard.style.border = '2px solid #22c55e';
+        customCard.style.background = '#f0fdf4';
+        const text = customTextarea.value.trim();
+        state.strategy = {
+          id: 'custom',
+          name: 'Custom',
+          description: text,
+          aggressiveness: 'moderate',
+        };
+        document.getElementById('selected-strategy-display').textContent = text
+          ? 'Selected: Custom'
+          : 'Selected: Custom (describe your situation below)';
+        updateStep4NextButton();
+        customTextarea.focus();
+      }
+
+      customCard.addEventListener('click', (e) => {
+        if (e.target === customTextarea) {
+          selectCustomCard();
+          return;
+        }
+        selectCustomCard();
+      });
+
+      host.appendChild(customCard);
+      updateStep4NextButton();
     }
 
     function applyStep5Prefill() {
@@ -1455,6 +1545,19 @@
       if (!state.strategy) {
         setError('step4-error', 'Select a strategy.');
         return;
+      }
+      if (state.strategy.id === 'custom') {
+        const text = document.getElementById('custom-strategy-text')?.value.trim() || '';
+        if (!text) {
+          setError('step4-error', 'Describe your situation before continuing.');
+          return;
+        }
+        state.strategy = {
+          id: 'custom',
+          name: 'Custom',
+          description: text,
+          aggressiveness: 'moderate',
+        };
       }
       showStep(5);
       applyStep5Prefill();
