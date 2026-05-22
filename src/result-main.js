@@ -1,4 +1,4 @@
-import { getCurrentUser, signUp } from "./components/Auth.js";
+import { getCurrentUser, signIn } from "./components/Auth.js";
 
 function jobIdFromPath() {
   const parts = window.location.pathname.split("/").filter(Boolean);
@@ -107,10 +107,10 @@ async function run() {
     }
   });
 
-  await setupSaveAccountPrompt();
+  await setupSaveAccountPrompt(jobId);
 }
 
-async function setupSaveAccountPrompt() {
+async function setupSaveAccountPrompt(jobId) {
   const prompt = document.getElementById("save-account-prompt");
   if (!prompt) return;
 
@@ -167,20 +167,36 @@ async function setupSaveAccountPrompt() {
 
     if (btn) {
       btn.disabled = true;
-      btn.textContent = "Creating…";
+      btn.textContent = "Saving…";
     }
 
     try {
-      const { error } = await signUp(email, password);
-      if (error) {
-        showMsg(error.message, false);
+      const claimRes = await fetch("/.netlify/functions/claim-checkout-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, job_id: jobId }),
+      });
+      const claimData = await claimRes.json().catch(() => ({}));
+      if (!claimRes.ok || !claimData.success) {
+        showMsg(claimData.error || "Could not set password.", false);
         if (btn) {
           btn.disabled = false;
-          btn.textContent = "Create Account";
+          btn.textContent = "Set Password & Save";
         }
         return;
       }
-      showMsg("Account created. Redirecting to your dashboard...", true);
+
+      const { error: signInErr } = await signIn(email, password);
+      if (signInErr) {
+        showMsg(signInErr.message, false);
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Set Password & Save";
+        }
+        return;
+      }
+
+      showMsg("Password saved. Redirecting to your dashboard...", true);
       setTimeout(() => {
         window.location.href = "/dashboard";
       }, 1500);
@@ -188,7 +204,7 @@ async function setupSaveAccountPrompt() {
       showMsg(err.message || "Could not create account.", false);
       if (btn) {
         btn.disabled = false;
-        btn.textContent = "Create Account";
+        btn.textContent = "Set Password & Save";
       }
     }
   });

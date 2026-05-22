@@ -173,7 +173,13 @@
             try {
                 const { error } = await signIn(email, password);
                 if (error) {
-                    showError(error.message);
+                    if (/invalid login credentials/i.test(error.message)) {
+                        showError(
+                            'Invalid email or password. Paid at checkout? Open your letter page and set a password there, or click Forgot password once to reset it.'
+                        );
+                    } else {
+                        showError(error.message);
+                    }
                     return;
                 }
                 window.location.href = nextParam() || '/dashboard';

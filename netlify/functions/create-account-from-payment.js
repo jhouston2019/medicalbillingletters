@@ -225,7 +225,6 @@ exports.handler = async (event) => {
     if (existingUser?.id) {
       userId = existingUser.id;
       const { error: updErr } = await supabase.auth.admin.updateUserById(userId, {
-        password,
         email_confirm: true,
       });
       if (updErr) {
@@ -249,7 +248,6 @@ exports.handler = async (event) => {
         if (again?.id) {
           userId = again.id;
           const { error: updErr } = await supabase.auth.admin.updateUserById(userId, {
-            password,
             email_confirm: true,
           });
           if (updErr) {
