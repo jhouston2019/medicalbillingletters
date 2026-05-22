@@ -16,6 +16,7 @@ const skip = new Set([
   "dashboard.html",
   "login.html",
   "signup.html",
+  "update-password.html",
   "examples.html",
   "preview.html",
   "result.html",

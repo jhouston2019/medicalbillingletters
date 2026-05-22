@@ -9,20 +9,13 @@ export function isAuthConfigured() {
   return Boolean(supabaseUrl && supabaseAnonKey);
 }
 
-export async function signIn(email, password) {
-  return supabase.auth.signInWithPassword({ email, password });
-}
-
-export async function resetPassword(email) {
-  const redirectTo =
-    typeof window !== "undefined" && window.location?.origin
-      ? `${window.location.origin}/login.html`
-      : undefined;
-  return supabase.auth.resetPasswordForEmail(email, redirectTo ? { redirectTo } : undefined);
-}
-
-export async function signUp(email, password) {
-  return supabase.auth.signUp({ email, password });
+export async function signInWithMagicLink(email, redirectTo) {
+  return supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectTo,
+    },
+  });
 }
 
 export async function signOut() {

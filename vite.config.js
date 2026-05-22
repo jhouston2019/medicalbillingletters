@@ -40,6 +40,7 @@ export default defineConfig(({ mode }) => {
           dashboard: resolve(__dirname, 'dashboard.html'),
           login: resolve(__dirname, 'login.html'),
           signup: resolve(__dirname, 'signup.html'),
+          updatePassword: resolve(__dirname, 'update-password.html'),
           examples: resolve(__dirname, 'examples.html'),
           preview: resolve(__dirname, 'preview.html'),
           result: resolve(__dirname, 'result.html'),

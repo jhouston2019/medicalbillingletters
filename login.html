@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to Your Account | Medical Bill Dispute Pro</title>
-    <meta name="description" content="Sign in to your Medical Bill Dispute Pro account.">
+    <meta name="description" content="Sign in to your Medical Bill Dispute Pro account with a secure login link.">
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
     <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
@@ -12,44 +12,59 @@
         <div>
             <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Upload</a> |
             <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Dashboard</a> |
-            <a href="/pricing" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a> |
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Login</a>
+            <a href="/pricing" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px;">Pricing</a>
         </div>
     </nav>
 
     <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
         <div style="max-width:500px; margin:2rem auto; padding:2rem; background:#ffffff; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-            <h2 style="text-align:center; margin-bottom:2rem; color:#2d3748; font-size:1.8rem;">Log in</h2>
-            <form id="loginForm">
+            <h2 style="text-align:center; margin-bottom:0.5rem; color:#2d3748; font-size:1.8rem;">Log in to Medical Bill Dispute Pro</h2>
+            <p style="text-align:center; color:#64748b; margin:0 0 2rem; font-size:0.95rem;">Check your email for a login link. It expires in 10 minutes.</p>
+
+            <form id="login-form">
                 <div style="margin-bottom:1.5rem;">
-                    <label for="email" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Email</label>
-                    <input type="email" id="email" name="email" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-size:1rem;">
+                    <label for="email" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Email address</label>
+                    <input type="email" id="email" name="email" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-size:1rem; box-sizing:border-box;">
                 </div>
-                <div style="margin-bottom:1.5rem;">
-                    <label for="password" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Password</label>
-                    <input type="password" id="password" name="password" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-size:1rem;">
-                </div>
-                <button type="submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600; width:100%;">Log in</button>
+                <button type="submit" id="login-submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600; width:100%;">Send login link</button>
             </form>
+
             <p id="login-error" style="display:none; margin-top:1rem; padding:0.75rem; background:#fee2e2; color:#991b1b; border-radius:8px; text-align:center;"></p>
-            <p style="text-align: center; margin-top: 1rem; color:#2d3748;">
-                <a href="/signup.html" style="color:#93c5fd; text-decoration:none;">Create account</a>
-                · <a href="#" id="forgot-password-link" style="color:#93c5fd; text-decoration:none;">Forgot password?</a>
-            </p>
-            <p style="text-align: center; margin-top: 0.75rem; font-size: 0.9rem; color:#64748b;">
-                Paid at checkout? Use the email from Stripe and choose Forgot password to set one.
+            <p id="login-success" style="display:none; margin-top:1rem; padding:0.75rem; background:#dcfce7; color:#166534; border-radius:8px; text-align:center;"></p>
+
+            <p style="text-align:center; margin-top:1.25rem; font-size:0.85rem; color:#64748b;">
+                New here? Just enter your email — we'll create your account automatically.
             </p>
         </div>
     </div>
 
     <script type="module">
-        import { signIn, resetPassword, isAuthConfigured } from './src/components/Auth.js';
+        import { signInWithMagicLink, isAuthConfigured } from './src/components/Auth.js';
 
-        const params = new URLSearchParams(window.location.search);
-        const rawRedirect = params.get('redirect');
+        function nextParam() {
+            const params = new URLSearchParams(window.location.search);
+            const next = params.get('next') || params.get('redirect');
+            if (!next) return null;
+            try {
+                const path = decodeURIComponent(next);
+                if (path.startsWith('/') && !path.startsWith('//')) return path;
+            } catch (_) {}
+            return null;
+        }
 
         function showError(message) {
             const el = document.getElementById('login-error');
+            const ok = document.getElementById('login-success');
+            if (ok) ok.style.display = 'none';
+            if (!el) return;
+            el.textContent = message;
+            el.style.display = message ? 'block' : 'none';
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('login-success');
+            const err = document.getElementById('login-error');
+            if (err) err.style.display = 'none';
             if (!el) return;
             el.textContent = message;
             el.style.display = message ? 'block' : 'none';
@@ -59,35 +74,14 @@
             showError('Login is misconfigured (missing Supabase keys). Contact support.');
         }
 
-        document.getElementById('forgot-password-link')?.addEventListener('click', async (e) => {
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             showError('');
+            showSuccess('');
+
             const email = document.getElementById('email').value.trim();
             if (!email) {
-                showError('Enter your email above, then click Forgot password.');
-                return;
-            }
-            try {
-                const { error } = await resetPassword(email);
-                if (error) {
-                    showError('Could not send reset email: ' + error.message);
-                    return;
-                }
-                showError('Password reset email sent — check your inbox.');
-            } catch (err) {
-                showError('Could not send reset email: ' + err.message);
-            }
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showError('');
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                showError('Email and password are required.');
+                showError('Please enter your email.');
                 return;
             }
 
@@ -96,24 +90,18 @@
                 return;
             }
 
+            const redirectTo = window.location.origin + (nextParam() || '/dashboard');
+
             try {
-                const { error } = await signIn(email, password);
+                const { error } = await signInWithMagicLink(email, redirectTo);
                 if (error) {
-                    showError('Login failed: ' + error.message);
+                    showError(error.message);
                     return;
                 }
-                if (rawRedirect) {
-                    try {
-                        const path = decodeURIComponent(rawRedirect);
-                        if (path.startsWith('/') && !path.startsWith('//')) {
-                            window.location.href = path;
-                            return;
-                        }
-                    } catch (_) {}
-                }
-                window.location.href = '/upload.html';
+                showSuccess('Check your email for a login link.');
+                document.getElementById('login-form').style.display = 'none';
             } catch (err) {
-                showError('Login failed: ' + err.message);
+                showError(err.message || 'Could not send login link.');
             }
         });
     </script>

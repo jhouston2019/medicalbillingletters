@@ -1,10 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
 function setHeroProcessing(msg) {
   const heroSub = document.getElementById("success-hero-sub");
   if (heroSub) heroSub.textContent = msg || "";
@@ -98,7 +93,7 @@ async function run() {
     return;
   }
 
-  setHeroProcessing("Creating your session…");
+  setHeroProcessing("Finalizing your letter…");
 
   const accRes = await fetch("/.netlify/functions/create-account-from-payment", {
     method: "POST",
@@ -108,22 +103,11 @@ async function run() {
 
   const accData = await accRes.json().catch(() => ({}));
 
-  if (!accRes.ok || accData.success !== true || !accData.access_token) {
+  if (!accRes.ok || accData.success !== true) {
     const msg =
-      [accData.error, accData.details].filter(Boolean).join(" — ") || "Could not complete signup.";
+      [accData.error, accData.details].filter(Boolean).join(" — ") || "Could not complete purchase.";
     showProcessingUi(false);
     showFailure(msg);
-    return;
-  }
-
-  const { error: setErr } = await supabase.auth.setSession({
-    access_token: accData.access_token,
-    refresh_token: accData.refresh_token,
-  });
-
-  if (setErr) {
-    showProcessingUi(false);
-    showFailure([setErr.message, "Browser could not store the session."].filter(Boolean).join(" "));
     return;
   }
 

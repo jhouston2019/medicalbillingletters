@@ -1,3 +1,5 @@
+import { getSession, signInWithMagicLink } from "./components/Auth.js";
+
 function jobIdFromPath() {
   const parts = window.location.pathname.split("/").filter(Boolean);
   const idx = parts.indexOf("result");
@@ -103,6 +105,60 @@ async function run() {
     } catch (e) {
       alert(e.message);
     }
+  });
+
+  await setupSaveAccountPrompt();
+}
+
+async function setupSaveAccountPrompt() {
+  const prompt = document.getElementById("save-account-prompt");
+  if (!prompt) return;
+
+  const session = await getSession();
+  if (session?.user) {
+    prompt.style.display = "none";
+    return;
+  }
+
+  prompt.style.display = "block";
+
+  const btn = document.getElementById("save-account-btn");
+  if (!btn || btn.dataset.bound === "1") return;
+  btn.dataset.bound = "1";
+
+  btn.addEventListener("click", async () => {
+    const email = document.getElementById("save-email")?.value.trim();
+    const msgEl = document.getElementById("save-account-msg");
+    if (!email) {
+      if (msgEl) {
+        msgEl.textContent = "Please enter your email address.";
+        msgEl.style.display = "block";
+        msgEl.style.color = "#fca5a5";
+      }
+      return;
+    }
+
+    const { error } = await signInWithMagicLink(
+      email,
+      window.location.origin + "/dashboard"
+    );
+
+    if (error) {
+      if (msgEl) {
+        msgEl.textContent = error.message;
+        msgEl.style.display = "block";
+        msgEl.style.color = "#fca5a5";
+      }
+      return;
+    }
+
+    if (msgEl) {
+      msgEl.textContent =
+        "Check your email — click the link to save your letter and access your dashboard.";
+      msgEl.style.display = "block";
+      msgEl.style.color = "#86efac";
+    }
+    btn.style.display = "none";
   });
 }
 
