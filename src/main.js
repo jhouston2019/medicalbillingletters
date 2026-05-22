@@ -1,67 +1,56 @@
 // Main application entry point
-import { getCurrentUser, getSession } from './components/Auth.js';
+import { createClient } from "@supabase/supabase-js";
+import { getCurrentUser, getSession, signOut } from "./components/Auth.js";
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', async () => {
-  const pricingBtn = document.getElementById('pricing-checkout');
-  if (pricingBtn) {
-    pricingBtn.addEventListener('click', (e) => window.startCheckout('single', e));
-  }
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL || "",
+  import.meta.env.VITE_SUPABASE_ANON_KEY || ""
+);
 
-  // Check if user is logged in
-  const user = await getCurrentUser();
-  const session = await getSession();
-  
-  if (user && session) {
-    // User is logged in, show dashboard link
-    updateNavigationForLoggedInUser(user);
+async function updateNav() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
+  const loginLink = document.getElementById("nav-login");
+  const logoutLink = document.getElementById("nav-logout");
+  const welcomeEl = document.getElementById("nav-welcome");
+
+  if (user) {
+    if (loginLink) loginLink.style.display = "none";
+    if (logoutLink) logoutLink.style.display = "inline";
+    if (welcomeEl) welcomeEl.textContent = "Welcome, " + user.email;
   } else {
-    // User is not logged in, show login/signup
-    updateNavigationForGuest();
+    if (loginLink) loginLink.style.display = "inline";
+    if (logoutLink) logoutLink.style.display = "none";
+    if (welcomeEl) welcomeEl.textContent = "";
   }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const pricingBtn = document.getElementById("pricing-checkout");
+  if (pricingBtn) {
+    pricingBtn.addEventListener("click", (e) => window.startCheckout("single", e));
+  }
+
+  updateNav();
+  supabase.auth.onAuthStateChange(() => updateNav());
+
+  document.getElementById("nav-logout")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await signOut();
+    window.location.href = "/";
+  });
 });
-
-function updateNavigationForLoggedInUser(user) {
-  const nav = document.querySelector('.site-nav-links') || document.querySelector('nav div:last-child');
-  if (nav) {
-    nav.innerHTML = `
-      <a href="/upload">Upload</a>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/pricing.html">Pricing</a>
-      <span>Welcome, ${user.email}</span>
-      <a href="#" id="logout">Logout</a>
-    `;
-    
-    // Add logout functionality
-    document.getElementById('logout').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const { signOut } = await import('./components/Auth.js');
-      await signOut();
-      window.location.href = '/';
-    });
-  }
-}
-
-function updateNavigationForGuest() {
-  const nav = document.querySelector('.site-nav-links') || document.querySelector('nav div:last-child');
-  if (nav) {
-    nav.innerHTML = `
-      <a href="/upload">Upload</a>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/pricing.html">Pricing</a>
-      <a href="/login">Login</a>
-    `;
-  }
-}
 
 // Global checkout — optional job_id for preview funnel (Stripe metadata).
 window.startCheckout = async function (plan, ev, jobId) {
-  const clickEv = ev || (typeof globalThis !== 'undefined' && globalThis.event) || null;
+  const clickEv = ev || (typeof globalThis !== "undefined" && globalThis.event) || null;
   const button = clickEv?.target;
-  let originalText = '';
+  let originalText = "";
   try {
     const user = await getCurrentUser();
-    const body = { plan: plan || 'single' };
+    const body = { plan: plan || "single" };
     if (user?.email) {
       body.customer_email = user.email;
     }
@@ -71,37 +60,37 @@ window.startCheckout = async function (plan, ev, jobId) {
 
     if (button) {
       originalText = button.textContent;
-      button.textContent = 'Processing...';
+      button.textContent = "Processing...";
       button.disabled = true;
     }
 
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = { "Content-Type": "application/json" };
     const session = await getSession();
     if (session?.access_token) {
-      headers.Authorization = 'Bearer ' + session.access_token;
+      headers.Authorization = "Bearer " + session.access_token;
     }
 
-    const response = await fetch('/.netlify/functions/create-checkout-session', {
-      method: 'POST',
+    const response = await fetch("/.netlify/functions/create-checkout-session", {
+      method: "POST",
       headers,
       body: JSON.stringify(body),
     });
-    
+
     const data = await response.json();
-    
+
     if (data.url) {
       window.location.href = data.url;
     } else {
-      alert('Failed to create checkout session: ' + (data.error || 'Unknown error'));
+      alert("Failed to create checkout session: " + (data.error || "Unknown error"));
       if (button) {
         button.textContent = originalText;
         button.disabled = false;
       }
     }
   } catch (error) {
-    alert('Failed to start checkout: ' + error.message);
+    alert("Failed to start checkout: " + error.message);
     if (button) {
-      button.textContent = button.getAttribute('data-original-text') || 'Try Again';
+      button.textContent = button.getAttribute("data-original-text") || "Try Again";
       button.disabled = false;
     }
   }
