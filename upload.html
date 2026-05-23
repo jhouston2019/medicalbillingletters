@@ -758,6 +758,12 @@
       }
     }
 
+    function formatLabel(str) {
+      return String(str || '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
     function renderStep3(data) {
       const hs = document.getElementById('step3-hardstop');
       const content = document.getElementById('step3-content');
@@ -788,7 +794,7 @@
       btnNext.style.opacity = '1';
       btnNext.style.display = '';
 
-      const errTypes = (data.errorTypes || []).join(', ') || '—';
+      const errTypes = (data.errorTypes || []).map(formatLabel).join(', ') || '—';
       const errTypeEl = document.getElementById('analysis-error-type');
       if (errTypeEl) errTypeEl.textContent = errTypes;
 
@@ -857,7 +863,7 @@
         const t = document.createElement('div');
         t.style.fontWeight = '700';
         t.style.color = '#0f172a';
-        t.textContent = err.type || 'Issue';
+        t.textContent = formatLabel(err.type || 'Issue');
         const d = document.createElement('div');
         d.style.color = '#64748b';
         d.style.marginTop = '0.5rem';
@@ -866,7 +872,38 @@
         meta.style.fontSize = '0.85rem';
         meta.style.color = '#64748b';
         meta.style.marginTop = '0.5rem';
-        meta.textContent = [err.cptCode ? 'CPT: ' + err.cptCode : '', err.amount != null ? 'Amount: ' + err.amount : '', err.confidence || ''].filter(Boolean).join(' · ');
+        meta.style.display = 'flex';
+        meta.style.flexWrap = 'wrap';
+        meta.style.alignItems = 'center';
+        meta.style.gap = '0.5rem';
+        if (err.cptCode) {
+          const cpt = document.createElement('span');
+          cpt.textContent = 'CPT: ' + err.cptCode;
+          meta.appendChild(cpt);
+        }
+        if (err.amount != null) {
+          const amt = document.createElement('span');
+          amt.textContent = 'Amount: ' + err.amount;
+          meta.appendChild(amt);
+        }
+        if (err.confidence) {
+          const badge = document.createElement('span');
+          const conf = String(err.confidence).toLowerCase();
+          badge.textContent = formatLabel(conf);
+          badge.style.cssText =
+            'display:inline-block; padding:0.15rem 0.5rem; border-radius:999px; font-size:0.75rem; font-weight:600;';
+          if (conf === 'confirmed') {
+            badge.style.background = '#22c55e';
+            badge.style.color = '#ffffff';
+          } else if (conf === 'likely') {
+            badge.style.background = '#fbbf24';
+            badge.style.color = '#0f172a';
+          } else {
+            badge.style.background = '#94a3b8';
+            badge.style.color = '#ffffff';
+          }
+          meta.appendChild(badge);
+        }
         card.appendChild(t);
         card.appendChild(d);
         card.appendChild(meta);
