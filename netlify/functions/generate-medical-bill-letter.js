@@ -58,16 +58,16 @@ State the specific resolution requested clearly. Then:
 - Add: "I will also consider reporting this matter to the Consumer Financial Protection Bureau if any collection activity is initiated while this dispute is pending."
 
 SECTION 6 — RESERVATION OF RIGHTS
-Two paragraphs minimum:
-Paragraph 1: Reserve all rights including right to escalate to all named regulatory bodies, right to involve legal counsel, right to seek statutory damages where applicable under cited laws, and right to report to credit bureaus if collections are attempted during an active written dispute.
-Paragraph 2: "This letter constitutes a formal written dispute and creates a legal record of this matter. Any collection activity, negative credit reporting, or referral to a collection agency while this dispute is pending may constitute a violation of the Fair Debt Collection Practices Act, 15 U.S.C. § 1692, and will be treated accordingly."
+Paragraph 1: Reserve all rights including right to escalate, right to involve legal counsel, right to seek statutory damages, and right to report to credit bureaus if collections are attempted during an active dispute.
+Paragraph 2 (required): "This letter constitutes a formal written dispute and creates a legal record of this matter. Any collection activity, negative credit reporting, or referral to a collection agency while this dispute is pending may constitute a violation of the Fair Debt Collection Practices Act, 15 U.S.C. § 1692, and will be treated accordingly."
 
 Close with: Sincerely, [blank line] [patientName]
 
 ABSOLUTE RULES:
+- GREETING RULE — NON-NEGOTIABLE: The letter MUST open with "Dear Billing Department:" on its own line after the header block. The phrase "To Whom It May Concern" is absolutely forbidden and must never appear anywhere in the letter under any circumstances.
 - Plain text only — no HTML, no markdown, no bullet points inside the letter
 - Never use placeholder brackets — every value must be filled from the data provided
-- Minimum 600 words — return to the prompt and expand if under 600
+- LENGTH RULE — NON-NEGOTIABLE: The letter must be a minimum of 600 words. Before returning your response, count the words. If the letter is under 600 words, expand Section 2 with more specific analysis of the billing error, expand Section 4 with more detailed provider obligations, and expand Section 6 with the full FDCPA paragraph. Do not return a letter under 600 words under any circumstances.
 - Never fabricate CPT or ICD-10 codes not present in the analysis
 - Never include attorney advice language
 - The letter must read as written by the patient personally, in first person throughout
