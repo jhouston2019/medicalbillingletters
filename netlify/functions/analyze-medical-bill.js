@@ -547,9 +547,6 @@ exports.handler = async (event) => {
     const textExtractionFailed =
       !billTextLooksUsable(billText) || billText.startsWith("[Bill text could not be extracted");
 
-    console.log("[analyze-medical-bill] billTextLooksUsable:", billTextLooksUsable(billText));
-    console.log("[analyze-medical-bill] billText length:", billText.length);
-
     if (billText.length > MAX_TEXT) {
       billText = billText.slice(0, MAX_TEXT) + "\n[TRUNCATED]";
     }
