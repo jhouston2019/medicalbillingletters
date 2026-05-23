@@ -53,7 +53,7 @@ State the specific resolution requested clearly. Then:
 - Require written response within 10 business days
 - Demand production of complete itemized bill with CPT codes, ICD-10 codes, revenue codes, and provider NPI numbers within 10 business days
 - State that if billing errors are confirmed upon review of the itemized bill, an amended dispute will follow
-- Name the exact escalation paths: "Failure to respond will result in formal complaints filed with: (1) the [State] Department of Insurance, (2) the Centers for Medicare & Medicaid Services via the No Surprises Help Desk at 1-800-985-3059, and (3) the [State] Attorney General's consumer protection division."
+- State that failure to respond will result in formal complaints filed with: (1) the [State] Department of Insurance, (2) the Centers for Medicare & Medicaid Services, (3) the [State] Attorney General's consumer protection division. No phone numbers anywhere in the letter. CMS is referenced by name and title only.
 - Use the state from the analysis context if available; otherwise use "[State]" as placeholder
 - Add: "I will also consider reporting this matter to the Consumer Financial Protection Bureau if any collection activity is initiated while this dispute is pending."
 
