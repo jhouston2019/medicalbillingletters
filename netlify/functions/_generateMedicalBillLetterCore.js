@@ -3,7 +3,7 @@
  */
 
 const OpenAI = require("openai");
-const { LETTER_SYSTEM_PROMPT } = require("./_letterSystemPrompt");
+const { buildLetterSystemPrompt } = require("./_letterSystemPrompt");
 
 function parseMoneyStr(s) {
   const n = parseFloat(String(s || "").replace(/[^0-9.]/g, ""));
@@ -94,6 +94,9 @@ async function generateMedicalBillLetterFromWizard(body) {
           .join(" ")
       : patientName;
 
+  const stateLabel =
+    patientState && String(patientState).trim() ? String(patientState).trim() : "[Your State]";
+
   const userPayload = {
     letterDate: letterDate || null,
     strategy,
@@ -108,7 +111,7 @@ async function generateMedicalBillLetterFromWizard(body) {
     hasEOB,
     priorContact,
     resolutionAsk,
-    patientState: patientState || null,
+    patientState: stateLabel,
     specificChargesBlock: chargesLines,
     analysisSummary: analysis.summaryForUser,
     detectedErrors: errorsText,
@@ -122,7 +125,7 @@ async function generateMedicalBillLetterFromWizard(body) {
     temperature: 0.2,
     max_tokens: 8192,
     messages: [
-      { role: "system", content: LETTER_SYSTEM_PROMPT },
+      { role: "system", content: buildLetterSystemPrompt(patientState) },
       {
         role: "user",
         content: `Generate the full letter from this JSON:\n${JSON.stringify(userPayload)}`,

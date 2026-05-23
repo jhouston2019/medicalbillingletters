@@ -82,6 +82,7 @@ exports.handler = async (event) => {
     priorContact,
     letterDate,
     usageSessionId,
+    patientState,
   } = body;
 
   if (!analysis || !strategy) {
@@ -108,6 +109,7 @@ exports.handler = async (event) => {
     hasEOB,
     priorContact,
     letterDate: letterDate || null,
+    patientState,
   };
 
   const supabase = getSupabaseAdmin();
@@ -137,6 +139,7 @@ exports.handler = async (event) => {
         hasEOB,
         priorContact,
         letterDate: letterDate || null,
+        patientState,
       });
       previewText = previewFromLetter(letterFull, analysis);
     } catch (e) {
