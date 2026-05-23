@@ -377,7 +377,6 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || "{}");
-    console.log("ANALYZE RUNNING - ANONYMOUS OK");
     await verifyWizardAnalyzeAccess(event);
 
     const auth = await resolveAnalyzeAuth(event, body);
@@ -483,7 +482,11 @@ exports.handler = async (event) => {
       };
     }
 
-    const fileBuffer = Buffer.from(fileBase64, "base64");
+    const base64Payload =
+      typeof fileBase64 === "string"
+        ? fileBase64.replace(/^data:.+;base64,/, "")
+        : fileBase64;
+    const fileBuffer = Buffer.from(base64Payload, "base64");
     if (fileBuffer.length > 10 * 1024 * 1024) {
       return {
         statusCode: 400,
@@ -543,6 +546,9 @@ exports.handler = async (event) => {
 
     const textExtractionFailed =
       !billTextLooksUsable(billText) || billText.startsWith("[Bill text could not be extracted");
+
+    console.log("[analyze-medical-bill] billTextLooksUsable:", billTextLooksUsable(billText));
+    console.log("[analyze-medical-bill] billText length:", billText.length);
 
     if (billText.length > MAX_TEXT) {
       billText = billText.slice(0, MAX_TEXT) + "\n[TRUNCATED]";
